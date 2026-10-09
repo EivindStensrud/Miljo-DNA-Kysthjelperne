@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environmental Spatial Dashboard</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        primary: '#0ea5e9',
+                        sidebar: '#1e293b',
+                        sidebarItem: '#334155'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- PapaParse -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        .leaflet-popup-content-wrapper { border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+        .leaflet-popup-content { font-family: 'Inter', sans-serif; margin: 12px 16px; }
+        .leaflet-popup-title { font-weight: 600; font-size: 1.1rem; color: #1e293b; margin-bottom: 4px;}
+        .leaflet-popup-sub { font-size: 0.875rem; color: #64748b; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        
+        input[type="file"]::file-selector-button {
+            border: none;
+            background: #38bdf8;
+            color: #0f172a;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            margin-right: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        input[type="file"]::file-selector-button:hover { background: #7dd3fc; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 h-screen overflow-hidden flex font-sans">
+
+    <!-- Sidebar -->
+    <aside class="w-96 bg-sidebar text-slate-300 flex flex-col h-full z-10 shadow-xl flex-shrink-0">
+        <!-- Header -->
+        <div class="p-6 border-b border-slate-700 bg-slate-900">
+            <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Kysthjelperne
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">eDNA and nutrients data</p>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
+            
+            <!-- Data Upload Section -->
+            <section>
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Data Sources</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-200">1. Sample Data (CSV)</label>
+                        <input type="file" id="sampleData" accept=".csv, .txt" class="block w-full text-sm text-slate-400">
+                        <p class="text-xs text-slate-500 mt-1">Upload coordinates and sample info.</p>
+                    </div>
+                    
+                    <div class="opacity-75">
+                        <label class="block text-sm font-medium mb-1 text-slate-200">2. Nutrient Data (CSV)</label>
+                        <input type="file" id="nutrientData" accept=".csv" class="block w-full text-sm text-slate-400">
+                    </div>
+
+                    <div class="opacity-75">
+                        <label class="block text-sm font-medium mb-1 text-slate-200">3. eDNA Data (CSV)</label>
+                        <input type="file" id="ednaData" accept=".csv" class="block w-full text-sm text-slate-400">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters Section -->
+            <section>
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Filters</h2>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-slate-200">Date of Sampling (After)</label>
+                    <input type="date" id="dateFilter" class="w-full bg-slate-800 border border-slate-600 rounded-md py-2 px-3 text-sm text-white focus:outline-none focus:border-primary">
+                    <p class="text-xs text-slate-500 mt-1">Filters 'Tid og dato for prøvetakning'</p>
+                </div>
+            </section>
+
+            <!-- Map Layers -->
+            <section>
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Map Layers</h2>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="polygonToggle" class="form-checkbox h-5 w-5 text-primary rounded border-slate-600 bg-slate-800 focus:ring-primary focus:ring-offset-sidebar">
+                    <span class="text-sm text-slate-200">Show Species Threshold Polygons</span>
+                </label>
+            </section>
+
+            <!-- Analytics / Chart Section -->
+            <section id="analyticsSection" class="hidden flex-col h-64">
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Location Analytics</h2>
+                <p id="selectedLocationLabel" class="text-sm text-white font-medium mb-2">Select a point on the map</p>
+                <div class="flex-1 bg-slate-800 rounded-lg p-2 border border-slate-700 relative">
+                    <canvas id="locationChart"></canvas>
+                </div>
+            </section>
+            
+            <div id="noSelectionMsg" class="bg-slate-800/50 rounded-lg p-4 text-center border border-slate-700/50">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto text-slate-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                </svg>
+                <p class="text-sm text-slate-400">Click a map marker to view trend analytics for that location.</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content (Map) -->
+    <main class="flex-1 relative">
+        <div id="map" class="h-full w-full z-0"></div>
+        
+        <!-- Map loading overlay -->
+        <div id="mapLoader" class="hidden absolute inset-0 bg-white/80 z-[1000] flex flex-col items-center justify-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+            <p class="text-slate-600 font-medium">Processing Spatial Data...</p>
+        </div>
+    </main>
+
+    <!-- External JavaScript File -->
+    <script src="script.js"></script>
+</body>
+</html>
