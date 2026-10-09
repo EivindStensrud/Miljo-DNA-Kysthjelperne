@@ -149,35 +149,32 @@ window.handleMarkerClick = function(locationName) {
     generateMockChart(locationName);
 }
 
-// Automatically load the sanitized CSV from the repository on page load
-function loadDefaultServerData() {
-    // Replace 'safe_sampling_data.csv' with your exact filename if different
+// Automatically fetch and load the default server-side CSV on page load
+function loadServerData() {
     Papa.parse('safe_sampling_data.csv', {
         download: true,
         header: true,
-        delimiter: ';', // Adjust if your separator is a comma ','
+        delimiter: ';', // Matches your semicolon separation
         skipEmptyLines: true,
         complete: function(results) {
-            console.log("Default CSV loaded automatically:", results.data);
+            console.log("Automatic CSV load successful:", results.data);
             
-            // Pass this data directly into whatever function your dashboard 
-            // uses to draw markers and charts (e.g., processData or updateMap)
+            // Pass the parsed data directly into your existing dashboard function 
+            // (Replace 'processData' with whatever function name your script uses to draw markers/charts)
             processData(results.data);
         },
         error: function(err) {
-            console.error("Error auto-loading CSV:", err);
+            console.error("Error auto-loading CSV from server:", err);
         }
     });
 }
 
-// 2. Trigger it automatically when the page finishes loading
+// Trigger this automatically when the webpage finishes loading
 window.addEventListener('DOMContentLoaded', () => {
-    // Initialize your Leaflet map first
-    initMap();
-    
-    // Then automatically pull the data so points show up instantly
-    loadDefaultServerData();
+    initMap();         // Initializes your Leaflet map
+    loadServerData();  // Automatically loads your GitHub CSV data
 });
+
 function generateMockChart(locationName) {
     const ctx = document.getElementById('locationChart').getContext('2d');
     const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
