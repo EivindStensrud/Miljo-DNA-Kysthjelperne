@@ -149,6 +149,30 @@ window.handleMarkerClick = function(locationName) {
     generateMockChart(locationName);
 }
 
+// Automatically load the sanitized CSV from the repository on page load
+function loadDefaultData() {
+    Papa.parse('safe_sampling_data.csv', {
+        download: true,
+        header: true,
+        delimiter: ';', // Matches your semicolon separation
+        skipEmptyLines: true,
+        complete: function(results) {
+            console.log("Data loaded successfully:", results.data);
+            // Pass results.data into your map marker rendering and chart functions here
+            processData(results.data);
+        },
+        error: function(error) {
+            console.error("Error fetching the CSV file:", error);
+        }
+    });
+}
+
+// Call this function when the window loads
+window.addEventListener('DOMContentLoaded', () => {
+    initMap();
+    loadDefaultData();
+});
+
 function generateMockChart(locationName) {
     const ctx = document.getElementById('locationChart').getContext('2d');
     const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
