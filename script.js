@@ -10,7 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initMap();
     setupEventListeners();
     createMockPolygonLayer();
-    loadServerData(); 
+    
+    // Set default filter dates: From 2025-01-01 to Today
+    document.getElementById('dateFrom').value = '2025-01-01';
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById('dateTo').value = todayStr;
+
+    loadServerData();
 });
 
 function initMap() {
@@ -30,7 +36,8 @@ function initMap() {
 
 function setupEventListeners() {
     document.getElementById('sampleData').addEventListener('change', handleSampleDataUpload);
-    document.getElementById('dateFilter').addEventListener('change', renderMarkers);
+    document.getElementById('dateFrom').addEventListener('change', renderMarkers);
+    document.getElementById('dateTo').addEventListener('change', renderMarkers);
 
     document.getElementById('polygonToggle').addEventListener('change', (e) => {
         if (e.target.checked) {
@@ -87,16 +94,24 @@ function handleSampleDataUpload(event) {
 
 function renderMarkers() {
     markersLayer.clearLayers();
-    const dateFilterVal = document.getElementById('dateFilter').value;
-    let filterDate = dateFilterVal ? new Date(dateFilterVal) : null;
+    
+    const fromVal = document.getElementById('dateFrom').value;
+    const toVal = document.getElementById('dateTo').value;
+    
+    let fromDate = fromVal ? new Date(fromVal) : null;
+    let toDate = toVal ? new Date(toVal) : null;
+    if (toDate) {
+        toDate.setHours(23, 59, 59, 999); // Include the entire end day
+    }
     
     let validPoints = 0;
     const bounds = L.latLngBounds();
 
     parsedSampleData.forEach(row => {
-        if (filterDate && row['Tid og dato for prøvetakning']) {
+        if (row['Tid og dato for prøvetakning']) {
             const rowDate = new Date(row['Tid og dato for prøvetakning']);
-            if (rowDate < filterDate) return;
+            if (fromDate && rowDate < fromDate) return;
+            if (toDate && rowDate > toDate) return;
         }
 
         const coordString = row['Koordinater'];
@@ -107,8 +122,8 @@ function renderMarkers() {
         if (latLng) {
             const marker = L.circleMarker([latLng.lat, latLng.lng], {
                 radius: 8,
-                fillColor: "#38bdf8", 
-                color: "#0284c7",     
+                fillColor: "#38bdf8", // Bright modern cyan/sky blue
+                color: "#0284c7",     // Deep professional border
                 weight: 2,
                 opacity: 1,
                 fillOpacity: 0.85
@@ -140,11 +155,12 @@ function renderMarkers() {
     });
 
     if (validPoints > 0) {
-        map.fitBounds(bounds, { 
-            padding: [40, 40], 
-            maxZoom: 11 
-        });
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 11 });
+    } else {
+        // Fallback view centered on Oslofjord if no points match
+        map.setView([59.35, 10.65], 10);
     }
+}
 
 function parseCoordinateString(str) {
     let cleanStr = str.replace(/['"()]/g, '').trim();
