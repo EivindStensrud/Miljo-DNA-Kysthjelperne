@@ -12,6 +12,9 @@ let stations = new Map();     // stationKey -> { key, name, area, lat, lng, samp
 let selectedStationKey = null;
 let stationChart = null;
 let monthlyChart = null;
+let topChart = null;
+let searchTerm = '';          // free-text search (station, area, sample ID, note)
+let groupRadiusM = 150;       // stations closer than this are merged into one marker
 
 const CSV_URL = './safe_sampling_data.csv';
 
@@ -80,6 +83,37 @@ function setupEventListeners() {
     document.getElementById('dateFrom').addEventListener('change', refreshAll);
     document.getElementById('dateTo').addEventListener('change', refreshAll);
 
+    // Search
+    const doSearch = () => {
+        searchTerm = document.getElementById('searchText').value.trim().toLowerCase();
+        selectedStationKey = null;
+        document.getElementById('analyticsSection').style.display = 'none';
+        document.getElementById('noSelectionMsg').style.display = 'block';
+        refreshAll(true);
+    };
+    document.getElementById('searchBtn').addEventListener('click', doSearch);
+    document.getElementById('searchText').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+    document.getElementById('clearSearchBtn').addEventListener('click', () => {
+        document.getElementById('searchText').value = '';
+        doSearch();
+    });
+
+    // Station grouping radius
+    const radius = document.getElementById('groupRadius');
+    radius.addEventListener('input', () => {
+        document.getElementById('groupRadiusLabel').textContent = radius.value + ' m';
+    });
+    radius.addEventListener('change', () => {
+        groupRadiusM = +radius.value;
+        stations = buildStations(allSamples, groupRadiusM);
+        if (selectedStationKey && !stations.has(selectedStationKey)) {
+            selectedStationKey = null;
+            document.getElementById('analyticsSection').style.display = 'none';
+            document.getElementById('noSelectionMsg').style.display = 'block';
+        }
+        refreshAll(false);
+    });
+
     document.getElementById('polygonToggle').addEventListener('change', (e) => {
         if (e.target.checked) map.addLayer(thresholdLayer);
         else map.removeLayer(thresholdLayer);
@@ -127,7 +161,7 @@ function ingestCsvText(text) {
         transformHeader: h => h.trim()
     });
     allSamples = buildSamples(result.data);
-    stations = buildStations(allSamples);
+    stations = buildStations(allSamples, groupRadiusM);
 
     // Default filter = full range of the data
     const dates = allSamples.map(s => s.date).filter(Boolean).sort();
@@ -138,7 +172,18 @@ function ingestCsvText(text) {
     selectedStationKey = null;
     document.getElementById('analyticsSection').style.display = 'none';
     document.getElementById('noSelectionMsg').style.display = 'block';
+    updateSearchSuggestions();
     refreshAll(true);
+}
+
+function updateSearchSuggestions() {
+    const dl = document.getElementById('stationNames');
+    dl.innerHTML = '';
+    [...stations.values()].map(st => st.name).sort((a, b) => a.localeCompare(b)).forEach(n => {
+        const o = document.createElement('option');
+        o.value = n;
+        dl.appendChild(o);
+    });
 }
 
 // ---------- Normalising rows ----------
@@ -178,24 +223,68 @@ function stationKeyFor(s) {
     return key;
 }
 
-function buildStations(samples) {
-    const map = new Map();
+function distanceM(lat1, lng1, lat2, lng2) {
+    const R = 6371000, rad = Math.PI / 180;
+    const dLat = (lat2 - lat1) * rad, dLng = (lng2 - lng1) * rad;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+// Two-step grouping:
+//  1) same (normalised) station name  -> one group
+//  2) groups whose positions lie within radiusM of each other -> merged (handles GPS jitter and
+//     inconsistent naming, e.g. "Sætre3n" vs "Sætre 3")
+function buildStations(samples, radiusM) {
+    const byName = new Map();
     samples.forEach(s => {
         const key = stationKeyFor(s);
-        s.stationKey = key;
-        if (!map.has(key)) map.set(key, { key, samples: [] });
-        map.get(key).samples.push(s);
+        if (!byName.has(key)) byName.set(key, { key, samples: [] });
+        byName.get(key).samples.push(s);
     });
-    map.forEach(st => {
-        st.name = mostCommon(st.samples.map(s => s.locale).filter(Boolean)) || '(unnamed)';
+    const groups = [...byName.values()];
+    groups.forEach(g => {
+        const lats = g.samples.map(s => s.lat).filter(v => v !== null);
+        const lngs = g.samples.map(s => s.lng).filter(v => v !== null);
+        g.lat = lats.length ? median(lats) : null;
+        g.lng = lngs.length ? median(lngs) : null;
+    });
+
+    const parent = groups.map((_, i) => i);
+    const find = i => (parent[i] === i ? i : (parent[i] = find(parent[i])));
+    if (radiusM > 0) {
+        for (let i = 0; i < groups.length; i++) {
+            if (groups[i].lat === null) continue;
+            for (let j = i + 1; j < groups.length; j++) {
+                if (groups[j].lat === null) continue;
+                if (distanceM(groups[i].lat, groups[i].lng, groups[j].lat, groups[j].lng) <= radiusM) {
+                    parent[find(j)] = find(i);
+                }
+            }
+        }
+    }
+
+    const merged = new Map();
+    groups.forEach((g, i) => {
+        const r = find(i);
+        if (!merged.has(r)) merged.set(r, { key: g.key, samples: [] });
+        merged.get(r).samples.push(...g.samples);
+    });
+
+    const out = new Map();
+    merged.forEach(st => {
+        st.samples.forEach(s => { s.stationKey = st.key; });
+        const names = st.samples.map(s => s.locale).filter(Boolean);
+        const descriptive = names.filter(n => n.replace(/[\s_\-?]/g, '').length > 3);   // prefer "Sætre 1" over "s1"
+        st.name = mostCommon(descriptive.length ? descriptive : names) || '(unnamed)';
+        st.aliases = [...new Set(names.map(n => n.trim()))].filter(n => n !== st.name);
         st.area = mostCommon(st.samples.map(s => s.area).filter(Boolean)) || '';
-        // Median position – robust against the occasional mistyped coordinate
         const lats = st.samples.map(s => s.lat).filter(v => v !== null);
         const lngs = st.samples.map(s => s.lng).filter(v => v !== null);
-        st.lat = lats.length ? median(lats) : null;
+        st.lat = lats.length ? median(lats) : null;   // median: robust against mistyped coordinates
         st.lng = lngs.length ? median(lngs) : null;
+        out.set(st.key, st);
     });
-    return map;
+    return out;
 }
 
 function mostCommon(arr) {
@@ -326,6 +415,12 @@ function getFilteredSamples() {
     const from = document.getElementById('dateFrom').value;   // 'YYYY-MM-DD' or ''
     const to = document.getElementById('dateTo').value;
     return allSamples.filter(s => {
+        if (searchTerm) {
+            const st = stations.get(s.stationKey);
+            const hay = [s.locale, s.area, s.sampleId, s.note, st ? st.name : '', st ? st.aliases.join(' ') : '']
+                .join(' ').toLowerCase();
+            if (!hay.includes(searchTerm)) return false;
+        }
         if (!s.date) return !from && !to;
         if (from && s.date < from) return false;
         if (to && s.date > to) return false;
@@ -336,6 +431,7 @@ function getFilteredSamples() {
 function refreshAll(fit) {
     const filtered = getFilteredSamples();
     renderMarkers(filtered, fit === true);
+    renderStats(filtered);
     renderMonthlyChart(filtered);
     if (selectedStationKey) showStation(selectedStationKey);
 }
@@ -389,6 +485,7 @@ function buildPopup(st, count, dates) {
     };
     add('leaflet-popup-title', st.name);
     if (st.area) add('leaflet-popup-sub', st.area);
+    if (st.aliases.length) add('text-xs text-gray-500', 'Also reported as: ' + st.aliases.slice(0, 4).join(', '));
     const info = add('text-xs text-gray-600 mt-2', '');
     info.textContent = `${count} sample${count === 1 ? '' : 's'}` +
         (dates.length ? ` · ${dates[0]} → ${dates[dates.length - 1]}` : '');
@@ -457,6 +554,8 @@ function showStation(key) {
     document.getElementById('selectedLocationLabel').textContent =
         `${st.name}${st.area ? ' – ' + st.area : ''}  (${samples.length} samples)`;
 
+    renderStationStats(samples);
+
     const withVol = samples.filter(s => s.date && s.volumeMl !== null && !s.isControl);
     if (stationChart) stationChart.destroy();
     stationChart = new Chart(document.getElementById('locationChart').getContext('2d'), {
@@ -505,6 +604,119 @@ function showStation(key) {
         }
         list.appendChild(li);
     });
+}
+
+// ---------- Statistics ----------
+const STANDARD_ML = 1200;   // 20 syringe pushes x 60 mL
+
+const dayNum = d => Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)) / 86400000;
+const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+
+// days between consecutive sampling dates at one station
+function intervalsDays(samples) {
+    const days = [...new Set(samples.map(s => s.date).filter(Boolean))].sort().map(dayNum);
+    const out = [];
+    for (let i = 1; i < days.length; i++) out.push(days[i] - days[i - 1]);
+    return out;
+}
+
+function statCard(label, value, sub) {
+    const d = document.createElement('div');
+    d.className = 'bg-slate-800 border border-slate-700 rounded-lg px-3 py-2';
+    const l = document.createElement('div');
+    l.className = 'text-[10px] uppercase tracking-wider text-slate-500';
+    l.textContent = label;
+    const v = document.createElement('div');
+    v.className = 'text-base font-semibold text-white leading-tight';
+    v.textContent = value;
+    d.append(l, v);
+    if (sub) {
+        const s = document.createElement('div');
+        s.className = 'text-[11px] text-slate-400';
+        s.textContent = sub;
+        d.appendChild(s);
+    }
+    return d;
+}
+
+function volumeStats(samples) {
+    const vols = samples.filter(s => s.volumeMl !== null && !s.isControl).map(s => s.volumeMl);
+    if (!vols.length) return null;
+    const below = vols.filter(v => v < STANDARD_ML).length;
+    return { n: vols.length, mean: mean(vols), median: median(vols), min: Math.min(...vols), max: Math.max(...vols), below };
+}
+
+function renderStats(filtered) {
+    const grid = document.getElementById('statsGrid');
+    grid.innerHTML = '';
+    if (!filtered.length) {
+        grid.appendChild(statCard('Samples', '0', 'nothing matches the current filters'));
+        if (topChart) { topChart.destroy(); topChart = null; }
+        return;
+    }
+
+    const perStation = new Map();
+    filtered.forEach(s => {
+        if (!perStation.has(s.stationKey)) perStation.set(s.stationKey, []);
+        perStation.get(s.stationKey).push(s);
+    });
+    const dates = filtered.map(s => s.date).filter(Boolean).sort();
+    const controls = filtered.filter(s => s.isControl).length;
+    const mapped = filtered.filter(s => s.lat !== null).length;
+    const counts = [...perStation.values()].map(a => a.length);
+    const intervals = [...perStation.values()].flatMap(intervalsDays);
+    const vol = volumeStats(filtered);
+
+    // "recent" = last 30 days of the whole data set
+    const allDates = allSamples.map(s => s.date).filter(Boolean).sort();
+    const latest = allDates[allDates.length - 1];
+    const recentCut = latest ? dayNum(latest) - 30 : 0;
+    const activeRecent = [...perStation.values()].filter(a => a.some(s => s.date && dayNum(s.date) >= recentCut)).length;
+
+    grid.append(
+        statCard('Samples', String(filtered.length), controls ? `incl. ${controls} control${controls > 1 ? 's' : ''}` : ''),
+        statCard('Stations', String(perStation.size), `median ${median(counts)} samples each`),
+        statCard('Period', dates.length ? `${dates[0]} →` : '–', dates.length ? dates[dates.length - 1] : ''),
+        statCard('Sampling interval', intervals.length ? `${Math.round(median(intervals))} days` : '–', intervals.length ? `median, same station (mean ${Math.round(mean(intervals))})` : ''),
+        statCard('Active last 30 d', String(activeRecent), latest ? `stations, up to ${latest}` : ''),
+        statCard('Mapped', `${Math.round(100 * mapped / filtered.length)} %`, `${filtered.length - mapped} without coordinates`),
+        statCard('Volume filtered', vol ? `${Math.round(vol.median)} mL` : '–', vol ? `median · mean ${Math.round(vol.mean)} · ${vol.min}–${vol.max}` : 'no volume data'),
+        statCard('Below 1200 mL', vol ? `${Math.round(100 * vol.below / vol.n)} %` : '–', vol ? `${vol.below} of ${vol.n} samples` : '')
+    );
+
+    // Top 10 stations by number of samples
+    chartDefaults();
+    const top = [...perStation.entries()].sort((a, b) => b[1].length - a[1].length).slice(0, 10);
+    if (topChart) topChart.destroy();
+    topChart = new Chart(document.getElementById('topStationsChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: top.map(([k]) => { const n = stations.get(k).name; return n.length > 22 ? n.slice(0, 21) + '…' : n; }),
+            datasets: [{ label: 'Samples', data: top.map(([, a]) => a.length), backgroundColor: '#10b981', borderRadius: 2 }]
+        },
+        options: {
+            indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(71,85,105,0.2)' } },
+                y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+            }
+        }
+    });
+}
+
+function renderStationStats(samples) {
+    const grid = document.getElementById('stationStats');
+    grid.innerHTML = '';
+    const dates = samples.map(s => s.date).filter(Boolean).sort();
+    const iv = intervalsDays(samples);
+    const vol = volumeStats(samples);
+    grid.append(
+        statCard('First sample', dates[0] || '–'),
+        statCard('Latest sample', dates[dates.length - 1] || '–'),
+        statCard('Interval', iv.length ? `${Math.round(median(iv))} days` : '–', iv.length ? 'median between samples' : ''),
+        statCard('Mean volume', vol ? `${Math.round(vol.mean)} mL` : '–', vol ? `${vol.below} of ${vol.n} below 1200 mL` : '')
+    );
 }
 
 // ---------- Placeholder polygon ----------
