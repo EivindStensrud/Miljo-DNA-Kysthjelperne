@@ -10,13 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initMap();
     setupEventListeners();
     createMockPolygonLayer();
-    loadServerData(); // Automatically fetch CSV from GitHub on startup
+    loadServerData(); 
 });
 
 function initMap() {
     map = L.map('map', {
         zoomControl: false
-    }).setView([59.5, 10.5], 8);
+    }).setView([59.35, 10.65], 10); 
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
@@ -106,12 +106,12 @@ function renderMarkers() {
         
         if (latLng) {
             const marker = L.circleMarker([latLng.lat, latLng.lng], {
-                radius: 7,
-                fillColor: "#0ea5e9",
-                color: "#fff",
+                radius: 8,
+                fillColor: "#38bdf8", 
+                color: "#0284c7",     
                 weight: 2,
                 opacity: 1,
-                fillOpacity: 0.8
+                fillOpacity: 0.85
             });
 
             const locName = row['Prøvetakningslokale'] || 'Unknown Location';
@@ -140,9 +140,11 @@ function renderMarkers() {
     });
 
     if (validPoints > 0) {
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+        map.fitBounds(bounds, { 
+            padding: [40, 40], 
+            maxZoom: 11 
+        });
     }
-}
 
 function parseCoordinateString(str) {
     let cleanStr = str.replace(/['"()]/g, '').trim();
