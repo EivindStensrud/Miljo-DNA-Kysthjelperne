@@ -107,6 +107,25 @@
                         <input type="date" id="dateTo" class="w-full bg-slate-800 border border-slate-600 rounded-md py-2 px-3 text-sm text-white focus:outline-none focus:border-primary">
                     </div>
                     <p class="text-xs text-slate-500">Filters 'Tid og dato for prøvetakning'</p>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-200">Search</label>
+                        <input type="text" id="searchText" list="stationNames" placeholder="Station, area, sample ID, comment…" autocomplete="off"
+                               class="w-full bg-slate-800 border border-slate-600 rounded-md py-2 px-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary">
+                        <datalist id="stationNames"></datalist>
+                        <div class="flex gap-2 mt-2">
+                            <button id="searchBtn" type="button" class="flex-1 bg-primary hover:bg-sky-400 text-slate-900 text-sm font-semibold py-1.5 rounded-md transition-colors">Search</button>
+                            <button id="clearSearchBtn" type="button" class="px-3 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm py-1.5 rounded-md transition-colors">Clear</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="flex justify-between text-sm font-medium mb-1 text-slate-200">
+                            <span>Group stations within</span><span id="groupRadiusLabel" class="text-primary">150 m</span>
+                        </label>
+                        <input type="range" id="groupRadius" min="0" max="500" step="25" value="150" class="w-full accent-sky-500">
+                        <p class="text-xs text-slate-500">Samples from the same station with slightly different GPS positions are merged into one marker. 0 = group by name only.</p>
+                    </div>
                 </div>
             </section>
 
@@ -117,6 +136,16 @@
                     <input type="checkbox" id="polygonToggle" class="form-checkbox h-5 w-5 text-primary rounded border-slate-600 bg-slate-800 focus:ring-primary focus:ring-offset-sidebar">
                     <span class="text-sm text-slate-200">Show Species Threshold Polygons</span>
                 </label>
+            </section>
+
+            <!-- Statistics -->
+            <section>
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Statistics</h2>
+                <div id="statsGrid" class="grid grid-cols-2 gap-2"></div>
+                <p class="text-xs text-slate-400 mt-4 mb-2">Most sampled stations</p>
+                <div class="bg-slate-800 rounded-lg p-2 border border-slate-700 relative h-60">
+                    <canvas id="topStationsChart"></canvas>
+                </div>
             </section>
 
             <!-- Overall activity -->
@@ -132,6 +161,7 @@
             <section id="analyticsSection" class="hidden flex-col">
                 <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Location Analytics</h2>
                 <p id="selectedLocationLabel" class="text-sm text-white font-medium mb-2">Select a point on the map</p>
+                <div id="stationStats" class="grid grid-cols-2 gap-2 mb-3"></div>
                 <div class="bg-slate-800 rounded-lg p-2 border border-slate-700 relative h-48">
                     <canvas id="locationChart"></canvas>
                 </div>
