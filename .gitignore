@@ -1,0 +1,9 @@
+# Ignore raw data and private python script
+# # 1. Ignore all CSV files anywhere in the repository by default
+*.csv
+
+# 2. Whitelist (allow) only CSV files that start with your safe naming convention
+!safe_sampling_data.csv
+
+__pycache__/
+.DS_Store
