@@ -150,29 +150,34 @@ window.handleMarkerClick = function(locationName) {
 }
 
 // Automatically load the sanitized CSV from the repository on page load
-function loadDefaultData() {
+function loadDefaultServerData() {
+    // Replace 'safe_sampling_data.csv' with your exact filename if different
     Papa.parse('safe_sampling_data.csv', {
         download: true,
         header: true,
-        delimiter: ';', // Matches your semicolon separation
+        delimiter: ';', // Adjust if your separator is a comma ','
         skipEmptyLines: true,
         complete: function(results) {
-            console.log("Data loaded successfully:", results.data);
-            // Pass results.data into your map marker rendering and chart functions here
+            console.log("Default CSV loaded automatically:", results.data);
+            
+            // Pass this data directly into whatever function your dashboard 
+            // uses to draw markers and charts (e.g., processData or updateMap)
             processData(results.data);
         },
-        error: function(error) {
-            console.error("Error fetching the CSV file:", error);
+        error: function(err) {
+            console.error("Error auto-loading CSV:", err);
         }
     });
 }
 
-// Call this function when the window loads
+// 2. Trigger it automatically when the page finishes loading
 window.addEventListener('DOMContentLoaded', () => {
+    // Initialize your Leaflet map first
     initMap();
-    loadDefaultData();
+    
+    // Then automatically pull the data so points show up instantly
+    loadDefaultServerData();
 });
-
 function generateMockChart(locationName) {
     const ctx = document.getElementById('locationChart').getContext('2d');
     const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
