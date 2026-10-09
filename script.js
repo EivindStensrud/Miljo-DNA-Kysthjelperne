@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMap();
     setupEventListeners();
     createMockPolygonLayer();
+    loadServerData(); // Automatically load CSV from GitHub repository
 });
 
 function initMap() {
@@ -19,7 +20,6 @@ function initMap() {
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Free public map tiles that work locally without server restrictions
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, and the GIS Community',
         maxZoom: 19
@@ -37,6 +37,27 @@ function setupEventListeners() {
             map.addLayer(thresholdLayer);
         } else {
             map.removeLayer(thresholdLayer);
+        }
+    });
+}
+
+// Automatically fetch and load the default server-side CSV on page load
+function loadServerData() {
+    showLoader(true);
+    Papa.parse('safe_sampling_data.csv', {
+        download: true,
+        header: true,
+        delimiter: ';',
+        skipEmptyLines: true,
+        complete: function(results) {
+            console.log("Automatic CSV load successful:", results.data);
+            parsedSampleData = results.data; // Store data in global state
+            renderMarkers();                 // Draw markers on map
+            showLoader(false);
+        },
+        error: function(err) {
+            console.error("Error auto-loading CSV from server:", err);
+            showLoader(false);
         }
     });
 }
@@ -128,15 +149,15 @@ function parseCoordinateString(str) {
     if (cleanStr.includes(',')) {
         const parts = cleanStr.split(',');
         if (parts.length === 2) {
-            const lat = parseFloat(parts[0].trim());
-            const lng = parseFloat(parts[1].trim());
+            const lat = parseFloat(parts[0].trim().replace(',', '.'));
+            const lng = parseFloat(parts[1].trim().replace(',', '.'));
             if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
         }
     }
     const spaceParts = cleanStr.split(/\s+/);
-    if (spaceParts.length === 2) {
-        const lat = parseFloat(spaceParts[0]);
-        const lng = parseFloat(spaceParts[1]);
+    if (spaceParts.length >= 2) {
+        const lat = parseFloat(spaceParts[0].replace(',', '.'));
+        const lng = parseFloat(spaceParts[1].replace(',', '.'));
         if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
     }
     return null; 
@@ -148,32 +169,6 @@ window.handleMarkerClick = function(locationName) {
     document.getElementById('selectedLocationLabel').textContent = locationName;
     generateMockChart(locationName);
 }
-
-// Automatically fetch and load the default server-side CSV on page load
-function loadServerData() {
-    Papa.parse('safe_sampling_data.csv', {
-        download: true,
-        header: true,
-        delimiter: ';', // Matches your semicolon separation
-        skipEmptyLines: true,
-        complete: function(results) {
-            console.log("Automatic CSV load successful:", results.data);
-            
-            // Pass the parsed data directly into your existing dashboard function 
-            // (Replace 'processData' with whatever function name your script uses to draw markers/charts)
-            processData(results.data);
-        },
-        error: function(err) {
-            console.error("Error auto-loading CSV from server:", err);
-        }
-    });
-}
-
-// Trigger this automatically when the webpage finishes loading
-window.addEventListener('DOMContentLoaded', () => {
-    initMap();         // Initializes your Leaflet map
-    loadServerData();  // Automatically loads your GitHub CSV data
-});
 
 function generateMockChart(locationName) {
     const ctx = document.getElementById('locationChart').getContext('2d');
