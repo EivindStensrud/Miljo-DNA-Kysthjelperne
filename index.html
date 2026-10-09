@@ -32,7 +32,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.js"></script>
     
     <!-- PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -88,7 +88,8 @@
                     <div>
                         <label class="block text-sm font-medium mb-1 text-slate-200">1. Sample Data (CSV)</label>
                         <input type="file" id="sampleData" accept=".csv, .txt" class="block w-full text-sm text-slate-400">
-                        <p class="text-xs text-slate-500 mt-1">Upload coordinates and sample info.</p>
+                        <p class="text-xs text-slate-500 mt-1">Loaded automatically from the repository; upload only to override.</p>
+                        <p id="dataStatus" class="text-xs mt-2 text-slate-400">Loading data…</p>
                     </div>
                 </div>
             </section>
@@ -99,7 +100,7 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium mb-1 text-slate-200">From Date</label>
-                        <input type="date" id="dateFrom" value="2025-01-01" class="w-full bg-slate-800 border border-slate-600 rounded-md py-2 px-3 text-sm text-white focus:outline-none focus:border-primary">
+                        <input type="date" id="dateFrom" class="w-full bg-slate-800 border border-slate-600 rounded-md py-2 px-3 text-sm text-white focus:outline-none focus:border-primary">
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1 text-slate-200">To Date</label>
@@ -118,20 +119,31 @@
                 </label>
             </section>
 
+            <!-- Overall activity -->
+            <section>
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Sampling Activity</h2>
+                <p class="text-xs text-slate-400 mb-2">Samples per month (all stations, selected period)</p>
+                <div class="bg-slate-800 rounded-lg p-2 border border-slate-700 relative h-44">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </section>
+
             <!-- Analytics / Chart Section -->
-            <section id="analyticsSection" class="hidden flex-col h-64">
+            <section id="analyticsSection" class="hidden flex-col">
                 <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Location Analytics</h2>
                 <p id="selectedLocationLabel" class="text-sm text-white font-medium mb-2">Select a point on the map</p>
-                <div class="flex-1 bg-slate-800 rounded-lg p-2 border border-slate-700 relative">
+                <div class="bg-slate-800 rounded-lg p-2 border border-slate-700 relative h-48">
                     <canvas id="locationChart"></canvas>
                 </div>
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mt-4 mb-1">Samples</h3>
+                <ul id="sampleList" class="text-xs max-h-56 overflow-y-auto custom-scrollbar pr-1"></ul>
             </section>
             
             <div id="noSelectionMsg" class="bg-slate-800/50 rounded-lg p-4 text-center border border-slate-700/50">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto text-slate-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
                 </svg>
-                <p class="text-sm text-slate-400">Click a map marker to view trend analytics for that location.</p>
+                <p class="text-sm text-slate-400">Click a map marker to view the sampling timeline for that station.</p>
             </div>
         </div>
     </aside>
