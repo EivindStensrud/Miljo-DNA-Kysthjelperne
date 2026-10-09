@@ -11,26 +11,26 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     createMockPolygonLayer();
     
-    // Set default filter dates: From 2025-01-01 to Today
-    document.getElementById('dateFrom').value = '2025-01-01';
+    // Set default To Date to today
     const todayStr = new Date().toISOString().split('T')[0];
     document.getElementById('dateTo').value = todayStr;
 
+    // Automatically load CSV from repository root
     loadServerData();
 });
 
 function initMap() {
-    // Default view centered precisely on the Oslofjord region
+    // Default view centered on Oslofjord
     map = L.map('map', {
         zoomControl: false
-    }).setView([59.35, 10.65], 10);
+    }).setView([59.35, 10.65], 9);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Reliable standard OpenStreetMap tiles to guarantee background renders online without grey gaps
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19
+    // Free public Esri World Street Map (works locally and online without API keys or 403 errors)
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, and the GIS Community',
+        maxZoom: 17
     }).addTo(map);
 
     markersLayer.addTo(map);
@@ -50,16 +50,16 @@ function setupEventListeners() {
     });
 }
 
-// Automatically fetch and load default server CSV
 function loadServerData() {
     showLoader(true);
-    Papa.parse('safe_sampling_data.csv', {
+    // Explicit relative path for GitHub Pages
+    Papa.parse('./safe_sampling_data.csv', {
         download: true,
         header: true,
         delimiter: ';',
         skipEmptyLines: true,
         complete: function(results) {
-            console.log("Automatic CSV load successful:", results.data);
+            console.log("Automatic CSV load successful:", results.data.length, "rows");
             parsedSampleData = results.data;
             renderMarkers();
             showLoader(false);
@@ -76,7 +76,6 @@ function handleSampleDataUpload(event) {
     if (!file) return;
 
     showLoader(true);
-
     Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
@@ -88,7 +87,7 @@ function handleSampleDataUpload(event) {
         },
         error: function(err) {
             console.error("Error parsing CSV:", err);
-            alert("Failed to parse CSV file. Ensure it is semicolon delimited.");
+            alert("Failed to parse CSV file.");
             showLoader(false);
         }
     });
@@ -163,20 +162,19 @@ function renderMarkers() {
     }
 }
 
-// Robust coordinate parser handling Decimal, DMS, and UTM formats
 function parseCoordinateString(str) {
     if (!str || typeof str !== 'string') return null;
     let clean = str.trim();
     if (clean.startsWith('http')) return null;
 
-    // 1. Decimal degrees (with or without brackets, commas, or spaces)
+    // Decimal degrees
     let decMatch = clean.replace(/['"()]/g, '').replace('/', ',').split(/[,;\s]+/);
     let nums = decMatch.map(p => parseFloat(p.replace(',', '.'))).filter(n => !isNaN(n));
     if (nums.length >= 2 && Math.abs(nums[0]) <= 90 && Math.abs(nums[1]) <= 180) {
         return { lat: nums[0], lng: nums[1] };
     }
 
-    // 2. DMS format (e.g., 59°53'21"N 10°35'36"E)
+    // DMS format
     let dmsLat = clean.match(/([0-9.]+)[°:\s]+([0-9.]+)?[''′:\s]*([0-9.]+)?["″]?\s*([NS])/i);
     let dmsLon = clean.match(/([0-9.]+)[°:\s]+([0-9.]+)?[''′:\s]*([0-9.]+)?["″]?\s*([EØW])/i);
     if (dmsLat && dmsLon) {
