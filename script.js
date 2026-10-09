@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMap();
     setupEventListeners();
     createMockPolygonLayer();
-    loadServerData(); // Automatically load CSV from GitHub repository
+    loadServerData(); // Automatically fetch CSV from GitHub on startup
 });
 
 function initMap() {
@@ -51,8 +51,8 @@ function loadServerData() {
         skipEmptyLines: true,
         complete: function(results) {
             console.log("Automatic CSV load successful:", results.data);
-            parsedSampleData = results.data; // Store data in global state
-            renderMarkers();                 // Draw markers on map
+            parsedSampleData = results.data;
+            renderMarkers();
             showLoader(false);
         },
         error: function(err) {
