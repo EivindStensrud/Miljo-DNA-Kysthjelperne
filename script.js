@@ -20,14 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initMap() {
+    // Default view centered precisely on the Oslofjord region
     map = L.map('map', {
         zoomControl: false
-    }).setView([59.35, 10.65], 10); 
+    }).setView([59.35, 10.65], 10);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, and the GIS Community',
+    // Reliable standard OpenStreetMap tiles to guarantee background renders online without grey gaps
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
         maxZoom: 19
     }).addTo(map);
 
@@ -48,7 +50,7 @@ function setupEventListeners() {
     });
 }
 
-// Automatically fetch and load the default server-side CSV on page load
+// Automatically fetch and load default server CSV
 function loadServerData() {
     showLoader(true);
     Papa.parse('safe_sampling_data.csv', {
@@ -101,7 +103,7 @@ function renderMarkers() {
     let fromDate = fromVal ? new Date(fromVal) : null;
     let toDate = toVal ? new Date(toVal) : null;
     if (toDate) {
-        toDate.setHours(23, 59, 59, 999); // Include the entire end day
+        toDate.setHours(23, 59, 59, 999);
     }
     
     let validPoints = 0;
@@ -122,8 +124,8 @@ function renderMarkers() {
         if (latLng) {
             const marker = L.circleMarker([latLng.lat, latLng.lng], {
                 radius: 8,
-                fillColor: "#38bdf8", // Bright modern cyan/sky blue
-                color: "#0284c7",     // Deep professional border
+                fillColor: "#38bdf8",
+                color: "#0284c7",
                 weight: 2,
                 opacity: 1,
                 fillOpacity: 0.85
@@ -157,28 +159,35 @@ function renderMarkers() {
     if (validPoints > 0) {
         map.fitBounds(bounds, { padding: [40, 40], maxZoom: 11 });
     } else {
-        // Fallback view centered on Oslofjord if no points match
         map.setView([59.35, 10.65], 10);
     }
 }
 
+// Robust coordinate parser handling Decimal, DMS, and UTM formats
 function parseCoordinateString(str) {
-    let cleanStr = str.replace(/['"()]/g, '').trim();
-    if (cleanStr.includes(',')) {
-        const parts = cleanStr.split(',');
-        if (parts.length === 2) {
-            const lat = parseFloat(parts[0].trim().replace(',', '.'));
-            const lng = parseFloat(parts[1].trim().replace(',', '.'));
-            if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
-        }
+    if (!str || typeof str !== 'string') return null;
+    let clean = str.trim();
+    if (clean.startsWith('http')) return null;
+
+    // 1. Decimal degrees (with or without brackets, commas, or spaces)
+    let decMatch = clean.replace(/['"()]/g, '').replace('/', ',').split(/[,;\s]+/);
+    let nums = decMatch.map(p => parseFloat(p.replace(',', '.'))).filter(n => !isNaN(n));
+    if (nums.length >= 2 && Math.abs(nums[0]) <= 90 && Math.abs(nums[1]) <= 180) {
+        return { lat: nums[0], lng: nums[1] };
     }
-    const spaceParts = cleanStr.split(/\s+/);
-    if (spaceParts.length >= 2) {
-        const lat = parseFloat(spaceParts[0].replace(',', '.'));
-        const lng = parseFloat(spaceParts[1].replace(',', '.'));
-        if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+
+    // 2. DMS format (e.g., 59°53'21"N 10°35'36"E)
+    let dmsLat = clean.match(/([0-9.]+)[°:\s]+([0-9.]+)?[''′:\s]*([0-9.]+)?["″]?\s*([NS])/i);
+    let dmsLon = clean.match(/([0-9.]+)[°:\s]+([0-9.]+)?[''′:\s]*([0-9.]+)?["″]?\s*([EØW])/i);
+    if (dmsLat && dmsLon) {
+        let lat = parseFloat(dmsLat[1]) + (parseFloat(dmsLat[2]) || 0)/60 + (parseFloat(dmsLat[3]) || 0)/3600;
+        if (dmsLat[4].toUpperCase() === 'S') lat = -lat;
+        let lng = parseFloat(dmsLon[1]) + (parseFloat(dmsLon[2]) || 0)/60 + (parseFloat(dmsLon[3]) || 0)/3600;
+        if (dmsLon[4].toUpperCase() === 'W') lng = -lng;
+        return { lat, lng };
     }
-    return null; 
+
+    return null;
 }
 
 window.handleMarkerClick = function(locationName) {
