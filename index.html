@@ -99,6 +99,16 @@
                 <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Filters</h2>
                 <div class="space-y-4">
                     <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-200">Show</label>
+                        <div id="modeButtons" class="grid grid-cols-3 gap-1 bg-slate-800 border border-slate-600 rounded-md p-1 text-xs font-semibold">
+                            <button type="button" data-mode="samples">True samples</button>
+                            <button type="button" data-mode="controls">Neg. controls</button>
+                            <button type="button" data-mode="all">All</button>
+                        </div>
+                        <p id="modeHint" class="text-xs text-slate-500 mt-1"></p>
+                    </div>
+
+                    <div>
                         <label class="block text-sm font-medium mb-1 text-slate-200">From Date</label>
                         <input type="date" id="dateFrom" class="w-full bg-slate-800 border border-slate-600 rounded-md py-2 px-3 text-sm text-white focus:outline-none focus:border-primary">
                     </div>
@@ -140,18 +150,34 @@
 
             <!-- Statistics -->
             <section>
-                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Statistics</h2>
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Statistics <span id="statsScope" class="normal-case font-normal text-slate-400">· true samples</span></h2>
                 <div id="statsGrid" class="grid grid-cols-2 gap-2"></div>
-                <p class="text-xs text-slate-400 mt-4 mb-2">Most sampled stations</p>
+                <p id="topStationsLabel" class="text-xs text-slate-400 mt-4 mb-2">Most sampled stations</p>
                 <div class="bg-slate-800 rounded-lg p-2 border border-slate-700 relative h-60">
                     <canvas id="topStationsChart"></canvas>
                 </div>
             </section>
 
+            <!-- Negative controls (kept out of all other statistics) -->
+            <section id="controlSection" style="display:none">
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-amber-500/80 mb-4 border-b border-slate-700 pb-2">Negative Controls</h2>
+                <p class="text-xs text-slate-400 mb-2">Sample IDs containing "N". Always shown here, whichever view is selected above.</p>
+                <div id="controlStatsGrid" class="grid grid-cols-2 gap-2"></div>
+                <div id="controlsChartWrap">
+                    <p class="text-xs text-slate-400 mt-4 mb-2">Controls per month</p>
+                    <div class="bg-slate-800 rounded-lg p-2 border border-slate-700 relative h-36">
+                        <canvas id="controlsChart"></canvas>
+                    </div>
+                </div>
+                <p id="controlSuspectHead" class="text-xs text-amber-400 mt-4 mb-1" style="display:none">Calls itself a negative control but the ID has no N – please add the N in the source data:</p>
+                <ul id="controlSuspectList" class="text-xs mb-2"></ul>
+                <ul id="controlList" class="text-xs max-h-48 overflow-y-auto custom-scrollbar pr-1 mt-3"></ul>
+            </section>
+
             <!-- Overall activity -->
             <section>
                 <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Sampling Activity</h2>
-                <p class="text-xs text-slate-400 mb-2">Samples per month (all stations, selected period)</p>
+                <p id="activityHint" class="text-xs text-slate-400 mb-2">Per month, selected period</p>
                 <div class="bg-slate-800 rounded-lg p-2 border border-slate-700 relative h-44">
                     <canvas id="monthlyChart"></canvas>
                 </div>
@@ -165,6 +191,7 @@
                 <div class="bg-slate-800 rounded-lg p-2 border border-slate-700 relative h-48">
                     <canvas id="locationChart"></canvas>
                 </div>
+                <p class="text-[11px] text-slate-500 mt-1">Hollow point = no volume reported, 1200 mL assumed (20 × 60 mL).</p>
                 <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mt-4 mb-1">Samples</h3>
                 <ul id="sampleList" class="text-xs max-h-56 overflow-y-auto custom-scrollbar pr-1"></ul>
             </section>
