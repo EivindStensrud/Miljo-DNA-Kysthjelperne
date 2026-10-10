@@ -13,10 +13,24 @@ let selectedStationKey = null;
 let stationChart = null;
 let monthlyChart = null;
 let topChart = null;
+let controlsChart = null;
+let viewMode = 'samples';     // 'samples' (true samples) | 'controls' (negative controls) | 'all'
+const controlMarkersLayer = L.layerGroup();
 let searchTerm = '';          // free-text search (station, area, sample ID, note)
 let groupRadiusM = 150;       // stations closer than this are merged into one marker
 
 const CSV_URL = './safe_sampling_data.csv';
+
+// Negative controls are recognised by the sample ID: it contains an "N" (N2660, N-2664, "N 2670" ...).
+// Length limit: a few people typed a whole sentence into the ID field - that must not count as a control.
+const CONTROL_ID_REGEX = /N/i;
+const CONTROL_ID_MAX_LENGTH = 12;
+const isControlId = id => {
+    const t = (id || '').trim();
+    return t.length > 0 && t.length <= CONTROL_ID_MAX_LENGTH && CONTROL_ID_REGEX.test(t);
+};
+// Rows that SAY they are a negative control although the ID has no N (data-quality warning only)
+const CONTROL_WORDS = /negativ\s*(kontroll|prøve|test)|kontrollprøve/i;
 
 // Region sanity box (Oslofjord / Skagerrak coast). Anything outside is treated as a typo.
 const LAT_RANGE = [57.5, 61.5];
@@ -72,16 +86,30 @@ function initMap() {
         'Norwegian Sea Chart (Kartverket)': seaChart
     }, {
         'Sampling Points': markersLayer,
+        'Negative Controls': controlMarkersLayer,
         'Species Threshold Polygons': thresholdLayer
     }, { position: 'topright' }).addTo(map);
 
     markersLayer.addTo(map);
+    controlMarkersLayer.addTo(map);
 }
 
 function setupEventListeners() {
     document.getElementById('sampleData').addEventListener('change', handleSampleDataUpload);
     document.getElementById('dateFrom').addEventListener('change', refreshAll);
     document.getElementById('dateTo').addEventListener('change', refreshAll);
+
+    // View mode: true samples / negative controls / all
+    document.querySelectorAll('#modeButtons button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            viewMode = btn.dataset.mode;
+            selectedStationKey = null;
+            document.getElementById('analyticsSection').style.display = 'none';
+            document.getElementById('noSelectionMsg').style.display = 'block';
+            updateModeUI();
+            refreshAll(true);
+        });
+    });
 
     // Search
     const doSearch = () => {
@@ -105,7 +133,7 @@ function setupEventListeners() {
     });
     radius.addEventListener('change', () => {
         groupRadiusM = +radius.value;
-        stations = buildStations(allSamples, groupRadiusM);
+        stations = buildStations(regularSamples(), groupRadiusM);
         if (selectedStationKey && !stations.has(selectedStationKey)) {
             selectedStationKey = null;
             document.getElementById('analyticsSection').style.display = 'none';
@@ -158,10 +186,10 @@ function ingestCsvText(text) {
         header: true,
         delimiter: ';',
         skipEmptyLines: 'greedy',
-        transformHeader: h => h.trim()
+        transformHeader: h => h.trim().normalize('NFC')   // å can be stored as a + combining ring
     });
     allSamples = buildSamples(result.data);
-    stations = buildStations(allSamples, groupRadiusM);
+    stations = buildStations(regularSamples(), groupRadiusM);   // controls never become stations
 
     // Default filter = full range of the data
     const dates = allSamples.map(s => s.date).filter(Boolean).sort();
@@ -173,7 +201,27 @@ function ingestCsvText(text) {
     document.getElementById('analyticsSection').style.display = 'none';
     document.getElementById('noSelectionMsg').style.display = 'block';
     updateSearchSuggestions();
+    updateModeUI();
     refreshAll(true);
+}
+
+const regularSamples = () => allSamples.filter(s => !s.isControl);
+
+const MODE_TEXT = {
+    samples:  { scope: 'true samples',      hint: 'Negative controls are left out of the map and the statistics.' },
+    controls: { scope: 'negative controls', hint: 'Only samples with an N in the ID (negative controls).' },
+    all:      { scope: 'all, incl. controls', hint: 'True samples and negative controls together.' }
+};
+
+function updateModeUI() {
+    document.querySelectorAll('#modeButtons button').forEach(btn => {
+        const on = btn.dataset.mode === viewMode;
+        btn.className = 'py-1.5 rounded transition-colors ' +
+            (on ? (viewMode === 'controls' ? 'bg-amber-500 text-slate-900' : 'bg-primary text-slate-900')
+                : 'text-slate-300 hover:bg-slate-700');
+    });
+    document.getElementById('modeHint').textContent = MODE_TEXT[viewMode].hint;
+    document.getElementById('statsScope').textContent = '· ' + MODE_TEXT[viewMode].scope;
 }
 
 function updateSearchSuggestions() {
@@ -188,7 +236,7 @@ function updateSearchSuggestions() {
 
 // ---------- Normalising rows ----------
 function pick(row, prefix) {
-    for (const k in row) if (k.startsWith(prefix)) return (row[k] || '').trim();
+    for (const k in row) if (k.startsWith(prefix)) return (row[k] || '').trim().normalize('NFC');
     return '';
 }
 
@@ -197,7 +245,12 @@ function buildSamples(rows) {
         const dateTime = pick(row, 'Tid og dato for prøvetakning');
         const area = pick(row, 'Prøvetakningsområde');
         const locale = pick(row, 'Prøvetakningslokale');
-        const vol = parseVolume(pick(row, 'Antall mL'));
+        const rawVolume = pick(row, 'Antall mL');
+        const vol = parseVolume(rawVolume);
+        const control = isControlId(pick(row, 'Prøve ID'));
+        // No volume written -> 1200 mL. Not for controls (they have a lower volume) and not for rows that
+        // themselves say "negative control" (probably a control without N in the ID).
+        const assume = vol.missing && !control && !CONTROL_WORDS.test(`${rawVolume} ${locale} ${pick(row, 'Om annet')}`);
         const pos = parseCoordinate(pick(row, 'Koordinater'));
         return {
             idx: i,
@@ -208,8 +261,10 @@ function buildSamples(rows) {
             note: pick(row, 'Om annet'),
             lat: pos ? pos.lat : null,
             lng: pos ? pos.lng : null,
-            volumeMl: vol.ml,
-            isControl: vol.control || /negativ/i.test(locale)
+            volumeMl: assume ? DEFAULT_VOLUME_ML : vol.ml,
+            volumeAssumed: assume,
+            rawVolume,
+            isControl: control
         };
     });
 }
@@ -301,18 +356,36 @@ function median(arr) {
 }
 
 // ---------- Volume column ----------
-// Values look like "1200", "1200 mL", "900ml", "15 gjennomsprutninger", "vi gjorde 20", "Negativ kontroll".
-// One push of the syringe = 60 mL.
+// One push of the syringe = 60 mL; a full sample = 20 pushes = 1200 mL.
+//   * no volume written ("", "Ingen avvik", "ok")      -> 1200 mL assumed (regular samples only, see buildSamples)
+//   * a number <= 20 without unit ("20", "8", "Kun 13 ggr") -> that many pushes x 60 mL
+//   * a number with unit ("900ml", "600 mL")           -> mL
+//   * "12 x60 ml", "20 ganger 60", "3 gjennomsprutninger av 60 mL" -> pushes x mL per push
+//   * "7*60 =420 mL", "15 gjennomsprutninger = 900 ml" -> the stated total
+const ML_PER_PASS = 60;
+const MAX_PASSES = 20;
+const DEFAULT_VOLUME_ML = ML_PER_PASS * MAX_PASSES;   // 1200
+
 function parseVolume(str) {
-    const out = { ml: null, control: false };
-    if (!str) return out;
-    if (/negativ|kontroll/i.test(str)) { out.control = true; return out; }
-    let m = str.match(/(\d+)\s*m[lo]\b/i);           // "1200 mL", "1200ml", "1200 mo"
+    const out = { ml: null, missing: false };          // missing = nothing usable written
+    const t = (str || '').trim();
+    if (!t) { out.missing = true; return out; }
+    if (/ingen\s+filtrering|ikke\s+filtrert/i.test(t)) return out;        // explicitly nothing filtered: stays unknown
+
+    let m = t.match(/=\s*(\d+)\s*m[lo]\b/i);                               // stated total
     if (m) { out.ml = +m[1]; return out; }
-    m = str.match(/\d+/);
-    if (!m) return out;                                // "Ingen avvik", "ok"
+    m = t.match(/(\d+)\s*(?:[x×*]|ganger|ggr\.?)\s*(\d{2,3})(?!\d)/i);     // "12 x60 ml", "20 ganger 60"
+    if (m && +m[2] >= 20 && +m[2] <= 200) { out.ml = +m[1] * +m[2]; return out; }
+    m = t.match(/(\d+)\s*(?:gjennom\S*|spr\S*)\s*(?:av|à|a)\s*(\d+)\s*m[lo]\b/i);   // "3 gjennomsprutninger av 60 mL"
+    if (m) { out.ml = +m[1] * +m[2]; return out; }
+    m = t.match(/(\d+)\s*m[lo]\b/i);                                        // "1200 mL", "900ml", "1200 mo"
+    if (m) { out.ml = +m[1]; return out; }
+
+    m = t.match(/\d+/);
+    if (!m) { out.missing = true; return out; }                               // words only
     const n = +m[0];
-    out.ml = n <= 40 ? n * 60 : n;                     // small numbers = number of syringe pushes
+    const mentionsPushes = /gjennom|spr[uø]yt|spr[uø]t|skyll|ggr|ganger/i.test(t);
+    out.ml = (n <= MAX_PASSES || mentionsPushes) ? n * ML_PER_PASS : n;
     return out;
 }
 
@@ -430,48 +503,79 @@ function getFilteredSamples() {
 
 function refreshAll(fit) {
     const filtered = getFilteredSamples();
-    renderMarkers(filtered, fit === true);
-    renderStats(filtered);
-    renderMonthlyChart(filtered);
-    if (selectedStationKey) showStation(selectedStationKey);
+    const regular = filtered.filter(s => !s.isControl);
+    const controls = filtered.filter(s => s.isControl);
+    const active = viewMode === 'controls' ? controls : viewMode === 'all' ? filtered : regular;
+
+    setStatus(renderMarkers(regular, controls, fit === true), false);
+    renderStats(active, regular, controls);
+    renderMonthlyChart(regular, controls);
+    renderControls(controls, regular);
+    if (selectedStationKey && viewMode !== 'controls') showStation(selectedStationKey);
 }
 
 // ---------- Markers ----------
-function renderMarkers(filtered, fit) {
+function renderMarkers(regular, controls, fit) {
     markersLayer.clearLayers();
-
-    const perStation = new Map();
-    filtered.forEach(s => {
-        if (!perStation.has(s.stationKey)) perStation.set(s.stationKey, []);
-        perStation.get(s.stationKey).push(s);
-    });
-
+    controlMarkersLayer.clearLayers();
     const bounds = L.latLngBounds();
-    let mappedSamples = 0, unmappedSamples = 0, mappedStations = 0;
+    const parts = [];
 
-    perStation.forEach((samples, key) => {
-        const st = stations.get(key);
-        if (st.lat === null) { unmappedSamples += samples.length; return; }
-        mappedSamples += samples.length;
-        mappedStations++;
-
-        const marker = L.circleMarker([st.lat, st.lng], {
-            radius: 6 + Math.min(Math.sqrt(samples.length), 6),
-            fillColor: '#38bdf8', color: '#0284c7', weight: 2, opacity: 1, fillOpacity: 0.85
+    if (viewMode !== 'controls') {
+        const perStation = new Map();
+        regular.forEach(s => {
+            if (!perStation.has(s.stationKey)) perStation.set(s.stationKey, []);
+            perStation.get(s.stationKey).push(s);
         });
+        let unmapped = 0, mappedStations = 0;
+        perStation.forEach((samples, key) => {
+            const st = stations.get(key);
+            if (st.lat === null) { unmapped += samples.length; return; }
+            mappedStations++;
+            const marker = L.circleMarker([st.lat, st.lng], {
+                radius: 6 + Math.min(Math.sqrt(samples.length), 6),
+                fillColor: '#38bdf8', color: '#0284c7', weight: 2, opacity: 1, fillOpacity: 0.85
+            });
+            const dates = samples.map(s => s.date).filter(Boolean).sort();
+            marker.bindPopup(buildPopup(st, samples.length, dates));
+            marker.on('click', () => showStation(key));
+            markersLayer.addLayer(marker);
+            bounds.extend([st.lat, st.lng]);
+        });
+        parts.push(`${regular.length} samples · ${mappedStations} stations on map` +
+            (unmapped ? ` · ${unmapped} without coordinates` : ''));
+    }
 
-        const dates = samples.map(s => s.date).filter(Boolean).sort();
-        marker.bindPopup(buildPopup(st, samples.length, dates));
-        marker.on('click', () => showStation(key));
-        markersLayer.addLayer(marker);
-        bounds.extend([st.lat, st.lng]);
-    });
+    if (viewMode !== 'samples') {
+        let unmapped = 0, mapped = 0;
+        controls.forEach(c => {
+            if (c.lat === null) { unmapped++; return; }
+            mapped++;
+            const marker = L.circleMarker([c.lat, c.lng], {
+                radius: 7, fillColor: '#f59e0b', color: '#b45309', weight: 2, opacity: 1, fillOpacity: 0.9, dashArray: '3, 3'
+            });
+            marker.bindPopup(buildControlPopup(c));
+            controlMarkersLayer.addLayer(marker);
+            bounds.extend([c.lat, c.lng]);
+        });
+        parts.push(`${controls.length} negative controls · ${mapped} on map` + (unmapped ? ` · ${unmapped} without coordinates` : ''));
+    } else if (controls.length) {
+        parts.push(`${controls.length} negative controls hidden`);
+    }
 
     if (fit && bounds.isValid()) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 11 });
+    return parts.join(' · ') + ' (selected period)';
+}
 
-    setStatus(
-        `${filtered.length} samples in selected period · ${mappedStations} stations on map` +
-        (unmappedSamples ? ` · ${unmappedSamples} samples have no usable coordinates` : ''), false);
+function buildControlPopup(c) {
+    const wrap = document.createElement('div');
+    const add = (cls, text) => { const d = document.createElement('div'); d.className = cls; d.textContent = text; wrap.appendChild(d); };
+    add('leaflet-popup-title', `Negative control ${c.sampleId || ''}`.trim());
+    if (c.locale || c.area) add('leaflet-popup-sub', [c.locale, c.area].filter(Boolean).join(' – '));
+    add('text-xs text-gray-600 mt-2', [c.dateTime ? c.dateTime.replace('T', ' ') : 'unknown date',
+        c.volumeMl !== null ? `${c.volumeMl} mL` : 'no volume reported'].join(' · '));
+    if (c.note) add('text-xs text-gray-500 mt-1', c.note.length > 140 ? c.note.slice(0, 139) + '…' : c.note);
+    return wrap;
 }
 
 function buildPopup(st, count, dates) {
@@ -503,14 +607,10 @@ function chartDefaults() {
     Chart.defaults.font.family = "'Inter', sans-serif";
 }
 
-// Samples per month for the whole (filtered) data set
-function renderMonthlyChart(filtered) {
-    chartDefaults();
-    const counts = new Map();
-    filtered.forEach(s => { if (s.date) counts.set(s.date.slice(0, 7), (counts.get(s.date.slice(0, 7)) || 0) + 1); });
-
+// Continuous list of 'YYYY-MM' from the first to the last month (months without samples included)
+function monthLabels(keys) {
+    keys = [...keys].sort();
     const labels = [];
-    const keys = [...counts.keys()].sort();
     if (keys.length) {
         let [y, m] = keys[0].split('-').map(Number);
         const [ye, me] = keys[keys.length - 1].split('-').map(Number);
@@ -519,18 +619,39 @@ function renderMonthlyChart(filtered) {
             if (++m > 12) { m = 1; y++; }
         }
     }
-    const data = labels.map(l => counts.get(l) || 0);
+    return labels;
+}
+
+// Samples (and/or negative controls) per month, depending on the view mode
+function renderMonthlyChart(regular, controls) {
+    chartDefaults();
+    const bucket = list => {
+        const m = new Map();
+        list.forEach(s => { if (s.date) m.set(s.date.slice(0, 7), (m.get(s.date.slice(0, 7)) || 0) + 1); });
+        return m;
+    };
+    const series = [];
+    if (viewMode !== 'controls') series.push({ label: 'Samples', counts: bucket(regular), color: '#38bdf8' });
+    if (viewMode !== 'samples') series.push({ label: 'Negative controls', counts: bucket(controls), color: '#f59e0b' });
+    const labels = monthLabels(series.flatMap(x => [...x.counts.keys()]));
+    const stacked = series.length > 1;
+    document.getElementById('activityHint').textContent =
+        'Per month, selected period' + (viewMode === 'samples' ? ', excl. negative controls' : viewMode === 'controls' ? ', negative controls only' : ', stacked');
 
     if (monthlyChart) monthlyChart.destroy();
     monthlyChart = new Chart(document.getElementById('monthlyChart').getContext('2d'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: 'Samples', data, backgroundColor: '#38bdf8', borderRadius: 2 }] },
+        data: {
+            labels,
+            datasets: series.map(x => ({ label: x.label, data: labels.map(l => x.counts.get(l) || 0),
+                backgroundColor: x.color, borderRadius: 2, stack: 'months' }))
+        },
         options: {
             responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: { legend: { display: stacked, labels: { boxWidth: 10 } } },
             scales: {
-                x: { grid: { display: false }, ticks: { maxRotation: 60, autoSkip: true, maxTicksLimit: 8 } },
-                y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(71,85,105,0.2)' } }
+                x: { stacked, grid: { display: false }, ticks: { maxRotation: 60, autoSkip: true, maxTicksLimit: 8 } },
+                y: { stacked, beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(71,85,105,0.2)' } }
             }
         }
     });
@@ -566,7 +687,9 @@ function showStation(key) {
                 label: 'Filtered volume (mL)',
                 data: withVol.map(s => s.volumeMl),
                 borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.15)',
-                borderWidth: 2, tension: 0.2, pointRadius: 4, fill: true
+                borderWidth: 2, tension: 0.2, pointRadius: 4, fill: true,
+                pointBorderColor: '#38bdf8', pointBorderWidth: 2,
+                pointBackgroundColor: withVol.map(s => (s.volumeAssumed ? '#1e293b' : '#38bdf8'))   // hollow = assumed
             }]
         },
         options: {
@@ -591,7 +714,7 @@ function showStation(key) {
         d.textContent = s.dateTime ? s.dateTime.replace('T', ' ') : 'unknown date';
         const meta = document.createElement('span');
         meta.className = 'text-slate-400';
-        meta.textContent = [s.sampleId ? `ID ${s.sampleId}` : '', s.volumeMl !== null ? `${s.volumeMl} mL` : '',
+        meta.textContent = [s.sampleId ? `ID ${s.sampleId}` : '', s.volumeMl !== null ? `${s.volumeMl} mL${s.volumeAssumed ? ' (assumed)' : ''}` : '',
             s.isControl ? 'control' : ''].filter(Boolean).join(' · ');
         head.append(d, meta);
         li.appendChild(head);
@@ -640,32 +763,46 @@ function statCard(label, value, sub) {
 }
 
 function volumeStats(samples) {
-    const vols = samples.filter(s => s.volumeMl !== null && !s.isControl).map(s => s.volumeMl);
+    const vols = samples.filter(s => s.volumeMl !== null).map(s => s.volumeMl);
     if (!vols.length) return null;
     const below = vols.filter(v => v < STANDARD_ML).length;
-    return { n: vols.length, mean: mean(vols), median: median(vols), min: Math.min(...vols), max: Math.max(...vols), below };
+    const assumed = samples.filter(s => s.volumeAssumed).length;
+    return { n: vols.length, mean: mean(vols), median: median(vols), min: Math.min(...vols), max: Math.max(...vols), below, assumed };
 }
 
-function renderStats(filtered) {
+function renderStats(active, regular, controlSamples) {
     const grid = document.getElementById('statsGrid');
     grid.innerHTML = '';
-    if (!filtered.length) {
-        grid.appendChild(statCard('Samples', '0', 'nothing matches the current filters'));
+    const onlyControls = viewMode === 'controls';
+    const unit = onlyControls ? 'locations' : 'stations';
+    document.getElementById('topStationsLabel').textContent =
+        onlyControls ? 'Negative controls per location label' : 'Most sampled stations';
+
+    if (!active.length) {
+        grid.appendChild(statCard(onlyControls ? 'Negative controls' : 'Samples', '0', 'nothing matches the current filters'));
         if (topChart) { topChart.destroy(); topChart = null; }
         return;
     }
 
-    const perStation = new Map();
-    filtered.forEach(s => {
-        if (!perStation.has(s.stationKey)) perStation.set(s.stationKey, []);
-        perStation.get(s.stationKey).push(s);
+    // Group: true samples by station, controls by their location label (they are not stations)
+    const perStation = new Map(), names = new Map();
+    // in 'all' mode the station figures cover true samples only (controls are not stations)
+    (onlyControls ? active : active.filter(s => !s.isControl)).forEach(s => {
+        const label = (s.locale || s.area || '(no label)');
+        const key = s.isControl ? 'ctl|' + label.toLowerCase().replace(/[\s_\-]+/g, '') : s.stationKey;
+        if (!perStation.has(key)) {
+            perStation.set(key, []);
+            names.set(key, s.isControl ? label : (stations.get(key) ? stations.get(key).name : label));
+        }
+        perStation.get(key).push(s);
     });
-    const dates = filtered.map(s => s.date).filter(Boolean).sort();
-    const controls = filtered.filter(s => s.isControl).length;
-    const mapped = filtered.filter(s => s.lat !== null).length;
+
+    const dates = active.map(s => s.date).filter(Boolean).sort();
+    const mapped = active.filter(s => s.lat !== null).length;
     const counts = [...perStation.values()].map(a => a.length);
     const intervals = [...perStation.values()].flatMap(intervalsDays);
-    const vol = volumeStats(filtered);
+    const vol = volumeStats(active);
+    const nc = controlSamples.length;
 
     // "recent" = last 30 days of the whole data set
     const allDates = allSamples.map(s => s.date).filter(Boolean).sort();
@@ -673,26 +810,32 @@ function renderStats(filtered) {
     const recentCut = latest ? dayNum(latest) - 30 : 0;
     const activeRecent = [...perStation.values()].filter(a => a.some(s => s.date && dayNum(s.date) >= recentCut)).length;
 
+    const sampleSub = viewMode === 'samples' ? (nc ? `excl. ${nc} negative control${nc > 1 ? 's' : ''}` : 'no negative controls in period')
+        : viewMode === 'controls' ? `${regular.length} true samples in same period` : `incl. ${nc} negative control${nc === 1 ? '' : 's'}`;
+
     grid.append(
-        statCard('Samples', String(filtered.length), controls ? `incl. ${controls} control${controls > 1 ? 's' : ''}` : ''),
-        statCard('Stations', String(perStation.size), `median ${median(counts)} samples each`),
+        statCard(onlyControls ? 'Negative controls' : 'Samples', String(active.length), sampleSub),
+        statCard(onlyControls ? 'Locations' : 'Stations', String(perStation.size), `median ${median(counts)} ${onlyControls ? 'controls' : 'samples'} each`),
         statCard('Period', dates.length ? `${dates[0]} →` : '–', dates.length ? dates[dates.length - 1] : ''),
-        statCard('Sampling interval', intervals.length ? `${Math.round(median(intervals))} days` : '–', intervals.length ? `median, same station (mean ${Math.round(mean(intervals))})` : ''),
-        statCard('Active last 30 d', String(activeRecent), latest ? `stations, up to ${latest}` : ''),
-        statCard('Mapped', `${Math.round(100 * mapped / filtered.length)} %`, `${filtered.length - mapped} without coordinates`),
+        statCard(onlyControls ? 'Control interval' : 'Sampling interval', intervals.length ? `${Math.round(median(intervals))} days` : '–',
+            intervals.length ? `median, same ${onlyControls ? 'location' : 'station'} (mean ${Math.round(mean(intervals))})` : ''),
+        statCard('Active last 30 d', String(activeRecent), latest ? `${unit}, up to ${latest}` : ''),
+        statCard('Mapped', `${Math.round(100 * mapped / active.length)} %`, `${active.length - mapped} without coordinates`),
         statCard('Volume filtered', vol ? `${Math.round(vol.median)} mL` : '–', vol ? `median · mean ${Math.round(vol.mean)} · ${vol.min}–${vol.max}` : 'no volume data'),
-        statCard('Below 1200 mL', vol ? `${Math.round(100 * vol.below / vol.n)} %` : '–', vol ? `${vol.below} of ${vol.n} samples` : '')
+        statCard('Below 1200 mL', vol ? `${Math.round(100 * vol.below / vol.n)} %` : '–',
+            vol ? `${vol.below} of ${vol.n}${vol.assumed ? ` · ${vol.assumed} had no volume (1200 assumed)` : ''}` : '')
     );
 
-    // Top 10 stations by number of samples
+    // Top 10 groups by number of samples
     chartDefaults();
     const top = [...perStation.entries()].sort((a, b) => b[1].length - a[1].length).slice(0, 10);
     if (topChart) topChart.destroy();
     topChart = new Chart(document.getElementById('topStationsChart').getContext('2d'), {
         type: 'bar',
         data: {
-            labels: top.map(([k]) => { const n = stations.get(k).name; return n.length > 22 ? n.slice(0, 21) + '…' : n; }),
-            datasets: [{ label: 'Samples', data: top.map(([, a]) => a.length), backgroundColor: '#10b981', borderRadius: 2 }]
+            labels: top.map(([k]) => { const n = names.get(k); return n.length > 22 ? n.slice(0, 21) + '…' : n; }),
+            datasets: [{ label: onlyControls ? 'Controls' : 'Samples', data: top.map(([, a]) => a.length),
+                backgroundColor: onlyControls ? '#f59e0b' : '#10b981', borderRadius: 2 }]
         },
         options: {
             indexAxis: 'y', responsive: true, maintainAspectRatio: false,
@@ -705,6 +848,90 @@ function renderStats(filtered) {
     });
 }
 
+// ---------- Negative controls (separate statistics) ----------
+function renderControls(controls, regular) {
+    const grid = document.getElementById('controlStatsGrid');
+    const list = document.getElementById('controlList');
+    grid.innerHTML = '';
+    list.innerHTML = '';
+    chartDefaults();
+
+    const dates = controls.map(s => s.date).filter(Boolean).sort();
+    const iv = intervalsDays(controls);
+    const vols = controls.filter(s => s.volumeMl !== null).map(s => s.volumeMl);
+    const total = controls.length + regular.length;
+    const suspects = regular.filter(s => CONTROL_WORDS.test(`${s.rawVolume} ${s.locale} ${s.note}`));
+    const regVols = regular.filter(s => s.volumeMl !== null && !s.volumeAssumed).map(s => s.volumeMl);
+
+    grid.append(
+        statCard('Controls', String(controls.length), total ? `${(100 * controls.length / total).toFixed(1)} % of all samples` : ''),
+        statCard('Samples per control', controls.length ? (regular.length / controls.length).toFixed(1) : '–', 'regular samples / control'),
+        statCard('Period', dates.length ? `${dates[0]} →` : '–', dates.length ? dates[dates.length - 1] : ''),
+        statCard('Interval', iv.length ? `${Math.round(median(iv))} days` : '–', iv.length ? 'median between controls' : ''),
+        statCard('Volume reported', vols.length ? `${Math.round(median(vols))} mL` : '–', vols.length ? `median of ${vols.length} controls` + (regVols.length ? ` · regular ${Math.round(median(regVols))} mL` : '') : 'no numeric volumes')
+    );
+    if (suspects.length) {
+        const c = statCard('Check IDs', String(suspects.length),
+            'say "negative control" but ID has no N: ' + suspects.slice(0, 4).map(s => s.sampleId || '(no ID)').join(', '));
+        c.classList.add('border-amber-500/60');
+        grid.appendChild(c);
+    }
+
+    // samples that call themselves a negative control but have no N in the ID
+    const sl = document.getElementById('controlSuspectList');
+    sl.innerHTML = '';
+    document.getElementById('controlSuspectHead').style.display = suspects.length ? 'block' : 'none';
+    suspects.forEach(s => {
+        const li = document.createElement('li');
+        li.className = 'py-1 border-b border-amber-500/20 last:border-0 text-slate-300';
+        li.textContent = [s.date, s.sampleId ? `ID ${s.sampleId}` : '(no ID)', s.locale].filter(Boolean).join(' · ');
+        li.title = [s.rawVolume, s.note].filter(Boolean).join(' | ');
+        sl.appendChild(li);
+    });
+
+    document.getElementById('controlsChartWrap').style.display = viewMode === 'controls' ? 'none' : 'block';
+
+    // controls per month
+    const counts = new Map();
+    controls.forEach(s => { if (s.date) counts.set(s.date.slice(0, 7), (counts.get(s.date.slice(0, 7)) || 0) + 1); });
+    const labels = monthLabels([...counts.keys()]);
+    if (controlsChart) controlsChart.destroy();
+    controlsChart = new Chart(document.getElementById('controlsChart').getContext('2d'), {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Controls', data: labels.map(l => counts.get(l) || 0), backgroundColor: '#f59e0b', borderRadius: 2 }] },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { maxRotation: 60, autoSkip: true, maxTicksLimit: 8 } },
+                y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(71,85,105,0.2)' } }
+            }
+        }
+    });
+
+    // list, newest first
+    [...controls].sort((a, b) => (b.dateTime || '').localeCompare(a.dateTime || '')).forEach(s => {
+        const li = document.createElement('li');
+        li.className = 'py-1.5 border-b border-slate-700/60 last:border-0';
+        const head = document.createElement('div');
+        head.className = 'flex justify-between gap-2 text-slate-200';
+        const d = document.createElement('span');
+        d.textContent = s.date || 'unknown date';
+        const meta = document.createElement('span');
+        meta.className = 'text-slate-400';
+        meta.textContent = [s.sampleId ? `ID ${s.sampleId}` : '', s.volumeMl !== null ? `${s.volumeMl} mL` : ''].filter(Boolean).join(' · ');
+        head.append(d, meta);
+        li.appendChild(head);
+        const sub = document.createElement('div');
+        sub.className = 'text-slate-500 truncate';
+        sub.textContent = [s.locale, s.note].filter(Boolean).join(' – ');
+        sub.title = sub.textContent;
+        li.appendChild(sub);
+        list.appendChild(li);
+    });
+    document.getElementById('controlSection').style.display = controls.length || suspects.length ? 'block' : 'none';
+}
+
 function renderStationStats(samples) {
     const grid = document.getElementById('stationStats');
     grid.innerHTML = '';
@@ -715,7 +942,7 @@ function renderStationStats(samples) {
         statCard('First sample', dates[0] || '–'),
         statCard('Latest sample', dates[dates.length - 1] || '–'),
         statCard('Interval', iv.length ? `${Math.round(median(iv))} days` : '–', iv.length ? 'median between samples' : ''),
-        statCard('Mean volume', vol ? `${Math.round(vol.mean)} mL` : '–', vol ? `${vol.below} of ${vol.n} below 1200 mL` : '')
+        statCard('Mean volume', vol ? `${Math.round(vol.mean)} mL` : '–', vol ? `${vol.below} of ${vol.n} below 1200 mL${vol.assumed ? ` · ${vol.assumed} assumed` : ''}` : '')
     );
 }
 
