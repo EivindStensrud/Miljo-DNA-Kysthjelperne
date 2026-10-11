@@ -16,6 +16,7 @@ let topChart = null;
 let controlsChart = null;
 let viewMode = 'samples';     // 'samples' (true samples) | 'controls' (negative controls) | 'all'
 const controlMarkersLayer = L.layerGroup();
+const ednaLayer = L.layerGroup();
 let searchTerm = '';          // free-text search (station, area, sample ID, note)
 let groupRadiusM = 150;       // stations closer than this are merged into one marker
 
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     createMockPolygonLayer();
     loadServerData();
+    loadEdnaData();          // optional: eDNA project data (edna_samples.csv)
 });
 
 // ---------- Map ----------
@@ -87,17 +89,21 @@ function initMap() {
     }, {
         'Sampling Points': markersLayer,
         'Negative Controls': controlMarkersLayer,
+        'eDNA Project Samples': ednaLayer,
         'Species Threshold Polygons': thresholdLayer
     }, { position: 'topright' }).addTo(map);
 
     markersLayer.addTo(map);
     controlMarkersLayer.addTo(map);
+    ednaLayer.addTo(map);
 }
 
 function setupEventListeners() {
     document.getElementById('sampleData').addEventListener('change', handleSampleDataUpload);
     document.getElementById('dateFrom').addEventListener('change', refreshAll);
     document.getElementById('dateTo').addEventListener('change', refreshAll);
+
+    setupEdnaListeners();
 
     // View mode: true samples / negative controls / all
     document.querySelectorAll('#modeButtons button').forEach(btn => {
@@ -191,12 +197,7 @@ function ingestCsvText(text) {
     allSamples = buildSamples(result.data);
     stations = buildStations(regularSamples(), groupRadiusM);   // controls never become stations
 
-    // Default filter = full range of the data
-    const dates = allSamples.map(s => s.date).filter(Boolean).sort();
-    if (dates.length) {
-        document.getElementById('dateFrom').value = dates[0];
-        document.getElementById('dateTo').value = dates[dates.length - 1];
-    }
+    syncDateRange();
     selectedStationKey = null;
     document.getElementById('analyticsSection').style.display = 'none';
     document.getElementById('noSelectionMsg').style.display = 'block';
@@ -507,7 +508,11 @@ function refreshAll(fit) {
     const controls = filtered.filter(s => s.isControl);
     const active = viewMode === 'controls' ? controls : viewMode === 'all' ? filtered : regular;
 
-    setStatus(renderMarkers(regular, controls, fit === true), false);
+    const bounds = L.latLngBounds();
+    const sampleMsg = renderMarkers(regular, controls, bounds);
+    const ednaMsg = renderEdna(bounds);
+    if (fit === true && bounds.isValid()) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 11 });
+    setStatus(sampleMsg + ednaMsg, false);
     renderStats(active, regular, controls);
     renderMonthlyChart(regular, controls);
     renderControls(controls, regular);
@@ -515,10 +520,9 @@ function refreshAll(fit) {
 }
 
 // ---------- Markers ----------
-function renderMarkers(regular, controls, fit) {
+function renderMarkers(regular, controls, bounds) {
     markersLayer.clearLayers();
     controlMarkersLayer.clearLayers();
-    const bounds = L.latLngBounds();
     const parts = [];
 
     if (viewMode !== 'controls') {
@@ -563,7 +567,6 @@ function renderMarkers(regular, controls, fit) {
         parts.push(`${controls.length} negative controls hidden`);
     }
 
-    if (fit && bounds.isValid()) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 11 });
     return parts.join(' · ') + ' (selected period)';
 }
 
@@ -944,6 +947,463 @@ function renderStationStats(samples) {
         statCard('Interval', iv.length ? `${Math.round(median(iv))} days` : '–', iv.length ? 'median between samples' : ''),
         statCard('Mean volume', vol ? `${Math.round(vol.mean)} mL` : '–', vol ? `${vol.below} of ${vol.n} below 1200 mL${vol.assumed ? ` · ${vol.assumed} assumed` : ''}` : '')
     );
+}
+
+// =====================================================================
+// eDNA project data: metadata + water chemistry + species, pseudonymised samplers
+// =====================================================================
+const EDNA_SAMPLES_URL = './edna_samples.csv';
+const EDNA_SPECIES_URL = './edna_species_long.csv';
+const SAMPLER_SALT = 'kysthjelperne-sampler-v1';     // must equal HASH_SALT in build_edna_dataset.py
+const SAMPLER_ITERATIONS = 100000;                    // must equal PBKDF2_ITERATIONS in build_edna_dataset.py
+const MIN_SAMPLER_GROUP = 3;                          // samplers with fewer samples are not shown/compared
+const LOW_READS = 500;
+const GROUP_COLORS = { low: '#22c55e', normal: '#eab308', high: '#ef4444', '': '#94a3b8' };
+const SAMPLER_PALETTE = ['#38bdf8', '#f472b6', '#a78bfa', '#fb923c', '#34d399', '#facc15', '#60a5fa', '#f87171', '#2dd4bf', '#c084fc'];
+const EDNA_VARS = {
+    tn:       { label: 'Total N (mg/L)' },
+    toc:      { label: 'TOC (mg/L)' },
+    totp:     { label: 'Total P (µg/L)' },
+    salinity: { label: 'Salinity (‰)' },
+    cond:     { label: 'Conductivity (mS/cm)' }
+};
+
+let ednaSamples = [];
+let ednaLong = new Map();           // 'project|id' -> [{variant, taxon, reads}]
+let ednaColorMode = 'nutrient';     // 'nutrient' | 'sampler'
+let mySamplerHash = null;           // set only in memory, never stored or sent
+let ednaScatterChart = null;
+let ednaSpeciesChart = null;
+let selectedEdnaUid = null;
+
+const numOrNull = v => { const x = parseFloat(v); return Number.isFinite(x) ? x : null; };
+
+function parseEdnaRows(rows) {
+    return rows.filter(r => r.sample_id).map(r => ({
+        uid: `${r.project}|${r.sample_id}`, project: r.project, id: r.sample_id, type: r.sample_type || 'sample',
+        date: r.date || null, dateQuality: r.date_quality || '',
+        lat: numOrNull(r.lat), lng: numOrNull(r.lon), area: r.area || '',
+        push: numOrNull(r.push), volumeMl: numOrNull(r.volume_ml),
+        tn: numOrNull(r.tn_mgl), toc: numOrNull(r.toc_mgl), totp: numOrNull(r.totp_ugl), totpFlag: r.totp_flag || '',
+        cond: numOrNull(r.cond_mscm), salinity: numOrNull(r.salinity_ppt),
+        group: r.nutrient_group || '', qc: new Set((r.qc || '').split(';').filter(Boolean)),
+        hasMeta: r.has_meta === '1', variants: (r.seq_variants || '').split('|').filter(Boolean),
+        readsTotal: numOrNull(r.reads_total), readsIdent: numOrNull(r.reads_identified), richness: numOrNull(r.richness),
+        shannon: numOrNull(r.shannon), topTaxon: r.top_taxon || '', topShare: numOrNull(r.top_share),
+        seqFlag: r.seq_flag || '', sampler: r.sampler_hash || ''
+    }));
+}
+
+// Value used in statistics: flagged / unreliable values are left out, "<2" counts as half the detection limit.
+function ednaValue(s, key) {
+    if (key === 'richness') return s.richness !== null && !s.seqFlag.includes('reads') ? s.richness : null;
+    if (key === 'totp') {
+        if (s.totp !== null) return s.qc.has('totp') ? null : s.totp;
+        const loq = parseFloat((s.totpFlag || '').replace('<', ''));
+        return Number.isFinite(loq) ? loq / 2 : null;
+    }
+    return s[key] !== null && !s.qc.has(key) ? s[key] : null;
+}
+
+async function loadEdnaData() {
+    try {
+        const resp = await fetch(EDNA_SAMPLES_URL, { cache: 'no-cache' });
+        if (!resp.ok) return;                                  // no eDNA data published -> section stays hidden
+        const parse = t => Papa.parse(t.replace(/^\uFEFF/, ''), { header: true, delimiter: ';', skipEmptyLines: 'greedy' }).data;
+        ednaSamples = parseEdnaRows(parse(await resp.text()));
+        try {
+            const r2 = await fetch(EDNA_SPECIES_URL, { cache: 'no-cache' });
+            if (r2.ok) {
+                parse(await r2.text()).forEach(r => {
+                    const uid = `${r.project}|${r.sample_id}`;
+                    if (!ednaLong.has(uid)) ednaLong.set(uid, []);
+                    ednaLong.get(uid).push({ variant: r.variant, taxon: r.taxon, reads: +r.reads });
+                });
+            }
+        } catch (e) { console.warn('eDNA species table not loaded', e); }
+        const sel = document.getElementById('ednaProject');
+        sel.innerHTML = '';
+        ['all', ...new Set(ednaSamples.map(s => s.project))].forEach(p => {
+            const o = document.createElement('option');
+            o.value = p;
+            o.textContent = p === 'all' ? 'All projects' : p;
+            sel.appendChild(o);
+        });
+        syncDateRange();
+        refreshAll(true);
+    } catch (e) {
+        console.warn('eDNA data not loaded', e);
+    }
+}
+
+function syncDateRange() {
+    const dates = [...allSamples.map(s => s.date), ...ednaSamples.map(s => s.date)].filter(Boolean).sort();
+    if (dates.length) {
+        document.getElementById('dateFrom').value = dates[0];
+        document.getElementById('dateTo').value = dates[dates.length - 1];
+    }
+}
+
+// ---- sampler key -> hash (same maths as build_edna_dataset.py) ----------------------------------
+async function samplerHashFromKey(key) {
+    if (!globalThis.crypto || !crypto.subtle) throw new Error('This browser blocks the needed function on non-secure pages. Open the site via https.');
+    const norm = key.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const enc = new TextEncoder();
+    const base = await crypto.subtle.importKey('raw', enc.encode(norm), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt: enc.encode(SAMPLER_SALT), iterations: SAMPLER_ITERATIONS, hash: 'SHA-256' }, base, 128);
+    return [...new Uint8Array(bits)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const isMine = s => mySamplerHash !== null && s.sampler === mySamplerHash;
+const samplerLabel = h => (h ? '#' + h.slice(0, 4).toUpperCase() : 'unknown');
+
+function setupEdnaListeners() {
+    document.getElementById('ednaProject').addEventListener('change', () => { selectedEdnaUid = null; hideEdnaDetail(); refreshAll(true); });
+    document.getElementById('ednaScatterX').addEventListener('change', () => renderEdnaScatter(getFilteredEdna()));
+    document.getElementById('ednaToggle').addEventListener('change', e => {
+        if (e.target.checked) map.addLayer(ednaLayer); else map.removeLayer(ednaLayer);
+    });
+    document.querySelectorAll('input[name="ednaColor"]').forEach(r => r.addEventListener('change', e => {
+        ednaColorMode = e.target.value;
+        refreshAll(false);
+    }));
+    document.getElementById('onlyMine').addEventListener('change', () => refreshAll(true));
+    document.getElementById('ednaVariant').addEventListener('change', () => { if (selectedEdnaUid) showEdnaSample(selectedEdnaUid, true); });
+
+    const status = document.getElementById('mySamplerStatus');
+    const apply = async () => {
+        const key = document.getElementById('mySamplerKey').value.trim();
+        if (!key) return;
+        status.className = 'text-xs mt-2 text-slate-400';
+        status.textContent = 'Checking…';
+        try {
+            mySamplerHash = await samplerHashFromKey(key);
+            document.getElementById('mySamplerKey').value = '';          // do not keep the key on screen
+            const n = ednaSamples.filter(s => s.type === 'sample' && isMine(s)).length;
+            status.className = 'text-xs mt-2 ' + (n ? 'text-emerald-400' : 'text-amber-400');
+            status.textContent = n ? `Found ${n} of your samples (highlighted with a purple ring).`
+                                   : 'No samples match this key. Check the key and try again.';
+            if (!n) mySamplerHash = null;
+        } catch (err) {
+            mySamplerHash = null;
+            status.className = 'text-xs mt-2 text-red-400';
+            status.textContent = err.message;
+        }
+        refreshAll(false);
+    };
+    document.getElementById('mySamplerBtn').addEventListener('click', apply);
+    document.getElementById('mySamplerKey').addEventListener('keydown', e => { if (e.key === 'Enter') apply(); });
+    document.getElementById('mySamplerClear').addEventListener('click', () => {
+        mySamplerHash = null;
+        document.getElementById('onlyMine').checked = false;
+        status.textContent = '';
+        refreshAll(false);
+    });
+}
+
+// ---- filtering ------------------------------------------------------------------------------
+function getFilteredEdna() {
+    const from = document.getElementById('dateFrom').value, to = document.getElementById('dateTo').value;
+    const project = document.getElementById('ednaProject').value || 'all';
+    const onlyMine = document.getElementById('onlyMine').checked && mySamplerHash !== null;
+    return ednaSamples.filter(s => {
+        if (s.type !== 'sample') return false;
+        if (project !== 'all' && s.project !== project) return false;
+        if (onlyMine && !isMine(s)) return false;
+        if (searchTerm && !`${s.id} ${s.area} ${s.project} ${s.topTaxon}`.toLowerCase().includes(searchTerm)) return false;
+        if (!s.date) return true;                            // undated samples cannot be placed in time: keep them
+        return (!from || s.date >= from) && (!to || s.date <= to);
+    });
+}
+
+function samplerColor(hash, counts) {
+    if (!hash || (counts.get(hash) || 0) < MIN_SAMPLER_GROUP) return '#94a3b8';
+    const ranked = [...counts.entries()].filter(([, n]) => n >= MIN_SAMPLER_GROUP).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    const i = ranked.findIndex(([h]) => h === hash);
+    return SAMPLER_PALETTE[i % SAMPLER_PALETTE.length];
+}
+
+// ---- map ----------------------------------------------------------------------------------
+function renderEdna(bounds) {
+    ednaLayer.clearLayers();
+    const section = document.getElementById('ednaSection');
+    if (!ednaSamples.length) { section.style.display = 'none'; return ''; }
+    section.style.display = 'block';
+
+    const filtered = getFilteredEdna();
+    const counts = new Map();
+    ednaSamples.filter(s => s.type === 'sample' && s.sampler).forEach(s => counts.set(s.sampler, (counts.get(s.sampler) || 0) + 1));
+
+    let onMap = 0;
+    filtered.forEach(s => {
+        if (s.lat === null || s.lng === null) return;
+        onMap++;
+        const mine = isMine(s);
+        const fill = ednaColorMode === 'sampler' ? samplerColor(s.sampler, counts) : (GROUP_COLORS[s.group] || GROUP_COLORS['']);
+        const marker = L.circleMarker([s.lat, s.lng], {
+            radius: mine ? 10 : 6, fillColor: fill, color: mine ? '#e879f9' : '#ffffff',
+            weight: mine ? 4 : 2, opacity: 1, fillOpacity: 0.95
+        });
+        marker.bindPopup(buildEdnaPopup(s));
+        marker.on('click', () => showEdnaSample(s.uid));
+        ednaLayer.addLayer(marker);
+        bounds.extend([s.lat, s.lng]);
+    });
+
+    renderEdnaStats(filtered);
+    renderEdnaScatter(filtered);
+    renderSamplers(filtered);
+    if (selectedEdnaUid && !filtered.some(s => s.uid === selectedEdnaUid)) hideEdnaDetail();
+    return ` · ${filtered.length} eDNA samples (${onMap} on map)`;
+}
+
+function buildEdnaPopup(s) {
+    const wrap = document.createElement('div');
+    const add = (cls, text) => { const d = document.createElement('div'); d.className = cls; d.textContent = text; wrap.appendChild(d); };
+    add('leaflet-popup-title', `eDNA sample ${s.id}`);
+    add('leaflet-popup-sub', [s.project, s.date, s.area].filter(Boolean).join(' · '));
+    const chem = [['TN', ednaValue(s, 'tn')], ['TOC', ednaValue(s, 'toc')], ['Sal.', s.salinity]]
+        .filter(([, v]) => v !== null).map(([k, v]) => `${k} ${v}`).join(' · ');
+    if (chem) add('text-xs text-gray-600 mt-2', chem);
+    if (s.richness !== null) add('text-xs text-gray-600', `${s.richness} taxa · ${s.readsTotal} reads`);
+    if (isMine(s)) add('text-xs font-semibold text-fuchsia-600 mt-1', 'Your sample');
+    const btn = document.createElement('button');
+    btn.className = 'w-full bg-primary text-white text-xs font-semibold py-1.5 rounded hover:bg-sky-600 transition-colors mt-3';
+    btn.textContent = 'View details';
+    btn.addEventListener('click', () => showEdnaSample(s.uid));
+    wrap.appendChild(btn);
+    return wrap;
+}
+
+// ---- statistics ---------------------------------------------------------------------------
+function renderEdnaStats(filtered) {
+    const grid = document.getElementById('ednaStatsGrid');
+    grid.innerHTML = '';
+    if (!filtered.length) { grid.appendChild(statCard('Samples', '0', 'nothing matches the current filters')); return; }
+
+    const stat = key => {
+        const all = filtered.map(s => ednaValue(s, key)).filter(v => v !== null);
+        const excluded = filtered.filter(s => (key === 'richness' ? s.richness !== null : s[key] !== null) && ednaValue(s, key) === null).length;
+        return { n: all.length, med: all.length ? median(all) : null, excluded };
+    };
+    const num = v => (v === null ? '–' : (Math.abs(v) >= 100 ? v.toFixed(0) : +v.toPrecision(3)).toString());
+    const dates = filtered.map(s => s.date).filter(Boolean).sort();
+    const groups = { high: 0, normal: 0, low: 0 };
+    filtered.forEach(s => { if (groups[s.group] !== undefined) groups[s.group]++; });
+    const tn = stat('tn'), toc = stat('toc'), totp = stat('totp'), sal = stat('salinity'), rich = stat('richness');
+    const censored = filtered.filter(s => s.totpFlag).length;
+    const loqText = (filtered.find(s => s.totpFlag) || { totpFlag: '<2' }).totpFlag.replace('<', '');
+    const sub = st => `n=${st.n}${st.excluded ? ` · ${st.excluded} flagged left out` : ''}`;
+
+    grid.append(
+        statCard('Samples', String(filtered.length), `${filtered.filter(s => s.hasMeta).length} with date and position`),
+        statCard('Period', dates.length ? `${dates[0]} →` : '–', dates.length ? dates[dates.length - 1] : ''),
+        statCard('Nutrient groups', `${groups.high} / ${groups.normal} / ${groups.low}`, 'high / normal / low'),
+        statCard('Total N median', tn.med === null ? '–' : `${num(tn.med)} mg/L`, sub(tn)),
+        statCard('TOC median', toc.med === null ? '–' : `${num(toc.med)} mg/L`, sub(toc)),
+        statCard('Total P median', totp.med === null ? '–' : (censored * 2 > totp.n ? `<${loqText} µg/L` : `${num(totp.med)} µg/L`), `n=${totp.n}${censored ? ` · ${censored} below detection limit (counted as half)` : ''}`),
+        statCard('Salinity median', sal.med === null ? '–' : `${num(sal.med)} ‰`, `n=${sal.n}`),
+        statCard('Species richness', rich.med === null ? '–' : `${num(rich.med)} taxa`, `median, n=${rich.n}${rich.excluded ? ` · ${rich.excluded} with <${LOW_READS} reads left out` : ''}`)
+    );
+
+    // lab controls of the selected project(s): the contamination baseline
+    const project = document.getElementById('ednaProject').value || 'all';
+    ednaSamples.filter(s => s.type === 'negative_control' && (project === 'all' || s.project === project)).forEach(c => {
+        const card = statCard('Lab negative control', `${c.readsTotal ?? 0} reads`, `${c.richness ?? 0} taxa identified${project === 'all' ? ' · ' + c.project : ''}`);
+        card.classList.add('border-amber-500/60');
+        grid.appendChild(card);
+    });
+}
+
+function rankArray(a) {
+    const idx = a.map((v, i) => [v, i]).sort((x, y) => x[0] - y[0]);
+    const r = new Array(a.length);
+    for (let i = 0; i < idx.length;) {
+        let j = i;
+        while (j + 1 < idx.length && idx[j + 1][0] === idx[i][0]) j++;
+        for (let k = i; k <= j; k++) r[idx[k][1]] = (i + j) / 2 + 1;
+        i = j + 1;
+    }
+    return r;
+}
+function spearman(x, y) {
+    if (x.length < 4) return null;
+    const rx = rankArray(x), ry = rankArray(y), mx = mean(rx), my = mean(ry);
+    let sxy = 0, sxx = 0, syy = 0;
+    rx.forEach((v, i) => { sxy += (v - mx) * (ry[i] - my); sxx += (v - mx) ** 2; syy += (ry[i] - my) ** 2; });
+    return sxx && syy ? sxy / Math.sqrt(sxx * syy) : null;
+}
+
+function renderEdnaScatter(filtered) {
+    chartDefaults();
+    const key = document.getElementById('ednaScatterX').value || 'tn';
+    const pts = filtered.map(s => ({ s, x: ednaValue(s, key), y: ednaValue(s, 'richness') }))
+        .filter(p => p.x !== null && p.y !== null);
+    const sets = ['low', 'normal', 'high', ''].map(g => ({
+        label: g || 'no group',
+        data: pts.filter(p => p.s.group === g).map(p => ({ x: p.x, y: p.y, id: p.s.id })),
+        backgroundColor: GROUP_COLORS[g], pointRadius: 4
+    })).filter(d => d.data.length);
+    const rho = spearman(pts.map(p => p.x), pts.map(p => p.y));
+    document.getElementById('ednaScatterNote').textContent = pts.length
+        ? `n=${pts.length}${rho !== null ? ` · Spearman ρ = ${rho.toFixed(2)}` : ''} · flagged chemistry values and samples with <${LOW_READS} reads are left out. Richness depends on sequencing depth.`
+        : 'No samples with both values.';
+    if (ednaScatterChart) ednaScatterChart.destroy();
+    ednaScatterChart = new Chart(document.getElementById('ednaScatter').getContext('2d'), {
+        type: 'scatter',
+        data: { datasets: sets },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { boxWidth: 8, font: { size: 10 } } },
+                tooltip: { callbacks: { label: c => `#${c.raw.id}: ${c.raw.x}, ${c.raw.y} taxa` } }
+            },
+            scales: {
+                x: { title: { display: true, text: EDNA_VARS[key].label }, grid: { color: 'rgba(71,85,105,0.2)' } },
+                y: { beginAtZero: true, title: { display: true, text: 'Species richness (taxa)' }, grid: { color: 'rgba(71,85,105,0.2)' } }
+            }
+        }
+    });
+}
+
+// ---- sample detail ------------------------------------------------------------------------
+function hideEdnaDetail() {
+    selectedEdnaUid = null;
+    document.getElementById('ednaDetail').style.display = 'none';
+}
+
+function showEdnaSample(uid, keepVariant) {
+    const s = ednaSamples.find(x => x.uid === uid);
+    if (!s) return;
+    selectedEdnaUid = uid;
+    chartDefaults();
+    const box = document.getElementById('ednaDetail');
+    box.style.display = 'block';
+    document.getElementById('ednaDetailTitle').textContent = `eDNA sample ${s.id} · ${s.project}`;
+
+    const grid = document.getElementById('ednaDetailGrid');
+    grid.innerHTML = '';
+    const flag = (key, v, unit) => v === null ? '–' : `${v} ${unit}${s.qc.has(key) ? ' ⚠' : ''}`;
+    grid.append(
+        statCard('Date', s.date || '–', s.dateQuality === 'year_assumed' ? 'year assumed in source data' : (s.volumeMl !== null ? `${s.volumeMl} mL filtered` : '')),
+        statCard('Area', s.area || '–', s.group ? `nutrient group: ${s.group}` : ''),
+        statCard('Total N', flag('tn', s.tn, 'mg/L'), s.qc.has('tn') ? 'flagged: implausible value' : ''),
+        statCard('TOC', flag('toc', s.toc, 'mg/L'), s.qc.has('toc') ? 'flagged: implausible value' : ''),
+        statCard('Total P', s.totpFlag ? s.totpFlag + ' µg/L' : flag('totp', s.totp, 'µg/L'), s.qc.has('totp') ? 'flagged: implausible value' : ''),
+        statCard('Salinity / cond.', s.salinity === null ? '–' : `${s.salinity} ‰`, s.cond === null ? '' : `${s.cond} mS/cm${s.qc.has('cond') ? ' ⚠ flagged' : ''}`),
+        statCard('Richness', s.richness === null ? '–' : `${s.richness} taxa`,
+            s.readsTotal === null ? '' : `${s.readsTotal} reads${s.seqFlag ? ' · ' + s.seqFlag.replace('_', ' ') : ''}`),
+        statCard('Diversity (Shannon)', s.shannon === null ? '–' : String(s.shannon), s.topTaxon ? `top: ${s.topTaxon.replace(/_/g, ' ')} (${Math.round(100 * s.topShare)} %)` : '')
+    );
+    document.getElementById('ednaSamplerLine').textContent = s.sampler
+        ? `Sampler ${samplerLabel(s.sampler)}${isMine(s) ? ' – this is you' : ''}` : 'Sampler not recorded';
+
+    // sequencing variants
+    const sel = document.getElementById('ednaVariant');
+    const variants = s.variants.length ? s.variants : [];
+    if (!keepVariant) {
+        sel.innerHTML = '';
+        variants.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v === 'main' ? 'main run' : `variant ${v}`; sel.appendChild(o); });
+    }
+    sel.style.display = variants.length > 1 ? 'block' : 'none';
+
+    const rows = (ednaLong.get(uid) || []).filter(r => r.variant === (sel.value || 'main') && r.taxon !== 'no identification')
+        .sort((a, b) => b.reads - a.reads);
+    const total = rows.reduce((a, r) => a + r.reads, 0);
+    const top = rows.slice(0, 10);
+    document.getElementById('ednaSpeciesNote').textContent = rows.length
+        ? `${rows.length} taxa, ${total} identified reads (top ${top.length} shown). Reads are not corrected for sequencing depth.`
+        : 'No species data for this sample/variant.';
+    if (ednaSpeciesChart) ednaSpeciesChart.destroy();
+    ednaSpeciesChart = new Chart(document.getElementById('ednaSpeciesChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: top.map(r => r.taxon.replace(/_/g, ' ')),
+            datasets: [{ label: '% of identified reads', data: top.map(r => +(100 * r.reads / total).toFixed(1)), backgroundColor: '#10b981', borderRadius: 2 }]
+        },
+        options: {
+            indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, title: { display: true, text: '% of identified reads' }, grid: { color: 'rgba(71,85,105,0.2)' } },
+                y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+            }
+        }
+    });
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ---- sampler comparison -------------------------------------------------------------------
+// Share of the variance explained by "who took the sample" (eta squared) and the level expected by pure chance.
+function etaSquared(items, valueOf, groupOf, areaOf) {
+    let rows = items.map(s => ({ v: valueOf(s), g: groupOf(s), a: areaOf ? areaOf(s) : null })).filter(r => r.v !== null && r.g);
+    if (areaOf) {                                           // remove the area average first (places differ, not only people)
+        const byArea = new Map();
+        rows.forEach(r => { if (r.a) { if (!byArea.has(r.a)) byArea.set(r.a, []); byArea.get(r.a).push(r.v); } });
+        rows = rows.filter(r => r.a && byArea.get(r.a).length >= 2).map(r => ({ ...r, v: r.v - mean(byArea.get(r.a)) }));
+    }
+    const groups = new Map();
+    rows.forEach(r => { if (!groups.has(r.g)) groups.set(r.g, []); groups.get(r.g).push(r.v); });
+    const kept = [...groups.values()].filter(a => a.length >= MIN_SAMPLER_GROUP);
+    if (kept.length < 2) return null;
+    const all = kept.flat(), gm = mean(all);
+    const sst = all.reduce((a, x) => a + (x - gm) ** 2, 0);
+    if (!sst) return null;
+    const ssb = kept.reduce((a, g) => a + g.length * (mean(g) - gm) ** 2, 0);
+    return { eta: ssb / sst, chance: (kept.length - 1) / (all.length - 1), n: all.length, k: kept.length };
+}
+
+function renderSamplers(filtered) {
+    const box = document.getElementById('samplerSummary');
+    const eff = document.getElementById('samplerEffect');
+    box.innerHTML = '';
+    eff.innerHTML = '';
+
+    const bySampler = new Map();
+    filtered.filter(s => s.sampler).forEach(s => {
+        if (!bySampler.has(s.sampler)) bySampler.set(s.sampler, []);
+        bySampler.get(s.sampler).push(s);
+    });
+    const shown = [...bySampler.entries()].filter(([, a]) => a.length >= MIN_SAMPLER_GROUP).sort((a, b) => b[1].length - a[1].length);
+    if (shown.length < 2) {
+        box.textContent = 'Not enough samplers with ' + MIN_SAMPLER_GROUP + '+ samples for a comparison.';
+        return;
+    }
+    const med = (a, key) => { const v = a.map(s => ednaValue(s, key)).filter(x => x !== null); return v.length ? +median(v).toPrecision(3) : '–'; };
+
+    const table = document.createElement('table');
+    table.className = 'w-full text-[11px]';
+    const head = document.createElement('tr');
+    ['Sampler', 'n', 'TN', 'Richness'].forEach(h => { const th = document.createElement('th'); th.className = 'text-left text-slate-500 font-medium pb-1'; th.textContent = h; head.appendChild(th); });
+    table.appendChild(head);
+    shown.forEach(([h, a]) => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-t border-slate-700/60 ' + (mySamplerHash === h ? 'text-fuchsia-300' : 'text-slate-300');
+        [samplerLabel(h) + (mySamplerHash === h ? ' (you)' : ''), a.length, med(a, 'tn'), med(a, 'richness')].forEach(v => {
+            const td = document.createElement('td'); td.className = 'py-0.5'; td.textContent = String(v); tr.appendChild(td);
+        });
+        table.appendChild(tr);
+    });
+    box.appendChild(table);
+
+    const t2 = document.createElement('table');
+    t2.className = 'w-full text-[11px] mt-3';
+    const h2 = document.createElement('tr');
+    ['Variable', 'Sampler effect', 'Within area', 'By chance'].forEach(h => { const th = document.createElement('th'); th.className = 'text-left text-slate-500 font-medium pb-1'; th.textContent = h; h2.appendChild(th); });
+    t2.appendChild(h2);
+    const pct = v => (v === null ? '–' : Math.round(100 * v) + ' %');
+    [['tn', 'Total N'], ['toc', 'TOC'], ['totp', 'Total P'], ['salinity', 'Salinity'], ['richness', 'Richness']].forEach(([key, label]) => {
+        const raw = etaSquared(filtered, s => ednaValue(s, key), s => s.sampler);
+        const within = etaSquared(filtered, s => ednaValue(s, key), s => s.sampler, s => s.area);
+        const tr = document.createElement('tr');
+        tr.className = 'border-t border-slate-700/60 text-slate-300';
+        [label, pct(raw && raw.eta), pct(within && within.eta), pct((within || raw) && (within || raw).chance)].forEach(v => {
+            const td = document.createElement('td'); td.className = 'py-0.5'; td.textContent = v; tr.appendChild(td);
+        });
+        t2.appendChild(tr);
+    });
+    eff.appendChild(t2);
 }
 
 // ---------- Placeholder polygon ----------

@@ -146,6 +146,86 @@
                     <input type="checkbox" id="polygonToggle" class="form-checkbox h-5 w-5 text-primary rounded border-slate-600 bg-slate-800 focus:ring-primary focus:ring-offset-sidebar">
                     <span class="text-sm text-slate-200">Show Species Threshold Polygons</span>
                 </label>
+                <label class="flex items-center space-x-3 cursor-pointer mt-3">
+                    <input type="checkbox" id="ednaToggle" checked class="form-checkbox h-5 w-5 text-primary rounded border-slate-600 bg-slate-800 focus:ring-primary focus:ring-offset-sidebar">
+                    <span class="text-sm text-slate-200">Show eDNA project samples</span>
+                </label>
+            </section>
+
+            <!-- eDNA project (metadata + chemistry + species) -->
+            <section id="ednaSection" style="display:none">
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-emerald-400/80 mb-4 border-b border-slate-700 pb-2">eDNA Project Samples</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-200">Project</label>
+                        <select id="ednaProject" class="w-full bg-slate-800 border border-slate-600 rounded-md py-2 px-3 text-sm text-white focus:outline-none focus:border-primary"></select>
+                        <p class="text-xs text-slate-500 mt-1">Follows the date filter and search above. Samples without a date are always included.</p>
+                    </div>
+
+                    <div id="ednaStatsGrid" class="grid grid-cols-2 gap-2"></div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <p class="text-xs text-slate-400">Species richness against</p>
+                            <select id="ednaScatterX" class="bg-slate-800 border border-slate-600 rounded py-1 px-2 text-xs text-white">
+                                <option value="tn">Total N</option>
+                                <option value="toc">TOC</option>
+                                <option value="totp">Total P</option>
+                                <option value="salinity">Salinity</option>
+                                <option value="cond">Conductivity</option>
+                            </select>
+                        </div>
+                        <div class="bg-slate-800 rounded-lg p-2 border border-slate-700 relative h-52">
+                            <canvas id="ednaScatter"></canvas>
+                        </div>
+                        <p id="ednaScatterNote" class="text-[11px] text-slate-500 mt-1"></p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs text-slate-400 mb-1">Colour the map points by</p>
+                        <div class="flex gap-4 text-xs text-slate-200">
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="ednaColor" value="nutrient" checked> Nutrient group</label>
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="ednaColor" value="sampler"> Sampler (anonymous)</label>
+                        </div>
+                    </div>
+
+                    <!-- selected sample -->
+                    <div id="ednaDetail" style="display:none" class="border border-emerald-500/30 rounded-lg p-3 bg-slate-900/40">
+                        <div class="flex justify-between items-start gap-2 mb-2">
+                            <p id="ednaDetailTitle" class="text-sm font-semibold text-white"></p>
+                        </div>
+                        <div id="ednaDetailGrid" class="grid grid-cols-2 gap-2"></div>
+                        <p id="ednaSamplerLine" class="text-xs text-slate-400 mt-2"></p>
+                        <select id="ednaVariant" style="display:none" class="w-full mt-3 bg-slate-800 border border-slate-600 rounded py-1 px-2 text-xs text-white"></select>
+                        <div class="bg-slate-800 rounded-lg p-2 border border-slate-700 relative h-56 mt-3">
+                            <canvas id="ednaSpeciesChart"></canvas>
+                        </div>
+                        <p id="ednaSpeciesNote" class="text-[11px] text-slate-500 mt-1"></p>
+                    </div>
+
+                    <!-- samplers -->
+                    <div class="border-t border-slate-700 pt-4">
+                        <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Samplers</h3>
+                        <label class="block text-sm font-medium mb-1 text-slate-200">My samples</label>
+                        <input type="password" id="mySamplerKey" placeholder="Personal key, e.g. K7QM-X2PD-9WTA" autocomplete="off" spellcheck="false"
+                               class="w-full bg-slate-800 border border-slate-600 rounded-md py-2 px-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary">
+                        <div class="flex gap-2 mt-2">
+                            <button id="mySamplerBtn" type="button" class="flex-1 bg-primary hover:bg-sky-400 text-slate-900 text-sm font-semibold py-1.5 rounded-md transition-colors">Show my samples</button>
+                            <button id="mySamplerClear" type="button" class="px-3 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm py-1.5 rounded-md transition-colors">Clear</button>
+                        </div>
+                        <label class="flex items-center gap-2 mt-2 text-xs text-slate-300 cursor-pointer">
+                            <input type="checkbox" id="onlyMine"> Show only my samples
+                        </label>
+                        <p id="mySamplerStatus" class="text-xs mt-2"></p>
+                        <p class="text-[11px] text-slate-500 mt-2">Names are never published. Samples carry only an anonymous code. Your key is checked inside your browser; it is not sent anywhere and not stored.</p>
+
+                        <p class="text-xs text-slate-400 mt-4 mb-1">Samplers with at least 3 samples (anonymous codes)</p>
+                        <div id="samplerSummary" class="text-[11px] text-slate-400"></div>
+                        <p class="text-xs text-slate-400 mt-3 mb-1">How much does the sampler explain? (share of variance)</p>
+                        <div id="samplerEffect"></div>
+                        <p class="text-[11px] text-slate-500 mt-2">"By chance" is what a random split would give with this many samplers. A sampler effect clearly above it may be bias, or simply that samplers work in different places; "within area" removes the area average first.</p>
+                    </div>
+                </div>
             </section>
 
             <!-- Statistics -->
