@@ -1,0 +1,11 @@
+{
+  "project": "kysthjelperne_2026",
+  "description": "PLACEHOLDER - sampling log for 2026. Put the raw survey export in raw/ and adjust the dates.",
+
+  "sampling_log": {
+    "raw": "raw/raw_data.csv",
+    "output": "output/safe_sampling_data.csv",
+    "date_from": "2026-01-01",
+    "date_to": "2026-12-31"
+  }
+}

@@ -1,0 +1,248 @@
+==============================================================================================
+ KYSTHJELPERNE  -  FILE LAYOUT AND WORKFLOW
+==============================================================================================
+
+ IDEA
+   * The HOME DIRECTORY holds the main scripts that serve every project.
+   * Every project (a campaign, a year, a student's study ...) has its OWN sub-directory with its
+     raw data, its settings (project.json) and, if needed, its own project-specific script.
+   * Everything that goes on the website is collected in docs/.
+   * Everything personal stays in private/ and in the raw/ folders. These are never published.
+
+ You choose the names of the project directories (Kysthjelperne_2022, Kysthjelperne_2025,
+ Student_Hansen_Algae ...). A sub-directory is a project if it contains a project.json.
+ Directories starting with "_" or "." (like _template) are ignored.
+
+
+----------------------------------------------------------------------------------------------
+ 1. THE LAYOUT
+----------------------------------------------------------------------------------------------
+
+ kysthjelperne/                        <- HOME DIRECTORY (this is also the git repository)
+ |
+ |-- LAYOUT.txt                        this file
+ |-- .gitignore                        keeps private/, raw/ and output/ out of git
+ |
+ |-- build_all.py                      MAIN: rebuilds everything from all projects (start here)
+ |-- sanitize_data.py                  MAIN: sampling log  -> GDPR-safe CSV
+ |-- build_edna_dataset.py             MAIN: eDNA project  -> GDPR-safe CSV + sampler pseudonyms
+ |-- fetch_taxon_names.py              MAIN: Norwegian species names (Artsdatabanken) -> taxon_names.csv
+ |-- kyst_common.py                    helper used by the scripts above (do not run, do not edit)
+ |-- approved_words.txt                words the sanitizer may keep (place names, equipment ...)
+ |
+ |-- docs/                             THE WEBSITE  (everything in here is public)
+ |     |-- index.html, script.js       the dashboard
+ |     |-- safe_sampling_data.csv      all projects' sampling logs, merged  (made by build_all.py)
+ |     |-- edna_samples.csv            one row per eDNA sample, all campaigns
+ |     |-- edna_species_long.csv       reads per sample and species
+ |     |-- edna_campaigns.csv          campaign titles, target group, author  (menu on the website)
+ |     |-- taxon_names.csv             Norwegian species names - YOU may edit this one by hand
+ |
+ |-- private/                          NEVER PUBLISH. Created automatically.
+ |     |-- sampler_registry.csv        every sampler -> secret personal key (+ spelling variants)
+ |     |-- owners_<project code>.csv   dictionary: sample ID -> sampler name, one file per project
+ |     |-- forgotten.txt               one-way hashes of people who asked to be forgotten
+ |     |-- names_to_remove.txt         (you create it) names that must be removed from comments
+ |
+ |-- Kysthjelperne_2022/               PROJECT: eDNA fish study (Lone Kvalheim)
+ |     |-- project.json                settings of this project
+ |     |-- prepare.py                  (optional) project-specific script, runs first
+ |     |-- raw/                        raw files (names, e-mail ...)  NEVER PUBLISH
+ |           |-- data_cleaned.csv, environmental_data.csv, species_table_lca_n.csv
+ |
+ |-- Kysthjelperne_2025/               PROJECT: sampling log 2025   (placeholder - adjust)
+ |     |-- project.json
+ |     |-- raw/raw_data.csv
+ |     |-- output/safe_sampling_data.csv   made by the scripts (safe, intermediate)
+ |
+ |-- Kysthjelperne_2026/               PROJECT: sampling log 2026   (placeholder - adjust)
+ |
+ |-- _template/                        copy this to start a new project
+       |-- project.json                all settings with explanations
+       |-- prepare.py                  example of a project-specific script
+       |-- raw/
+
+
+----------------------------------------------------------------------------------------------
+ 2. THE MAIN SCRIPTS  (run them from the home directory; they also work from anywhere else)
+----------------------------------------------------------------------------------------------
+
+ build_all.py          Rebuilds the website data from all projects.
+     python build_all.py                       all projects
+     python build_all.py Kysthjelperne_2025    only that project (merged files are still rebuilt)
+     python build_all.py --list                what projects exist and whether their raw files are there
+     python build_all.py --lookup-names        also ask Artsdatabanken for Norwegian names (internet)
+     python build_all.py --no-names            skip the species-name step
+   Per project it: (1) runs prepare.py if the project has one, (2) runs sanitize_data.py for a
+   "sampling_log", (3) runs build_edna_dataset.py for an "edna" section. Then it merges all sampling logs
+   into docs/safe_sampling_data.csv and adds new species to docs/taxon_names.csv.
+   A project without raw files yet is skipped with a note.
+
+ sanitize_data.py      Turns a raw survey export into a publishable CSV: only the needed columns,
+                       emails, phone numbers, addresses, sign-offs and names removed, verified a second time.
+     python sanitize_data.py --project-dir Kysthjelperne_2025
+     python sanitize_data.py --scan docs/safe_sampling_data.csv     audit a CSV that is already published
+     python sanitize_data.py --remove-name "Ola Nordmann"           force-remove a name (repeatable)
+   Words it wrongly takes for names: add them to approved_words.txt (never add a person's name).
+
+ build_edna_dataset.py Combines metadata + water chemistry + species table of one eDNA campaign by sample ID
+                       (10_S5_L001_R1_001 = sample 10), makes sampler names anonymous, writes docs/edna_*.csv.
+     python build_edna_dataset.py --project-dir Kysthjelperne_2022
+     python build_edna_dataset.py --all
+     python build_edna_dataset.py --forget "Ola Nordmann"    erase a person from registry AND all public rows
+
+ fetch_taxon_names.py  Norwegian species names from Artsdatabanken -> docs/taxon_names.csv
+     python fetch_taxon_names.py                 look up new / unchecked species (needs internet)
+     python fetch_taxon_names.py --offline       only add new species to the list
+     python fetch_taxon_names.py --retry         try again for not_found / error rows
+     python fetch_taxon_names.py --debug-dir debug    save the raw answers (if names cannot be read)
+   Type missing names yourself in the norwegian_name column; manual names are never overwritten.
+   The status column says where a name came from (artsdatabanken / manual / unverified / ...).
+
+
+----------------------------------------------------------------------------------------------
+ 3. project.json  (one per project; plain text, double quotes, no trailing commas)
+----------------------------------------------------------------------------------------------
+
+ {
+   "project": "kysthjelperne_2022",     unique code stored in the data. Default: the directory name.
+                                        Do not change it after publishing (private/owners_<code>.csv
+                                        and the rows in docs/ use it).
+   "description": "...",                a note for yourself
+   "prepare": "prepare.py",             optional project-specific script (see section 5)
+
+   "sampling_log": {                    include ONLY if the project has a survey export
+     "raw": "raw/raw_data.csv",         paths are relative to the project directory
+     "output": "output/safe_sampling_data.csv",
+     "date_from": "2025-01-01",         optional: keep only rows in this period, so one export can
+     "date_to": "2025-12-31",           feed several year-projects
+     "no_comments": false               true = drop the free-text comment column completely
+   },
+
+   "edna": {                            include ONLY if the project has eDNA data
+     "metadata": "raw/data_cleaned.csv",
+     "env": "raw/environmental_data.csv",
+     "species": "raw/species_table_lca_n.csv",
+     "year": 2022,                      used when a date has no year
+     "extra_areas": ["Færder"],         area names to keep even if rare
+     "totp_one_means_below": 2,         Tot-P value 1 means "<2" (below detection limit); 0 = off
+     "coord_decimals": 3,               3 = positions rounded to about 100 m
+     "title": "Fish eDNA - Oslofjord 2022",   shown in the website menu
+     "target_group": "fish",            what the species table covers (fish, algae, invertebrates ...)
+     "author": "Lone Kvalheim",         PUBLIC - only with the person's consent; "" hides it
+     "description": "...",
+     "meta_columns": {"id": "SampleID", "name": "Collector"},   only if the headers differ
+     "env_columns": {"tn": "Total N"}                           (field -> header in your file)
+   }
+ }
+
+ !! project.json is committed to git and is therefore public. Never write personal data in it.
+    Names that must be removed from comments go in private/names_to_remove.txt (git-ignored), or in a
+    file names_to_remove.txt inside the project directory (also git-ignored).
+
+
+----------------------------------------------------------------------------------------------
+ 4. ADDING A NEW PROJECT  (e.g. another student's eDNA campaign)
+----------------------------------------------------------------------------------------------
+
+   1. Copy _template/ to a new name:       cp -r _template Student_Hansen_Algae
+   2. Put the raw files in its raw/ folder.
+   3. Edit Student_Hansen_Algae/project.json: new unique "project" code, file names, year, title,
+      target_group; delete the "sampling_log" or "edna" section you do not need.
+   4. python build_all.py Student_Hansen_Algae
+   5. Read the report. It tells you about misspelt sampler names, flagged chemistry values, samples
+      without metadata, and unknown species.
+   6. python fetch_taxon_names.py          (Norwegian names for the new species)
+   7. Test locally (section 6), then publish.
+   The new campaign appears in the website menu automatically.
+
+
+----------------------------------------------------------------------------------------------
+ 5. PROJECT-SPECIFIC SCRIPTS  (prepare.py)
+----------------------------------------------------------------------------------------------
+
+   Use it for anything special that does not belong in the main scripts: converting an Excel sheet to
+   CSV, renaming columns, dropping a failed sequencing run ... It runs first, with the project directory
+   as working directory, and must write the files that project.json points to. Environment variables:
+   KYST_HOME, KYST_PROJECT_DIR, KYST_PROJECT. If it fails, only that project is skipped.
+   Name it in project.json ("prepare": "prepare.py"). See _template/prepare.py.
+
+
+----------------------------------------------------------------------------------------------
+ 6. TEST LOCALLY, THEN PUBLISH
+----------------------------------------------------------------------------------------------
+
+   cd docs
+   python -m http.server 8000          then open http://localhost:8000
+   (do not open index.html by double-clicking: the browser blocks loading the CSV files that way)
+
+   Publishing with GitHub Pages:
+     * The git repository is the HOME directory. .gitignore keeps private/, raw/ and output/ out.
+     * GitHub -> Settings -> Pages -> "Deploy from a branch" -> main -> folder /docs.
+     * Before every push check:   git status      (nothing from private/ or raw/ may be listed)
+                                  python sanitize_data.py --scan docs/safe_sampling_data.csv
+     * Add files by name or use  git add .  only after checking git status.
+
+
+----------------------------------------------------------------------------------------------
+ 7. SAMPLERS, KEYS AND PRIVACY
+----------------------------------------------------------------------------------------------
+
+   * The public eDNA files contain no names, only an anonymous "sampler_hash". Positions are rounded.
+   * private/sampler_registry.csv holds each person's secret key (e.g. K7QM-X2PD-9WTA). Give each person
+     THEIR key privately; with it they can highlight their own samples on the website.
+   * The same person has the same key in every project, even if the name is written differently
+     in different files.
+   * Two names that look like the same person are listed in the report. They are NOT merged
+     automatically (a wrong merge would show a person someone else's samples). To merge: write the
+     misspelling in the "aliases" column of the right person (separate several with |), delete the
+     duplicate row, run the build again.
+   * Right to erasure:  python build_edna_dataset.py --forget "Name"
+     removes the person from the registry and from the public rows of ALL projects, and stops them
+     from being linked again when the raw files are processed.
+   * Pseudonymised data is still personal data under GDPR. Keep a legal basis and a privacy notice.
+   * If anything private was ever pushed to git, deleting it is not enough: it stays in the history.
+
+
+----------------------------------------------------------------------------------------------
+ 8. WHERE THINGS WENT FROM THE OLD FLAT LAYOUT
+----------------------------------------------------------------------------------------------
+
+   raw_data.csv                        -> <project>/raw/raw_data.csv
+   data_cleaned.csv, environmental_data.csv, species_table_lca_n.csv
+                                       -> Kysthjelperne_2022/raw/
+   public/  (old output folder)        -> docs/
+   private/ (old registry folder)      -> private/ in the home directory. If you already generated keys,
+                                          copy your old private/ folder here so people keep their keys.
+   index.html, script.js               -> docs/
+   names_to_remove.txt                 -> private/names_to_remove.txt
+   the command-line options you used   -> project.json of the project
+   (--year, --extra-area, --title ...)
+
+
+----------------------------------------------------------------------------------------------
+ 9. NOTES ON THE FILES THAT CAME WITH THIS LAYOUT
+----------------------------------------------------------------------------------------------
+
+   * docs/edna_*.csv and docs/taxon_names.csv are a PREVIEW: the sampler hashes were made with throw-away
+     keys and 36 Norwegian names are marked "unverified". Run  python build_all.py  and then
+     python fetch_taxon_names.py  with your raw files to replace them with the real thing.
+   * Kysthjelperne_2025 and Kysthjelperne_2026 are PLACEHOLDERS for sampling logs. If your survey
+     export also contains 2024, add a Kysthjelperne_2024 project or widen the dates.
+     Two projects must not cover the same dates (the merge warns about identical rows).
+   * Python 3.8 or newer, nothing to install (standard library only).
+
+
+----------------------------------------------------------------------------------------------
+ 10. COMMON MESSAGES
+----------------------------------------------------------------------------------------------
+
+   "no projects found"                      the directory has no project.json
+   "project code ... used by both"          two projects share a "project" code; codes must be unique
+   "unknown setting ... (typo?)"            a key in project.json is misspelt and is ignored
+   "remove remove_names from project.json"  names must not be in project.json (it is committed)
+   "eDNA: these files are missing"          project.json points to a file that is not in raw/
+   "VERIFICATION FAILED - output deleted"   the safety check found something personal; read the lines
+                                            under it, fix the cause, run again. Nothing was published.
+   "LOOKS LIKE THE SAME PERSON"             see section 7 (aliases)
+   "could not be read"  (fetch_taxon_names) run with --debug-dir debug and look at the files in debug/

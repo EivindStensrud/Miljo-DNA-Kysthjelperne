@@ -1,0 +1,17 @@
+{
+  "project": "kysthjelperne_2022",
+  "description": "eDNA fish study from Lone Kvalheim (water chemistry + species table).",
+
+  "edna": {
+    "metadata": "raw/data_cleaned.csv",
+    "env": "raw/environmental_data.csv",
+    "species": "raw/species_table_lca_n.csv",
+    "year": 2022,
+    "extra_areas": ["Færder"],
+    "totp_one_means_below": 2,
+    "title": "Fish eDNA - Oslofjord 2022",
+    "target_group": "fish",
+    "author": "Lone Kvalheim",
+    "description": "Citizen-science eDNA sampling along the Oslofjord. The species table lists fish only."
+  }
+}

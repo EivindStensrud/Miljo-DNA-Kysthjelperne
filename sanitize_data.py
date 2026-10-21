@@ -2,9 +2,13 @@
 """
 sanitize_data.py  –  turn the raw survey export into a CSV that is safe to publish.
 
+(MAIN script: lives in the home directory, serves all projects. See LAYOUT.txt.)
+
 USAGE
-    python sanitize_data.py                      # raw_data.csv -> safe_sampling_data.csv
-    python sanitize_data.py raw.csv safe.csv     # explicit file names
+    python sanitize_data.py --project-dir Kysthjelperne_2025   # settings from that folder's project.json ("sampling_log")
+    python sanitize_data.py raw.csv safe.csv                   # explicit file names (old style)
+    python sanitize_data.py                                    # raw_data.csv -> safe_sampling_data.csv in the current folder
+    python sanitize_data.py --date-from 2025-01-01 --date-to 2025-12-31    # keep only rows in this period
     python sanitize_data.py --no-comments        # also drop the free-text comment column
                                                  # (the only 100 % guarantee for comments)
     python sanitize_data.py --remove-name "Trine Flagstad" --remove-name "Øyvind Wistrøm"
@@ -42,6 +46,8 @@ import sys
 import unicodedata
 from collections import Counter, defaultdict
 from pathlib import Path
+
+import kyst_common as kc
 
 # ----------------------------------------------------------------------------------------------
 # CONFIG
@@ -247,7 +253,7 @@ def check_coords(value, why):
 # ----------------------------------------------------------------------------------------------
 def load_approved(script_dir):
     words = set(BUILTIN_APPROVED)
-    for folder in {Path.cwd(), script_dir}:
+    for folder in {Path.cwd(), script_dir, *EXTRA_DIRS}:
         f = folder / APPROVED_WORDS_FILE
         if f.exists():
             for line in f.read_text(encoding="utf-8").splitlines():
@@ -260,10 +266,14 @@ def load_approved(script_dir):
 EXTRA_NAMES_FILE = "names_to_remove.txt"
 
 
+EXTRA_DIRS = []          # project directory, set by main() when --project-dir is used
+
+
 def load_extra_names(cli_names):
-    """Names you want removed no matter what (third parties, colleagues ...). Whole names or single words."""
+    """Names you want removed no matter what (third parties, colleagues ...). Whole names or single words.
+    Read from names_to_remove.txt in private/ (home directory), the project directory, the current folder."""
     names = list(cli_names or [])
-    for folder in {Path.cwd(), Path(__file__).resolve().parent}:
+    for folder in {kc.PRIVATE_DIR, Path.cwd(), Path(__file__).resolve().parent, *EXTRA_DIRS}:
         f = folder / EXTRA_NAMES_FILE
         if f.exists():
             names += [ln.split("#")[0].strip() for ln in f.read_text(encoding="utf-8").splitlines()]
@@ -354,7 +364,7 @@ def git_warning(raw_path):
         print(f"\n!!! WARNING: {raw_path.name} is inside a git repo and not in .gitignore. Add it now.")
 
 
-def sanitize(input_path, output_path, drop_comments, extra_names=()):
+def sanitize(input_path, output_path, drop_comments, extra_names=(), date_from=None, date_to=None):
     script_dir = Path(__file__).resolve().parent
     approved = load_approved(script_dir)
 
@@ -363,6 +373,20 @@ def sanitize(input_path, output_path, drop_comments, extra_names=()):
     raw_headers = list(reader.fieldnames or [])
     headers = [nfc(h) for h in raw_headers]
     rows = [{nfc(k): nfc(v or "") for k, v in r.items() if k is not None} for r in reader]
+
+    # --- optional period (lets one raw export feed several projects, e.g. one per year) --------
+    skipped_window = 0
+    if date_from or date_to:
+        date_col = next((h for h in headers if h.strip().startswith(nfc("Tid og dato for prøvetakning"))), None)
+        if date_col is None:
+            sys.exit("ERROR: date window given but the date column was not found")
+        keep = []
+        for r in rows:
+            d = (r.get(date_col, "") or "")[:10]
+            ok = bool(re.match(r"\d{4}-\d{2}-\d{2}$", d)) and (not date_from or d >= date_from) and (not date_to or d <= date_to)
+            keep.append(r) if ok else None
+        skipped_window = len(rows) - len(keep)
+        rows = keep
 
     # --- resolve columns --------------------------------------------------------------------
     plan = []                                     # (key, raw header, kind)
@@ -454,6 +478,7 @@ def sanitize(input_path, output_path, drop_comments, extra_names=()):
     stats = (unchanged, changed)
 
     # --- write ---------------------------------------------------------------------------------
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     fieldnames = [raw for _, raw, _ in plan]
     with open(output_path, "w", encoding="utf-8-sig", newline="") as f:   # BOM: Excel shows æøå correctly
         w = csv.DictWriter(f, fieldnames=fieldnames, delimiter=DELIMITER)
@@ -469,7 +494,7 @@ def sanitize(input_path, output_path, drop_comments, extra_names=()):
             print("   ", p)
         sys.exit(2)
 
-    report(input_path, output_path, rows, dropped, name_cols, tokens, flags, scrub, drop_comments, encoding_note, stats)
+    report(input_path, output_path, rows, dropped, name_cols, tokens, flags, scrub, drop_comments, encoding_note, stats, skipped_window, (date_from, date_to))
     git_warning(Path(input_path))
 
 
@@ -504,7 +529,7 @@ def verify(path, fieldnames, plan, name_regex, scrub):
     return problems
 
 
-def report(input_path, output_path, rows, dropped, name_cols, tokens, flags, scrub, drop_comments, encoding_note="", stats=(0, 0)):
+def report(input_path, output_path, rows, dropped, name_cols, tokens, flags, scrub, drop_comments, encoding_note="", stats=(0, 0), skipped_window=0, window=(None, None)):
     touched = {i: c for i, c in flags.items() if c}
     totals = Counter()
     for c in touched.values():
@@ -514,6 +539,8 @@ def report(input_path, output_path, rows, dropped, name_cols, tokens, flags, scr
     print(f"Output: {output_path}   <- verified clean by a second pass (UTF-8 with BOM, NFC)")
     if encoding_note:
         print(f"Encoding: {encoding_note}")
+    if window[0] or window[1]:
+        print(f"Period          : {window[0] or '...'} to {window[1] or '...'}  ({skipped_window} rows outside it or without a date were left out)")
     print(f"Cells           : {stats[0]} copied exactly as written, {stats[1]} changed (each one = a redaction below)")
     print(f"Columns written : {len(KEEP_COLUMNS) - (1 if drop_comments else 0)}"
           f"{'  (comment column removed: --no-comments)' if drop_comments else ''}")
@@ -543,17 +570,42 @@ def report(input_path, output_path, rows, dropped, name_cols, tokens, flags, scr
     print("=========================================================")
 
 
+def project_settings(project_dir):
+    cfg = kc.load_config(project_dir)
+    sl = cfg.get("sampling_log")
+    if not sl:
+        sys.exit(f"ERROR: {Path(project_dir).name}/project.json has no \"sampling_log\" section")
+    return cfg, sl
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="Create a publishable, privacy-safe sampling CSV.")
-    ap.add_argument("input", nargs="?", default="raw_data.csv")
-    ap.add_argument("output", nargs="?", default="safe_sampling_data.csv")
+    ap.add_argument("input", nargs="?", default=None)
+    ap.add_argument("output", nargs="?", default=None)
+    ap.add_argument("--project-dir", help="project directory (name or path) with a project.json")
     ap.add_argument("--no-comments", action="store_true", help="drop the free-text comment column completely")
     ap.add_argument("--remove-name", action="append", default=[], metavar="NAME",
                     help="force-remove this name (repeatable); also read from names_to_remove.txt")
+    ap.add_argument("--date-from", help="keep only rows from this date (YYYY-MM-DD)")
+    ap.add_argument("--date-to", help="keep only rows up to this date (YYYY-MM-DD)")
     ap.add_argument("--scan", metavar="CSV", help="audit an existing CSV instead of creating one")
     args = ap.parse_args()
     if args.scan:
         sys.exit(scan_file(args.scan, args.remove_name))
+
+    no_comments, extra, d_from, d_to = args.no_comments, list(args.remove_name), args.date_from, args.date_to
+    if args.project_dir:
+        pdir = kc.resolve_project_dir(args.project_dir)
+        cfg, sl = project_settings(pdir)
+        EXTRA_DIRS.append(pdir)
+        args.input = args.input or str(kc.in_project(cfg, sl.get("raw", "raw/raw_data.csv")))
+        args.output = args.output or str(kc.in_project(cfg, sl.get("output", "output/safe_sampling_data.csv")))
+        no_comments = no_comments or bool(sl.get("no_comments"))
+        d_from, d_to = d_from or sl.get("date_from"), d_to or sl.get("date_to")
+    args.input = args.input or "raw_data.csv"
+    args.output = args.output or "safe_sampling_data.csv"
+    if not Path(args.input).exists():
+        sys.exit(f"ERROR: raw file not found: {args.input}")
     if Path(args.input).resolve() == Path(args.output).resolve():
         sys.exit("ERROR: input and output must be different files.")
-    sanitize(args.input, args.output, args.no_comments, args.remove_name)
+    sanitize(args.input, args.output, no_comments, extra, d_from, d_to)

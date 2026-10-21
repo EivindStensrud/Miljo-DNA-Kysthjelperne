@@ -1,0 +1,33 @@
+{
+  "_comment": "Copy this whole _template folder, rename the copy (any name, e.g. Kysthjelperne_2027 or Student_Hansen_Algae), then edit. Delete the section you do not need. Settings that start with an underscore are ignored.",
+
+  "project": "unique_code_for_this_project",
+  "description": "One line for yourself.",
+  "prepare": "prepare.py",
+
+  "sampling_log": {
+    "_comment": "Survey export with one row per sample (the file that becomes safe_sampling_data.csv). Names that must be removed from comments go in private/names_to_remove.txt - NEVER in this file (it is committed to git).",
+    "raw": "raw/raw_data.csv",
+    "output": "output/safe_sampling_data.csv",
+    "date_from": "2025-01-01",
+    "date_to": "2025-12-31",
+    "no_comments": false
+  },
+
+  "edna": {
+    "_comment": "metadata + water chemistry + species table of one eDNA campaign.",
+    "metadata": "raw/metadata.csv",
+    "env": "raw/environmental_data.csv",
+    "species": "raw/species_table.csv",
+    "year": 2025,
+    "extra_areas": [],
+    "totp_one_means_below": 0,
+    "coord_decimals": 3,
+    "title": "Title shown in the website menu",
+    "target_group": "fish",
+    "author": "",
+    "description": "One or two sentences about the campaign.",
+    "meta_columns": {},
+    "env_columns": {}
+  }
+}

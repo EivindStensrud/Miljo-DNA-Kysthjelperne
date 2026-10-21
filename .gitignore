@@ -1,9 +1,17 @@
-# Ignore raw data and private python script
-# # 1. Ignore all CSV files anywhere in the repository by default
-*.csv
+# ---- NEVER commit: personal data ----
+# sampler names, secret keys, owner dictionaries
+private/
+# raw exports of every project (names, e-mail ...)
+*/raw/
+raw_data.csv
+*.raw.csv
+names_to_remove.txt
+# raw answers saved by fetch_taxon_names.py --debug-dir
+debug/
 
-# 2. Whitelist (allow) only CSV files that start with your safe naming convention
-!safe_sampling_data.csv
-
+# ---- intermediate / junk ----
+# per-project sanitized files (the merged result is in docs/)
+*/output/
+*.tmp
 __pycache__/
-.DS_Store
+*Zone.Identifier
