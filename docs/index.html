@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Environmental Spatial Dashboard</title>
-    
+    <title>Kysthjelperne – eDNA and water chemistry | University of Oslo</title>
+    <meta name="description" content="eDNA campaigns (species and water chemistry) and volunteer sampling along the coast. University of Oslo.">
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
+
+    <!-- Tailwind CSS. Colours: UiO palette (https://www.uio.no/english/about/designmanual/profile-elements/colour-palette/)
+         on an aquatic deep-blue base. "slate" is redefined as that deep blue, so every slate-* class follows it. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -16,9 +18,20 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        primary: '#0ea5e9',
-                        sidebar: '#1e293b',
-                        sidebarItem: '#334155'
+                        primary: '#2EC483',                 // UiO green: main accent (eDNA)
+                        sidebar: '#0e2a3e',
+                        sidebarItem: '#1d4058',
+                        uio: {                              // UiO palette (the red seal colour is reserved for diplomas and not used)
+                            green: '#2EC483', lightgreen: '#6CE1AB', greentone: '#CEFFDF',
+                            blue: '#3E31D6', lightblue: '#86A4F7', bluetone: '#E6ECFF',
+                            red: '#DD0000', lightred: '#FB6666',
+                            orange: '#FEA11B', lightorange: '#FDCB87',
+                            grey: '#B2B3B7'
+                        },
+                        slate: {                            // aquatic deep-blue scale
+                            50: '#eef5f9', 100: '#dbe9f1', 200: '#bad4e3', 300: '#aacbdc', 400: '#96bbd0',
+                            500: '#86b0c8', 600: '#416d88', 700: '#2d546d', 800: '#1d4058', 900: '#123048', 950: '#0a2234'
+                        }
                     }
                 }
             }
@@ -27,134 +40,106 @@
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    
+
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.js"></script>
-    
+
     <!-- PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
         .leaflet-popup-content-wrapper { border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
         .leaflet-popup-content { font-family: 'Inter', sans-serif; margin: 12px 16px; }
-        .leaflet-popup-title { font-weight: 600; font-size: 1.1rem; color: #1e293b; margin-bottom: 4px;}
-        .leaflet-popup-sub { font-size: 0.875rem; color: #64748b; }
-        
+        .leaflet-popup-title { font-weight: 600; font-size: 1.1rem; color: #0a2234; margin-bottom: 4px; }
+        .leaflet-popup-sub { font-size: 0.875rem; color: #416d88; }
+
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
-        
-        input[type="file"]::file-selector-button {
-            border: none;
-            background: #38bdf8;
-            color: #0f172a;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.25rem;
-            margin-right: 0.5rem;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        input[type="file"]::file-selector-button:hover { background: #7dd3fc; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #416d88; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #86b0c8; }
+
+        input[type="radio"], input[type="checkbox"], input[type="range"] { accent-color: #2EC483; }
+        input[type="date"] { color-scheme: dark; }
+        a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid #86A4F7; outline-offset: 2px; }
+
+        /* collapsible sampling-log panel */
+        details > summary { list-style: none; cursor: pointer; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] > summary .chev { transform: rotate(90deg); }
+        .chev { transition: transform 0.15s; }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 h-screen overflow-hidden flex font-sans">
+<body class="bg-slate-100 text-slate-800 h-screen overflow-hidden flex font-sans">
+
+    <noscript>
+        <p style="padding:2rem">This page needs JavaScript to show the map. Questions: <a href="mailto:eivisten@uio.no">eivisten@uio.no</a></p>
+    </noscript>
 
     <!-- Sidebar -->
     <aside class="w-96 bg-sidebar text-slate-300 flex flex-col h-full z-10 shadow-xl flex-shrink-0">
-        <!-- Header -->
-        <div class="p-6 border-b border-slate-700 bg-slate-900">
-            <h1 class="text-2xl font-bold text-white flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Kysthjelperne
-            </h1>
-            <p class="text-xs text-slate-400 mt-1">eDNA and nutrients data</p>
-        </div>
 
-        <!-- Scrollable Content -->
-        <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
-            
-            <!-- Data Upload Section -->
-            <section>
-                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Data Sources</h2>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1 text-slate-200">1. Sample Data (CSV)</label>
-                        <input type="file" id="sampleData" accept=".csv, .txt" class="block w-full text-sm text-slate-400">
-                        <p class="text-xs text-slate-500 mt-1">Loaded automatically from the repository; upload only to override.</p>
-                        <p id="dataStatus" class="text-xs mt-2 text-slate-400">Loading data…</p>
-                    </div>
-                </div>
-            </section>
+        <!-- Header: University of Oslo logo (official file, see docs/img/PLACE_UIO_LOGO_HERE.txt) + title -->
+        <header class="flex-shrink-0 bg-slate-950 border-b border-slate-700">
+            <div class="px-5 pt-4 pb-3">
+                <a href="https://www.uio.no/english/" target="_blank" rel="noopener" aria-label="University of Oslo" class="inline-block">
+                    <img id="uioLogo" src="img/uio-logo.svg" alt="University of Oslo" class="h-10 w-auto"
+                         onerror="this.style.display='none'; document.getElementById('uioLogoFallback').style.display='inline-block';">
+                    <span id="uioLogoFallback" style="display:none" class="text-white text-lg font-semibold tracking-wide">University of Oslo</span>
+                </a>
+            </div>
+            <div class="px-5 pb-4">
+                <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Kysthjelperne
+                </h1>
+                <p class="text-xs text-slate-300 mt-1">eDNA and water chemistry along the coast</p>
+                <p id="dataStatus" class="text-xs mt-2 text-slate-400" role="status">Loading data…</p>
+            </div>
+        </header>
 
-            <!-- Filters Section -->
+        <!-- Scrollable content -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
+
+            <!-- Filters (apply to all data) -->
             <section>
-                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Filters</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1 text-slate-200">Show</label>
-                        <div id="modeButtons" class="grid grid-cols-3 gap-1 bg-slate-800 border border-slate-600 rounded-md p-1 text-xs font-semibold">
-                            <button type="button" data-mode="samples">True samples</button>
-                            <button type="button" data-mode="controls">Neg. controls</button>
-                            <button type="button" data-mode="all">All</button>
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3 border-b border-slate-700 pb-2">Filters</h2>
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label for="dateFrom" class="block text-xs font-medium mb-1 text-slate-200">From date</label>
+                            <input type="date" id="dateFrom" class="w-full bg-slate-800 border border-slate-600 rounded-md py-1.5 px-2 text-sm text-white focus:outline-none focus:border-primary">
                         </div>
-                        <p id="modeHint" class="text-xs text-slate-500 mt-1"></p>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium mb-1 text-slate-200">From Date</label>
-                        <input type="date" id="dateFrom" class="w-full bg-slate-800 border border-slate-600 rounded-md py-2 px-3 text-sm text-white focus:outline-none focus:border-primary">
+                        <div>
+                            <label for="dateTo" class="block text-xs font-medium mb-1 text-slate-200">To date</label>
+                            <input type="date" id="dateTo" class="w-full bg-slate-800 border border-slate-600 rounded-md py-1.5 px-2 text-sm text-white focus:outline-none focus:border-primary">
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1 text-slate-200">To Date</label>
-                        <input type="date" id="dateTo" class="w-full bg-slate-800 border border-slate-600 rounded-md py-2 px-3 text-sm text-white focus:outline-none focus:border-primary">
-                    </div>
-                    <p class="text-xs text-slate-500">Filters 'Tid og dato for prøvetakning'</p>
-
-                    <div>
-                        <label class="block text-sm font-medium mb-1 text-slate-200">Search</label>
-                        <input type="text" id="searchText" list="stationNames" placeholder="Station, area, sample ID, comment…" autocomplete="off"
-                               class="w-full bg-slate-800 border border-slate-600 rounded-md py-2 px-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary">
+                        <label for="searchText" class="block text-xs font-medium mb-1 text-slate-200">Search</label>
+                        <input type="text" id="searchText" list="stationNames" placeholder="Campaign, species, station, area, sample ID…" autocomplete="off"
+                               class="w-full bg-slate-800 border border-slate-600 rounded-md py-1.5 px-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary">
                         <datalist id="stationNames"></datalist>
                         <div class="flex gap-2 mt-2">
-                            <button id="searchBtn" type="button" class="flex-1 bg-primary hover:bg-sky-400 text-slate-900 text-sm font-semibold py-1.5 rounded-md transition-colors">Search</button>
+                            <button id="searchBtn" type="button" class="flex-1 bg-primary hover:bg-uio-lightgreen text-black text-sm font-semibold py-1.5 rounded-md transition-colors">Search</button>
                             <button id="clearSearchBtn" type="button" class="px-3 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm py-1.5 rounded-md transition-colors">Clear</button>
                         </div>
                     </div>
-
-                    <div>
-                        <label class="flex justify-between text-sm font-medium mb-1 text-slate-200">
-                            <span>Group stations within</span><span id="groupRadiusLabel" class="text-primary">150 m</span>
-                        </label>
-                        <input type="range" id="groupRadius" min="0" max="500" step="25" value="150" class="w-full accent-sky-500">
-                        <p class="text-xs text-slate-500">Samples from the same station with slightly different GPS positions are merged into one marker. 0 = group by name only.</p>
+                    <div class="flex flex-wrap gap-x-5 gap-y-1 pt-1">
+                        <label class="flex items-center gap-2 text-xs text-slate-200 cursor-pointer"><input type="checkbox" id="ednaToggle" checked> eDNA samples on map</label>
+                        <label class="flex items-center gap-2 text-xs text-slate-200 cursor-pointer"><input type="checkbox" id="samplingToggle" checked> Sampling log on map</label>
                     </div>
                 </div>
             </section>
 
-            <!-- Map Layers -->
-            <section>
-                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Map Layers</h2>
-                <label class="flex items-center space-x-3 cursor-pointer">
-                    <input type="checkbox" id="polygonToggle" class="form-checkbox h-5 w-5 text-primary rounded border-slate-600 bg-slate-800 focus:ring-primary focus:ring-offset-sidebar">
-                    <span class="text-sm text-slate-200">Show Species Threshold Polygons</span>
-                </label>
-                <label class="flex items-center space-x-3 cursor-pointer mt-3">
-                    <input type="checkbox" id="ednaToggle" checked class="form-checkbox h-5 w-5 text-primary rounded border-slate-600 bg-slate-800 focus:ring-primary focus:ring-offset-sidebar">
-                    <span class="text-sm text-slate-200">Show eDNA campaign samples</span>
-                </label>
-            </section>
-
             <!-- eDNA project (metadata + chemistry + species) -->
-            <section id="ednaSection" style="display:none">
-                <h2 class="text-sm font-semibold uppercase tracking-wider text-emerald-400/80 mb-4 border-b border-slate-700 pb-2">eDNA Campaigns</h2>
+            <section id="ednaSection" style="display:none" class="rounded-xl border border-uio-green/40 bg-slate-800/40 p-4">
+<h2 class="text-sm font-semibold uppercase tracking-wider text-uio-green">eDNA Campaigns</h2>
+                <p class="text-xs text-slate-400 mt-1 mb-4 pb-2 border-b border-slate-700">Main results: species (eDNA) and water chemistry for each campaign.</p>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium mb-1 text-slate-200">eDNA campaign</label>
@@ -193,7 +178,7 @@
                     </div>
 
                     <!-- selected sample -->
-                    <div id="ednaDetail" style="display:none" class="border border-emerald-500/30 rounded-lg p-3 bg-slate-900/40">
+                    <div id="ednaDetail" style="display:none" class="border border-uio-green/30 rounded-lg p-3 bg-slate-900/40">
                         <div class="flex justify-between items-start gap-2 mb-2">
                             <p id="ednaDetailTitle" class="text-sm font-semibold text-white"></p>
                         </div>
@@ -214,7 +199,7 @@
                         <input type="password" id="mySamplerKey" placeholder="Personal key, e.g. K7QM-X2PD-9WTA" autocomplete="off" spellcheck="false"
                                class="w-full bg-slate-800 border border-slate-600 rounded-md py-2 px-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary">
                         <div class="flex gap-2 mt-2">
-                            <button id="mySamplerBtn" type="button" class="flex-1 bg-primary hover:bg-sky-400 text-slate-900 text-sm font-semibold py-1.5 rounded-md transition-colors">Show my samples</button>
+                            <button id="mySamplerBtn" type="button" class="flex-1 bg-primary hover:bg-uio-lightgreen text-slate-900 text-sm font-semibold py-1.5 rounded-md transition-colors">Show my samples</button>
                             <button id="mySamplerClear" type="button" class="px-3 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm py-1.5 rounded-md transition-colors">Clear</button>
                         </div>
                         <label class="flex items-center gap-2 mt-2 text-xs text-slate-300 cursor-pointer">
@@ -232,7 +217,40 @@
                 </div>
             </section>
 
-            <!-- Statistics -->
+            <!-- Volunteer sampling log: supplementary, collapsed by default -->
+            <details id="samplingDetails" class="rounded-xl border border-slate-700 bg-slate-800/30">
+                <summary class="flex items-center justify-between gap-2 px-4 py-3">
+                    <span>
+                        <span class="block text-sm font-semibold uppercase tracking-wider text-uio-lightblue">Volunteer sampling log</span>
+                        <span class="block text-xs text-slate-400 mt-0.5">Supplementary data: when and where samples were taken</span>
+                    </span>
+                    <svg class="chev h-4 w-4 text-slate-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+                </summary>
+                <div class="px-4 pb-4 pt-2 space-y-8">
+
+                    <section>
+                        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4 border-b border-slate-700 pb-2">View</h2>
+                        <div class="space-y-4">
+                            <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-200">Show</label>
+                        <div id="modeButtons" class="grid grid-cols-3 gap-1 bg-slate-800 border border-slate-600 rounded-md p-1 text-xs font-semibold">
+                            <button type="button" data-mode="samples">True samples</button>
+                            <button type="button" data-mode="controls">Neg. controls</button>
+                            <button type="button" data-mode="all">All</button>
+                        </div>
+                        <p id="modeHint" class="text-xs text-slate-500 mt-1"></p>
+                    </div>
+                            <div>
+                        <label class="flex justify-between text-sm font-medium mb-1 text-slate-200">
+                            <span>Group stations within</span><span id="groupRadiusLabel" class="text-primary">150 m</span>
+                        </label>
+                        <input type="range" id="groupRadius" min="0" max="500" step="25" value="150" class="w-full">
+                        <p class="text-xs text-slate-500">Samples from the same station with slightly different GPS positions are merged into one marker. 0 = group by name only.</p>
+                    </div>
+                        </div>
+                    </section>
+
+                    <!-- Statistics -->
             <section>
                 <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Statistics <span id="statsScope" class="normal-case font-normal text-slate-400">· true samples</span></h2>
                 <div id="statsGrid" class="grid grid-cols-2 gap-2"></div>
@@ -242,9 +260,9 @@
                 </div>
             </section>
 
-            <!-- Negative controls (kept out of all other statistics) -->
+                    <!-- Negative controls (kept out of all other statistics) -->
             <section id="controlSection" style="display:none">
-                <h2 class="text-sm font-semibold uppercase tracking-wider text-amber-500/80 mb-4 border-b border-slate-700 pb-2">Negative Controls</h2>
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-uio-orange mb-4 border-b border-slate-700 pb-2">Negative Controls</h2>
                 <p class="text-xs text-slate-400 mb-2">Sample IDs containing "N". Always shown here, whichever view is selected above.</p>
                 <div id="controlStatsGrid" class="grid grid-cols-2 gap-2"></div>
                 <div id="controlsChartWrap">
@@ -253,12 +271,12 @@
                         <canvas id="controlsChart"></canvas>
                     </div>
                 </div>
-                <p id="controlSuspectHead" class="text-xs text-amber-400 mt-4 mb-1" style="display:none">Calls itself a negative control but the ID has no N – please add the N in the source data:</p>
+                <p id="controlSuspectHead" class="text-xs text-uio-lightorange mt-4 mb-1" style="display:none">Calls itself a negative control but the ID has no N – please add the N in the source data:</p>
                 <ul id="controlSuspectList" class="text-xs mb-2"></ul>
                 <ul id="controlList" class="text-xs max-h-48 overflow-y-auto custom-scrollbar pr-1 mt-3"></ul>
             </section>
 
-            <!-- Overall activity -->
+                    <!-- Overall activity -->
             <section>
                 <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Sampling Activity</h2>
                 <p id="activityHint" class="text-xs text-slate-400 mb-2">Per month, selected period</p>
@@ -267,7 +285,7 @@
                 </div>
             </section>
 
-            <!-- Analytics / Chart Section -->
+                    <!-- Analytics / Chart Section -->
             <section id="analyticsSection" class="hidden flex-col">
                 <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 border-b border-slate-700 pb-2">Location Analytics</h2>
                 <p id="selectedLocationLabel" class="text-sm text-white font-medium mb-2">Select a point on the map</p>
@@ -286,17 +304,26 @@
                 </svg>
                 <p class="text-sm text-slate-400">Click a map marker to view the sampling timeline for that station.</p>
             </div>
+                </div>
+            </details>
         </div>
+
+        <!-- Footer: contact -->
+        <footer class="flex-shrink-0 border-t border-slate-700 bg-slate-950 px-5 py-3 text-[11px] text-slate-400 leading-snug">
+            <p><span class="font-medium text-slate-200">Questions?</span>
+                <a href="mailto:eivisten@uio.no" class="text-uio-lightblue hover:underline">eivisten@uio.no</a></p>
+            <p class="mt-1">Sampler names are never published; samples carry anonymous codes.</p>
+        </footer>
     </aside>
 
     <!-- Main Content (Map) -->
     <main class="flex-1 relative">
         <div id="map" class="h-full w-full z-0"></div>
-        
+
         <!-- Map loading overlay -->
         <div id="mapLoader" class="hidden absolute inset-0 bg-white/80 z-[1000] flex flex-col items-center justify-center">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-            <p class="text-slate-600 font-medium">Processing Spatial Data...</p>
+            <p class="text-slate-600 font-medium">Loading data…</p>
         </div>
     </main>
 

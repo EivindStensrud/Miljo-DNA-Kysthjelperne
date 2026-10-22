@@ -1,0 +1,21 @@
+UiO LOGO - PUT THE OFFICIAL FILE HERE
+=====================================
+
+The top of the sidebar shows the University of Oslo logo. The logo file is NOT included: UiO requires the
+official, unmodified files from its design manual, so please download it yourself.
+
+ 1. Open  https://www.uio.no/english/about/designmanual/profile-elements/logo/
+ 2. Under "Download full logo (English version)" choose
+        "Download white logo on transparent background as .svg"
+    (the page header is dark blue, so the WHITE logo is the one that shows up.)
+ 3. Save it in this folder with exactly this name:      uio-logo.svg
+        -> docs/img/uio-logo.svg
+ 4. Reload the page (Ctrl+Shift+R).
+
+Until the file is here the page shows the plain text "University of Oslo" instead.
+
+Rules from UiO's design manual (please read the page above):
+  * use the complete logo (name + seal), only black or white, never changed, never redrawn;
+  * do not make your own logo for the project;
+  * the logo needs free space around it (the header already leaves some);
+  * for sizes smaller than the standard ones contact designmanual@admin.uio.no.

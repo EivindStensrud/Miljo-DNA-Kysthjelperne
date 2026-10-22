@@ -5,7 +5,6 @@
 // ---------- Global state ----------
 let map;
 const markersLayer = L.layerGroup();
-const thresholdLayer = L.layerGroup();
 
 let allSamples = [];          // every parsed CSV row (normalised)
 let stations = new Map();     // stationKey -> { key, name, area, lat, lng, samples[] }
@@ -41,7 +40,6 @@ const LNG_RANGE = [8.0, 13.0];
 document.addEventListener('DOMContentLoaded', () => {
     initMap();
     setupEventListeners();
-    createMockPolygonLayer();
     loadServerData();
     loadEdnaData();          // optional: eDNA project data (edna_samples.csv)
 });
@@ -80,6 +78,8 @@ function initMap() {
 
     map = L.map('map', { zoomControl: false, layers: [streetMap] }).setView([59.35, 10.65], 9);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
+    map.createPane('ednaPane');                        // eDNA points are drawn above the sampling log
+    map.getPane('ednaPane').style.zIndex = 450;
 
     L.control.layers({
         'Street Map': streetMap,
@@ -87,10 +87,9 @@ function initMap() {
         'Ocean / Bathymetry (Esri)': oceanBathymetry,
         'Norwegian Sea Chart (Kartverket)': seaChart
     }, {
-        'Sampling Points': markersLayer,
-        'Negative Controls': controlMarkersLayer,
         'eDNA Campaign Samples': ednaLayer,
-        'Species Threshold Polygons': thresholdLayer
+        'Volunteer Sampling Points': markersLayer,
+        'Negative Controls': controlMarkersLayer
     }, { position: 'topright' }).addTo(map);
 
     markersLayer.addTo(map);
@@ -99,7 +98,6 @@ function initMap() {
 }
 
 function setupEventListeners() {
-    document.getElementById('sampleData').addEventListener('change', handleSampleDataUpload);
     document.getElementById('dateFrom').addEventListener('change', refreshAll);
     document.getElementById('dateTo').addEventListener('change', refreshAll);
 
@@ -148,9 +146,8 @@ function setupEventListeners() {
         refreshAll(false);
     });
 
-    document.getElementById('polygonToggle').addEventListener('change', (e) => {
-        if (e.target.checked) map.addLayer(thresholdLayer);
-        else map.removeLayer(thresholdLayer);
+    document.getElementById('samplingToggle').addEventListener('change', (e) => {
+        [markersLayer, controlMarkersLayer].forEach(l => { if (e.target.checked) map.addLayer(l); else map.removeLayer(l); });
     });
 }
 
@@ -163,27 +160,10 @@ async function loadServerData() {
         ingestCsvText(await resp.text());
     } catch (err) {
         console.error('Automatic CSV load failed:', err);
-        setStatus(
-            `Could not auto-load safe_sampling_data.csv (${err.message}). ` +
-            `If you opened index.html directly from disk, browsers block this – run a local server ` +
-            `(python -m http.server) or use the upload button above.`, true);
+        setStatus(`Part of the data could not be loaded (${err.message}). Please reload the page or contact eivisten@uio.no.`, true);
     } finally {
         showLoader(false);
     }
-}
-
-function handleSampleDataUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    showLoader(true);
-    const reader = new FileReader();
-    reader.onload = () => {
-        try { ingestCsvText(reader.result); }
-        catch (err) { console.error(err); setStatus('Failed to parse CSV: ' + err.message, true); }
-        showLoader(false);
-    };
-    reader.onerror = () => { setStatus('Could not read file.', true); showLoader(false); };
-    reader.readAsText(file, 'UTF-8');
 }
 
 function ingestCsvText(text) {
@@ -218,7 +198,7 @@ function updateModeUI() {
     document.querySelectorAll('#modeButtons button').forEach(btn => {
         const on = btn.dataset.mode === viewMode;
         btn.className = 'py-1.5 rounded transition-colors ' +
-            (on ? (viewMode === 'controls' ? 'bg-amber-500 text-slate-900' : 'bg-primary text-slate-900')
+            (on ? (viewMode === 'controls' ? 'bg-uio-orange text-slate-900' : 'bg-primary text-slate-900')
                 : 'text-slate-300 hover:bg-slate-700');
     });
     document.getElementById('modeHint').textContent = MODE_TEXT[viewMode].hint;
@@ -512,7 +492,7 @@ function refreshAll(fit) {
     const sampleMsg = renderMarkers(regular, controls, bounds);
     const ednaMsg = renderEdna(bounds);
     if (fit === true && bounds.isValid()) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 11 });
-    setStatus(sampleMsg + ednaMsg, false);
+    setStatus([ednaMsg, sampleMsg].filter(Boolean).join(' · '), false);
     renderStats(active, regular, controls);
     renderMonthlyChart(regular, controls);
     renderControls(controls, regular);
@@ -537,8 +517,8 @@ function renderMarkers(regular, controls, bounds) {
             if (st.lat === null) { unmapped += samples.length; return; }
             mappedStations++;
             const marker = L.circleMarker([st.lat, st.lng], {
-                radius: 6 + Math.min(Math.sqrt(samples.length), 6),
-                fillColor: '#38bdf8', color: '#0284c7', weight: 2, opacity: 1, fillOpacity: 0.85
+                radius: 4 + Math.min(Math.sqrt(samples.length), 5),
+                fillColor: '#86A4F7', color: '#3E31D6', weight: 1.5, opacity: 1, fillOpacity: 0.75
             });
             const dates = samples.map(s => s.date).filter(Boolean).sort();
             marker.bindPopup(buildPopup(st, samples.length, dates));
@@ -556,7 +536,7 @@ function renderMarkers(regular, controls, bounds) {
             if (c.lat === null) { unmapped++; return; }
             mapped++;
             const marker = L.circleMarker([c.lat, c.lng], {
-                radius: 7, fillColor: '#f59e0b', color: '#b45309', weight: 2, opacity: 1, fillOpacity: 0.9, dashArray: '3, 3'
+                radius: 6, fillColor: '#FEA11B', color: '#FDCB87', weight: 2, opacity: 1, fillOpacity: 0.9, dashArray: '3, 3'
             });
             marker.bindPopup(buildControlPopup(c));
             controlMarkersLayer.addLayer(marker);
@@ -597,7 +577,7 @@ function buildPopup(st, count, dates) {
     info.textContent = `${count} sample${count === 1 ? '' : 's'}` +
         (dates.length ? ` · ${dates[0]} → ${dates[dates.length - 1]}` : '');
     const btn = document.createElement('button');
-    btn.className = 'w-full bg-primary text-white text-xs font-semibold py-1.5 rounded hover:bg-sky-600 transition-colors mt-3';
+    btn.className = 'w-full bg-primary text-black text-xs font-semibold py-1.5 rounded hover:bg-uio-lightgreen transition-colors mt-3';
     btn.textContent = 'View Analytics';
     btn.addEventListener('click', () => showStation(st.key));
     wrap.appendChild(btn);
@@ -606,7 +586,7 @@ function buildPopup(st, count, dates) {
 
 // ---------- Charts ----------
 function chartDefaults() {
-    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.color = '#aacbdc';
     Chart.defaults.font.family = "'Inter', sans-serif";
 }
 
@@ -634,8 +614,8 @@ function renderMonthlyChart(regular, controls) {
         return m;
     };
     const series = [];
-    if (viewMode !== 'controls') series.push({ label: 'Samples', counts: bucket(regular), color: '#38bdf8' });
-    if (viewMode !== 'samples') series.push({ label: 'Negative controls', counts: bucket(controls), color: '#f59e0b' });
+    if (viewMode !== 'controls') series.push({ label: 'Samples', counts: bucket(regular), color: '#86A4F7' });
+    if (viewMode !== 'samples') series.push({ label: 'Negative controls', counts: bucket(controls), color: '#FEA11B' });
     const labels = monthLabels(series.flatMap(x => [...x.counts.keys()]));
     const stacked = series.length > 1;
     document.getElementById('activityHint').textContent =
@@ -654,7 +634,7 @@ function renderMonthlyChart(regular, controls) {
             plugins: { legend: { display: stacked, labels: { boxWidth: 10 } } },
             scales: {
                 x: { stacked, grid: { display: false }, ticks: { maxRotation: 60, autoSkip: true, maxTicksLimit: 8 } },
-                y: { stacked, beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(71,85,105,0.2)' } }
+                y: { stacked, beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(159,195,214,0.15)' } }
             }
         }
     });
@@ -664,6 +644,8 @@ function renderMonthlyChart(regular, controls) {
 function showStation(key) {
     const st = stations.get(key);
     if (!st) return;
+    const panel = document.getElementById('samplingDetails');
+    if (panel) panel.open = true;                    // the sampling log is collapsed by default
     selectedStationKey = key;
     chartDefaults();
 
@@ -689,18 +671,18 @@ function showStation(key) {
             datasets: [{
                 label: 'Filtered volume (mL)',
                 data: withVol.map(s => s.volumeMl),
-                borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.15)',
+                borderColor: '#86A4F7', backgroundColor: 'rgba(134,164,247,0.15)',
                 borderWidth: 2, tension: 0.2, pointRadius: 4, fill: true,
-                pointBorderColor: '#38bdf8', pointBorderWidth: 2,
-                pointBackgroundColor: withVol.map(s => (s.volumeAssumed ? '#1e293b' : '#38bdf8'))   // hollow = assumed
+                pointBorderColor: '#86A4F7', pointBorderWidth: 2,
+                pointBackgroundColor: withVol.map(s => (s.volumeAssumed ? '#123048' : '#86A4F7'))   // hollow = assumed
             }]
         },
         options: {
             responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(15,23,42,0.9)' } },
+            plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(10,34,52,0.95)' } },
             scales: {
-                x: { grid: { color: 'rgba(71,85,105,0.2)' }, ticks: { maxRotation: 60, autoSkip: true, maxTicksLimit: 6 } },
-                y: { beginAtZero: true, title: { display: true, text: 'mL filtered' }, grid: { color: 'rgba(71,85,105,0.2)' } }
+                x: { grid: { color: 'rgba(159,195,214,0.15)' }, ticks: { maxRotation: 60, autoSkip: true, maxTicksLimit: 6 } },
+                y: { beginAtZero: true, title: { display: true, text: 'mL filtered' }, grid: { color: 'rgba(159,195,214,0.15)' } }
             }
         }
     });
@@ -838,13 +820,13 @@ function renderStats(active, regular, controlSamples) {
         data: {
             labels: top.map(([k]) => { const n = names.get(k); return n.length > 22 ? n.slice(0, 21) + '…' : n; }),
             datasets: [{ label: onlyControls ? 'Controls' : 'Samples', data: top.map(([, a]) => a.length),
-                backgroundColor: onlyControls ? '#f59e0b' : '#10b981', borderRadius: 2 }]
+                backgroundColor: onlyControls ? '#FEA11B' : '#86A4F7', borderRadius: 2 }]
         },
         options: {
             indexAxis: 'y', responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(71,85,105,0.2)' } },
+                x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(159,195,214,0.15)' } },
                 y: { grid: { display: false }, ticks: { font: { size: 10 } } }
             }
         }
@@ -876,7 +858,7 @@ function renderControls(controls, regular) {
     if (suspects.length) {
         const c = statCard('Check IDs', String(suspects.length),
             'say "negative control" but ID has no N: ' + suspects.slice(0, 4).map(s => s.sampleId || '(no ID)').join(', '));
-        c.classList.add('border-amber-500/60');
+        c.classList.add('border-uio-orange/60');
         grid.appendChild(c);
     }
 
@@ -886,7 +868,7 @@ function renderControls(controls, regular) {
     document.getElementById('controlSuspectHead').style.display = suspects.length ? 'block' : 'none';
     suspects.forEach(s => {
         const li = document.createElement('li');
-        li.className = 'py-1 border-b border-amber-500/20 last:border-0 text-slate-300';
+        li.className = 'py-1 border-b border-uio-orange/20 last:border-0 text-slate-300';
         li.textContent = [s.date, s.sampleId ? `ID ${s.sampleId}` : '(no ID)', s.locale].filter(Boolean).join(' · ');
         li.title = [s.rawVolume, s.note].filter(Boolean).join(' | ');
         sl.appendChild(li);
@@ -901,13 +883,13 @@ function renderControls(controls, regular) {
     if (controlsChart) controlsChart.destroy();
     controlsChart = new Chart(document.getElementById('controlsChart').getContext('2d'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: 'Controls', data: labels.map(l => counts.get(l) || 0), backgroundColor: '#f59e0b', borderRadius: 2 }] },
+        data: { labels, datasets: [{ label: 'Controls', data: labels.map(l => counts.get(l) || 0), backgroundColor: '#FEA11B', borderRadius: 2 }] },
         options: {
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
                 x: { grid: { display: false }, ticks: { maxRotation: 60, autoSkip: true, maxTicksLimit: 8 } },
-                y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(71,85,105,0.2)' } }
+                y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(159,195,214,0.15)' } }
             }
         }
     });
@@ -958,13 +940,13 @@ const EDNA_CAMPAIGNS_URL = './edna_campaigns.csv';      // one row per campaign:
 const TAXON_NAMES_URL = './taxon_names.csv';            // Norwegian names (see fetch_taxon_names.py)
 const GROUP_LABELS = { fish: 'Fish', invertebrates: 'Invertebrates', plants: 'Plants', algae: 'Algae', bacteria: 'Bacteria',
     eukaryotes: 'Eukaryotes', mammals: 'Mammals', birds: 'Birds', amphibians: 'Amphibians', insects: 'Insects' };
-const CAMPAIGN_PALETTE = ['#38bdf8', '#f472b6', '#a3e635', '#fb923c', '#a78bfa', '#2dd4bf', '#facc15', '#f87171'];
+const CAMPAIGN_PALETTE = ['#2EC483', '#86A4F7', '#FEA11B', '#FB6666', '#6CE1AB', '#FDCB87', '#B2B3B7', '#E6ECFF'];   // UiO palette
 const SAMPLER_SALT = 'kysthjelperne-sampler-v1';     // must equal HASH_SALT in build_edna_dataset.py
 const SAMPLER_ITERATIONS = 100000;                    // must equal PBKDF2_ITERATIONS in build_edna_dataset.py
 const MIN_SAMPLER_GROUP = 3;                          // samplers with fewer samples are not shown/compared
 const LOW_READS = 500;
-const GROUP_COLORS = { low: '#22c55e', normal: '#eab308', high: '#ef4444', '': '#94a3b8' };
-const SAMPLER_PALETTE = ['#38bdf8', '#f472b6', '#a78bfa', '#fb923c', '#34d399', '#facc15', '#60a5fa', '#f87171', '#2dd4bf', '#c084fc'];
+const GROUP_COLORS = { low: '#2EC483', normal: '#FEA11B', high: '#FB6666', '': '#B2B3B7' };   // UiO green / orange / light red / grey
+const SAMPLER_PALETTE = ['#86A4F7', '#2EC483', '#FEA11B', '#FB6666', '#6CE1AB', '#FDCB87', '#3E31D6', '#E6ECFF', '#CEFFDF', '#FFFEA7'];
 const EDNA_VARS = {
     tn:       { label: 'Total N (mg/L)' },
     toc:      { label: 'TOC (mg/L)' },
@@ -1000,7 +982,7 @@ function taxonLabel(taxon) {
 function groupBadge(group) {
     const b = document.createElement('span');
     b.className = 'inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide border ' +
-        (group ? 'bg-teal-500/15 text-teal-300 border-teal-500/40' : 'bg-slate-700/40 text-slate-400 border-slate-600');
+        (group ? 'bg-uio-green/15 text-uio-lightgreen border-uio-green/40' : 'bg-slate-700/40 text-slate-400 border-slate-600');
     b.textContent = group ? groupLabel(group) : 'Group not set';
     return b;
 }
@@ -1142,7 +1124,7 @@ function renderCampaignInfo() {
     const head = mk('div', 'flex items-center gap-2 flex-wrap');
     head.append(mk('span', 'text-sm font-semibold text-white', c.title), groupBadge(c.group));
     box.appendChild(head);
-    if (c.group) box.appendChild(mk('p', 'text-xs text-teal-300/90 mt-1', `Target group: ${groupLabel(c.group)} – the species lists cover ${groupLabel(c.group).toLowerCase()} only.`));
+    if (c.group) box.appendChild(mk('p', 'text-xs text-uio-lightgreen/90 mt-1', `Target group: ${groupLabel(c.group)} – the species lists cover ${groupLabel(c.group).toLowerCase()} only.`));
     if (c.author) box.appendChild(mk('p', 'text-xs text-slate-400 mt-1', `Study by ${c.author}`));
     if (c.description) box.appendChild(mk('p', 'text-xs text-slate-400 mt-1', c.description));
     box.appendChild(mk('p', 'text-[11px] text-slate-500 mt-1',
@@ -1165,7 +1147,7 @@ function renderEdnaLegend() {
         [...new Set(ednaSamples.filter(s => s.type === 'sample').map(s => s.project))].sort()
             .forEach(p => item(campaignColor(p), campaignOf(p).title));
     } else if (ednaColorMode === 'sampler') {
-        item('#38bdf8', 'coloured: samplers with 3+ samples'); item('#94a3b8', 'grey: others / unknown');
+        item('#86A4F7', 'coloured: samplers with 3+ samples'); item('#B2B3B7', 'grey: others / unknown');
     } else {
         item(GROUP_COLORS.low, 'low'); item(GROUP_COLORS.normal, 'normal'); item(GROUP_COLORS.high, 'high'); item(GROUP_COLORS[''], 'no group');
     }
@@ -1208,13 +1190,13 @@ function setupEdnaListeners() {
             mySamplerHash = await samplerHashFromKey(key);
             document.getElementById('mySamplerKey').value = '';          // do not keep the key on screen
             const n = ednaSamples.filter(s => s.type === 'sample' && isMine(s)).length;
-            status.className = 'text-xs mt-2 ' + (n ? 'text-emerald-400' : 'text-amber-400');
-            status.textContent = n ? `Found ${n} of your samples (highlighted with a purple ring).`
+            status.className = 'text-xs mt-2 ' + (n ? 'text-uio-lightgreen' : 'text-uio-lightorange');
+            status.textContent = n ? `Found ${n} of your samples (highlighted with a blue ring).`
                                    : 'No samples match this key. Check the key and try again.';
             if (!n) mySamplerHash = null;
         } catch (err) {
             mySamplerHash = null;
-            status.className = 'text-xs mt-2 text-red-400';
+            status.className = 'text-xs mt-2 text-uio-lightred';
             status.textContent = err.message;
         }
         refreshAll(false);
@@ -1245,7 +1227,7 @@ function getFilteredEdna() {
 }
 
 function samplerColor(hash, counts) {
-    if (!hash || (counts.get(hash) || 0) < MIN_SAMPLER_GROUP) return '#94a3b8';
+    if (!hash || (counts.get(hash) || 0) < MIN_SAMPLER_GROUP) return '#B2B3B7';
     const ranked = [...counts.entries()].filter(([, n]) => n >= MIN_SAMPLER_GROUP).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
     const i = ranked.findIndex(([h]) => h === hash);
     return SAMPLER_PALETTE[i % SAMPLER_PALETTE.length];
@@ -1270,7 +1252,7 @@ function renderEdna(bounds) {
         const fill = ednaColorMode === 'sampler' ? samplerColor(s.sampler, counts)
             : ednaColorMode === 'campaign' ? campaignColor(s.project) : (GROUP_COLORS[s.group] || GROUP_COLORS['']);
         const marker = L.circleMarker([s.lat, s.lng], {
-            radius: mine ? 10 : 6, fillColor: fill, color: mine ? '#e879f9' : '#ffffff',
+            pane: 'ednaPane', radius: mine ? 12 : 8, fillColor: fill, color: mine ? '#3E31D6' : '#ffffff',
             weight: mine ? 4 : 2, opacity: 1, fillOpacity: 0.95
         });
         marker.bindPopup(buildEdnaPopup(s));
@@ -1286,7 +1268,7 @@ function renderEdna(bounds) {
     renderEdnaScatter(filtered, mixed);
     renderSamplers(filtered, mixed);
     if (selectedEdnaUid && !filtered.some(s => s.uid === selectedEdnaUid)) hideEdnaDetail();
-    return ` · ${filtered.length} eDNA samples (${onMap} on map)`;
+    return `${filtered.length} eDNA samples (${onMap} on map)`;
 }
 
 function buildEdnaPopup(s) {
@@ -1295,14 +1277,14 @@ function buildEdnaPopup(s) {
     add('leaflet-popup-title', `eDNA sample ${s.id}`);
     const camp = campaignOf(s.project);
     add('leaflet-popup-sub', [camp.title, s.date, s.area].filter(Boolean).join(' · '));
-    if (camp.group) add('text-xs font-semibold text-teal-700', `Target group: ${groupLabel(camp.group)}`);
+    if (camp.group) add('text-xs font-semibold text-black', `Target group: ${groupLabel(camp.group)}`);
     const chem = [['TN', ednaValue(s, 'tn')], ['TOC', ednaValue(s, 'toc')], ['Sal.', s.salinity]]
         .filter(([, v]) => v !== null).map(([k, v]) => `${k} ${v}`).join(' · ');
     if (chem) add('text-xs text-gray-600 mt-2', chem);
     if (s.richness !== null) add('text-xs text-gray-600', `${s.richness} ${camp.group ? groupLabel(camp.group).toLowerCase() + ' ' : ''}taxa · ${s.readsTotal} reads`);
-    if (isMine(s)) add('text-xs font-semibold text-fuchsia-600 mt-1', 'Your sample');
+    if (isMine(s)) add('text-xs font-semibold text-uio-blue mt-1', 'Your sample');
     const btn = document.createElement('button');
-    btn.className = 'w-full bg-primary text-white text-xs font-semibold py-1.5 rounded hover:bg-sky-600 transition-colors mt-3';
+    btn.className = 'w-full bg-primary text-black text-xs font-semibold py-1.5 rounded hover:bg-uio-lightgreen transition-colors mt-3';
     btn.textContent = 'View details';
     btn.addEventListener('click', () => showEdnaSample(s.uid));
     wrap.appendChild(btn);
@@ -1353,7 +1335,7 @@ function renderEdnaStats(filtered, mixed) {
     const project = document.getElementById('ednaProject').value || 'all';
     ednaSamples.filter(s => s.type === 'negative_control' && (project === 'all' || s.project === project)).forEach(c => {
         const card = statCard('Lab negative control', `${c.readsTotal ?? 0} reads`, `${c.richness ?? 0} taxa identified${project === 'all' ? ' · ' + c.project : ''}`);
-        card.classList.add('border-amber-500/60');
+        card.classList.add('border-uio-orange/60');
         grid.appendChild(card);
     });
 }
@@ -1409,8 +1391,8 @@ function renderEdnaScatter(filtered, mixed) {
                 tooltip: { callbacks: { label: c => `#${c.raw.id}: ${c.raw.x}, ${c.raw.y} taxa` } }
             },
             scales: {
-                x: { title: { display: true, text: EDNA_VARS[key].label }, grid: { color: 'rgba(71,85,105,0.2)' } },
-                y: { beginAtZero: true, title: { display: true, text: mixed ? 'Species richness (taxa; target groups differ)' : 'Species richness (taxa)' }, grid: { color: 'rgba(71,85,105,0.2)' } }
+                x: { title: { display: true, text: EDNA_VARS[key].label }, grid: { color: 'rgba(159,195,214,0.15)' } },
+                y: { beginAtZero: true, title: { display: true, text: mixed ? 'Species richness (taxa; target groups differ)' : 'Species richness (taxa)' }, grid: { color: 'rgba(159,195,214,0.15)' } }
             }
         }
     });
@@ -1476,13 +1458,13 @@ function showEdnaSample(uid, keepVariant) {
         type: 'bar',
         data: {
             labels: top.map(r => taxonLabel(r.taxon)),
-            datasets: [{ label: '% of identified reads', fullNames: top.map(r => taxonLabel(r.taxon)), data: top.map(r => +(100 * r.reads / total).toFixed(1)), backgroundColor: '#10b981', borderRadius: 2 }]
+            datasets: [{ label: '% of identified reads', fullNames: top.map(r => taxonLabel(r.taxon)), data: top.map(r => +(100 * r.reads / total).toFixed(1)), backgroundColor: '#2EC483', borderRadius: 2 }]
         },
         options: {
             indexAxis: 'y', responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: { beginAtZero: true, title: { display: true, text: '% of identified reads' }, grid: { color: 'rgba(71,85,105,0.2)' } },
+                x: { beginAtZero: true, title: { display: true, text: '% of identified reads' }, grid: { color: 'rgba(159,195,214,0.15)' } },
                 y: { grid: { display: false }, ticks: { font: { size: 10 } } }
             }
         }
@@ -1535,7 +1517,7 @@ function renderSamplers(filtered, mixed) {
     table.appendChild(head);
     shown.forEach(([h, a]) => {
         const tr = document.createElement('tr');
-        tr.className = 'border-t border-slate-700/60 ' + (mySamplerHash === h ? 'text-fuchsia-300' : 'text-slate-300');
+        tr.className = 'border-t border-slate-700/60 ' + (mySamplerHash === h ? 'text-uio-lightblue' : 'text-slate-300');
         [samplerLabel(h) + (mySamplerHash === h ? ' (you)' : ''), a.length, med(a, 'tn'), mixed ? '–' : med(a, 'richness')].forEach(v => {
             const td = document.createElement('td'); td.className = 'py-0.5'; td.textContent = String(v); tr.appendChild(td);
         });
@@ -1562,21 +1544,12 @@ function renderSamplers(filtered, mixed) {
     eff.appendChild(t2);
 }
 
-// ---------- Placeholder polygon ----------
-function createMockPolygonLayer() {
-    const polygon = L.polygon([[59.4, 10.4], [59.45, 10.65], [59.2, 10.75], [59.1, 10.45]], {
-        color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.3, weight: 2, dashArray: '5, 5'
-    });
-    polygon.bindTooltip('High Nutrient Threshold Area (placeholder)', { sticky: true });
-    thresholdLayer.addLayer(polygon);
-}
-
 // ---------- UI helpers ----------
 function setStatus(msg, isError) {
     const el = document.getElementById('dataStatus');
     if (!el) return;
     el.textContent = msg;
-    el.className = 'text-xs mt-2 ' + (isError ? 'text-red-400' : 'text-slate-400');
+    el.className = 'text-xs mt-2 ' + (isError ? 'text-uio-lightred' : 'text-slate-400');
 }
 
 function showLoader(show) {

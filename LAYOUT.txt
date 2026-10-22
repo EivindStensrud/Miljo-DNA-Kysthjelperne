@@ -31,7 +31,8 @@
  |-- approved_words.txt                words the sanitizer may keep (place names, equipment ...)
  |
  |-- docs/                             THE WEBSITE  (everything in here is public)
- |     |-- index.html, script.js       the dashboard
+ |     |-- index.html, script.js       the dashboard (design, colours, texts: see section 11)
+ |     |-- img/uio-logo.svg            the OFFICIAL UiO logo - you download it (img/PLACE_UIO_LOGO_HERE.txt)
  |     |-- safe_sampling_data.csv      all projects' sampling logs, merged  (made by build_all.py)
  |     |-- edna_samples.csv            one row per eDNA sample, all campaigns
  |     |-- edna_species_long.csv       reads per sample and species
@@ -246,3 +247,44 @@
                                             under it, fix the cause, run again. Nothing was published.
    "LOOKS LIKE THE SAME PERSON"             see section 7 (aliases)
    "could not be read"  (fetch_taxon_names) run with --debug-dir debug and look at the files in debug/
+
+
+----------------------------------------------------------------------------------------------
+ 11. THE WEBSITE: DESIGN AND WHERE TO CHANGE THINGS   (all in docs/)
+----------------------------------------------------------------------------------------------
+
+   WHAT THE PAGE SHOWS, TOP TO BOTTOM
+     * header      UiO logo, title, loading/status line
+     * Filters     dates, search, switches for the two map layers (apply to all data)
+     * eDNA Campaigns   THE MAIN CONTENT: campaign menu ("All campaigns" is the default), statistics,
+                   richness chart, colour options, sample details, samplers / "My samples"
+     * Volunteer sampling log   supplementary, COLLAPSED by default; opens by itself when a station is
+                   clicked on the map. Contains the true-samples / negative-controls switch and its statistics
+     * footer      contact: eivisten@uio.no
+     * map         eDNA points are drawn on top of (and larger than) the sampling-log points
+   There is no upload option: everything is loaded from the CSV files in docs/.
+   The old placeholder layer "Species Threshold Polygons" (made-up data) was removed.
+
+   LOGO
+     docs/img/uio-logo.svg  - download the official WHITE English logo, see img/PLACE_UIO_LOGO_HERE.txt.
+     Without the file the page shows the text "University of Oslo".
+
+   CONTACT ADDRESS
+     In docs/index.html search for  eivisten@uio.no  (footer) and in docs/script.js (error message).
+
+   COLOURS
+     UiO palette (https://www.uio.no/english/about/designmanual/profile-elements/colour-palette/) as accents
+     on an aquatic deep-blue base:
+        green #2EC483 (eDNA, buttons)      light blue #86A4F7 (sampling log, links)
+        orange #FEA11B (negative controls, "normal" nutrient group)    light red #FB6666 (high nutrients)
+     The deep blues are defined once, in the tailwind.config block at the top of docs/index.html
+     ("slate" scale and "uio" colours). The map-point and chart colours are constants in docs/script.js
+     (GROUP_COLORS, CAMPAIGN_PALETTE, SAMPLER_PALETTE). The red seal colour of UiO is reserved for diplomas
+     and is not used. Text colours were checked for contrast (at least 4.5:1).
+
+   HOSTING
+     The files in docs/ are plain static files. GitHub Pages serves them today; this is NOT UiO's own
+     infrastructure, so the page says "University of Oslo" (logo, contact) but not "hosted by UiO".
+     If the site must run on UiO servers, copy the whole docs/ folder to a UiO web area (ask UiO IT); nothing
+     else has to change. Because the data contain pseudonymised sampler codes, check with UiO's data
+     protection officer where they may be stored.
