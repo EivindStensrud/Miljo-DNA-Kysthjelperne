@@ -148,6 +148,11 @@
                         <p class="text-xs text-slate-500 mt-1">Follows the date filter and search above. Samples without a date are always included. Water chemistry belongs to the samples of each campaign.</p>
                     </div>
 
+                    <div>
+                        <button id="exploreOpenBtnSidebar" type="button" class="w-full bg-primary hover:bg-uio-lightgreen text-black text-sm font-semibold py-2 rounded-md transition-colors">Explore &amp; compare locations</button>
+                        <p class="text-xs text-slate-400 mt-1">Click any point on the map, see every species found there, and compare locations side by side.</p>
+                    </div>
+
                     <div id="ednaStatsGrid" class="grid grid-cols-2 gap-2"></div>
 
                     <div>
@@ -175,21 +180,6 @@
                             <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="ednaColor" value="sampler"> Sampler</label>
                         </div>
                         <div id="ednaLegend" class="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-400 mt-2"></div>
-                    </div>
-
-                    <!-- selected sample -->
-                    <div id="ednaDetail" style="display:none" class="border border-uio-green/30 rounded-lg p-3 bg-slate-900/40">
-                        <div class="flex justify-between items-start gap-2 mb-2">
-                            <p id="ednaDetailTitle" class="text-sm font-semibold text-white"></p>
-                        </div>
-                        <p id="ednaDetailCampaign" class="text-xs text-slate-400 -mt-1 mb-2"></p>
-                        <div id="ednaDetailGrid" class="grid grid-cols-2 gap-2"></div>
-                        <p id="ednaSamplerLine" class="text-xs text-slate-400 mt-2"></p>
-                        <select id="ednaVariant" style="display:none" class="w-full mt-3 bg-slate-800 border border-slate-600 rounded py-1 px-2 text-xs text-white"></select>
-                        <div class="bg-slate-800 rounded-lg p-2 border border-slate-700 relative h-56 mt-3">
-                            <canvas id="ednaSpeciesChart"></canvas>
-                        </div>
-                        <p id="ednaSpeciesNote" class="text-[11px] text-slate-500 mt-1"></p>
                     </div>
 
                     <!-- samplers -->
@@ -319,6 +309,55 @@
     <!-- Main Content (Map) -->
     <main class="flex-1 relative">
         <div id="map" class="h-full w-full z-0"></div>
+
+        <!-- Explorer: pick locations, see every species, compare -->
+        <button id="exploreOpenBtn" type="button"
+                class="hidden absolute top-4 left-4 z-[1000] bg-sidebar/95 text-white text-sm font-semibold px-3 py-2 rounded-md border border-uio-green/70 shadow-lg hover:bg-slate-800 flex items-center gap-2">
+            <svg class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm1 4a1 1 0 100 2h6a1 1 0 100-2H4z" clip-rule="evenodd"/></svg>
+            Explore locations
+        </button>
+
+        <aside id="explorer" class="hidden absolute left-0 top-0 bottom-0 z-[1100] w-[min(780px,60vw)] bg-sidebar text-slate-300 border-r border-slate-600 shadow-2xl flex flex-col" aria-label="Explore and compare locations">
+            <header class="flex-shrink-0 flex items-start justify-between gap-3 px-4 py-3 border-b border-slate-700 bg-slate-950">
+                <div class="min-w-0">
+                    <h2 class="text-base font-semibold text-white">Explore &amp; compare locations</h2>
+                    <p id="exploreMsg" class="text-xs mt-0.5 text-slate-400"></p>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <div id="exploreLevel" role="group" aria-label="What to list" class="flex bg-slate-800 border border-slate-600 rounded-md p-0.5 text-xs font-semibold">
+                        <button type="button" data-level="point">Sampling points</button>
+                        <button type="button" data-level="area">Areas</button>
+                    </div>
+                    <button id="exploreClose" type="button" aria-label="Close" title="Close (Esc)" class="h-8 w-8 flex items-center justify-center rounded-md text-slate-300 hover:bg-slate-700 hover:text-white text-xl leading-none">&times;</button>
+                </div>
+            </header>
+            <div class="flex flex-1 min-h-0">
+                <div class="w-72 flex-shrink-0 border-r border-slate-700 flex flex-col min-h-0">
+                    <div class="p-3 space-y-2 border-b border-slate-700">
+                        <input id="exploreSearch" type="search" placeholder="Find a place or a species (e.g. torsk)…" autocomplete="off"
+                               class="w-full bg-slate-800 border border-slate-600 rounded-md py-1.5 px-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary">
+                        <div class="flex items-center justify-between gap-2">
+                            <select id="exploreSort" aria-label="Sort" class="bg-slate-800 border border-slate-600 rounded py-1 px-2 text-xs text-white">
+                                <option value="name">Sort: name</option>
+                                <option value="richness">Sort: most species</option>
+                                <option value="tn">Sort: highest Total N</option>
+                                <option value="date">Sort: date</option>
+                            </select>
+                            <span id="exploreCount" class="text-[11px] text-slate-400"></span>
+                        </div>
+                    </div>
+                    <ul id="exploreList" class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1"></ul>
+                </div>
+                <div class="flex-1 min-w-0 flex flex-col min-h-0">
+                    <div role="tablist" class="flex-shrink-0 flex gap-1 px-3 pt-2 border-b border-slate-700">
+                        <button id="exploreTabDetails" type="button" role="tab">Location details</button>
+                        <button id="exploreTabCompare" type="button" role="tab">Compare</button>
+                    </div>
+                    <div id="exploreDetails" class="flex-1 overflow-y-auto custom-scrollbar p-4"></div>
+                    <div id="exploreCompare" class="hidden flex-1 overflow-y-auto custom-scrollbar p-4"></div>
+                </div>
+            </div>
+        </aside>
 
         <!-- Map loading overlay -->
         <div id="mapLoader" class="hidden absolute inset-0 bg-white/80 z-[1000] flex flex-col items-center justify-center">

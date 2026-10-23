@@ -258,6 +258,16 @@
      * Filters     dates, search, switches for the two map layers (apply to all data)
      * eDNA Campaigns   THE MAIN CONTENT: campaign menu ("All campaigns" is the default), statistics,
                    richness chart, colour options, sample details, samplers / "My samples"
+     * Explorer     opened with "Explore & compare locations" (sidebar) or "Explore locations" (map, top left):
+                   - list of sampling points or of whole areas; search by place OR by species (e.g. "torsk")
+                   - click a point on the map or in the richness chart, or pick from the list
+                   - details: ALL species found there (Norwegian + scientific name), share of reads, in how many
+                     samples they were found; chemistry; the single samples of a location; sequencing variants
+                   - compare up to 6 locations: tick the boxes, "Add to comparison", or Shift+click on the map.
+                     Side-by-side chemistry, species overlap, similarity matrices, chart, species-by-location table
+                   - CSV download of a species list or a comparison (public data only)
+                   Fish and algae (different target groups) are never pooled into one location.
+                   Esc or the x closes the panel; the chosen locations keep their coloured rings on the map.
      * Volunteer sampling log   supplementary, COLLAPSED by default; opens by itself when a station is
                    clicked on the map. Contains the true-samples / negative-controls switch and its statistics
      * footer      contact: eivisten@uio.no

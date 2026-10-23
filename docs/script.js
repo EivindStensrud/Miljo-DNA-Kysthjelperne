@@ -962,8 +962,6 @@ let ednaLong = new Map();           // 'project|id' -> [{variant, taxon, reads}]
 let ednaColorMode = 'nutrient';     // 'nutrient' | 'sampler'
 let mySamplerHash = null;           // set only in memory, never stored or sent
 let ednaScatterChart = null;
-let ednaSpeciesChart = null;
-let selectedEdnaUid = null;
 
 function campaignOf(project) {
     return ednaCampaigns.get(project) || { project, title: project, author: '', group: '', description: '' };
@@ -1032,6 +1030,7 @@ async function loadEdnaData() {
                 });
             }
         } catch (e) { console.warn('eDNA species table not loaded', e); }
+        mainSpeciesCache.clear();
         try {
             const r3 = await fetch(EDNA_CAMPAIGNS_URL, { cache: 'no-cache' });
             if (r3.ok) {
@@ -1085,8 +1084,6 @@ function populateCampaignMenu() {
 }
 
 function onCampaignChange() {
-    selectedEdnaUid = null;
-    hideEdnaDetail();
     refreshAll(true);
 }
 
@@ -1178,7 +1175,7 @@ function setupEdnaListeners() {
         refreshAll(false);
     }));
     document.getElementById('onlyMine').addEventListener('change', () => refreshAll(true));
-    document.getElementById('ednaVariant').addEventListener('change', () => { if (selectedEdnaUid) showEdnaSample(selectedEdnaUid, true); });
+    setupExplorerListeners();
 
     const status = document.getElementById('mySamplerStatus');
     const apply = async () => {
@@ -1234,6 +1231,41 @@ function samplerColor(hash, counts) {
 }
 
 // ---- map ----------------------------------------------------------------------------------
+function drawEdnaMarkers(filtered, bounds) {
+    ednaLayer.clearLayers();
+    const counts = new Map();
+    ednaSamples.filter(s => s.type === 'sample' && s.sampler).forEach(s => counts.set(s.sampler, (counts.get(s.sampler) || 0) + 1));
+    const cmp = new Map(compareIds.map((id, i) => [id, i]));
+
+    let onMap = 0;
+    filtered.forEach(s => {
+        if (s.lat === null || s.lng === null) return;
+        onMap++;
+        const mine = isMine(s);
+        const unit = unitIdForSample(s, exploreLevel);
+        const ci = unit && cmp.has(unit) ? cmp.get(unit) : -1;
+        const chosen = (unit !== null && unit === exploreSelected) || exploreSelected === `sm|${s.uid}`;
+        const fill = ednaColorMode === 'sampler' ? samplerColor(s.sampler, counts)
+            : ednaColorMode === 'campaign' ? campaignColor(s.project) : (GROUP_COLORS[s.group] || GROUP_COLORS['']);
+        // ring: compared location (its own colour) > selected location (yellow) > "my sample" (blue)
+        const ring = ci >= 0 ? EXPLORE_COLORS[ci] : chosen ? '#FFFEA7' : mine ? '#3E31D6' : '#ffffff';
+        const thick = ci >= 0 || chosen || mine;
+        const marker = L.circleMarker([s.lat, s.lng], {
+            pane: 'ednaPane', radius: (ci >= 0 || chosen) ? 11 : mine ? 12 : 8, fillColor: fill, color: ring,
+            weight: thick ? 4 : 2, opacity: 1, fillOpacity: 0.95
+        });
+        marker.bindTooltip(buildEdnaTooltip(s), { direction: 'top', sticky: true });
+        marker.on('click', ev => onEdnaMarkerClick(s, ev && ev.originalEvent));
+        ednaLayer.addLayer(marker);
+        if (bounds) bounds.extend([s.lat, s.lng]);
+    });
+    return onMap;
+}
+
+function redrawEdnaMarkers() {
+    drawEdnaMarkers(getFilteredEdna(), null);
+}
+
 function renderEdna(bounds) {
     ednaLayer.clearLayers();
     const section = document.getElementById('ednaSection');
@@ -1241,25 +1273,7 @@ function renderEdna(bounds) {
     section.style.display = 'block';
 
     const filtered = getFilteredEdna();
-    const counts = new Map();
-    ednaSamples.filter(s => s.type === 'sample' && s.sampler).forEach(s => counts.set(s.sampler, (counts.get(s.sampler) || 0) + 1));
-
-    let onMap = 0;
-    filtered.forEach(s => {
-        if (s.lat === null || s.lng === null) return;
-        onMap++;
-        const mine = isMine(s);
-        const fill = ednaColorMode === 'sampler' ? samplerColor(s.sampler, counts)
-            : ednaColorMode === 'campaign' ? campaignColor(s.project) : (GROUP_COLORS[s.group] || GROUP_COLORS['']);
-        const marker = L.circleMarker([s.lat, s.lng], {
-            pane: 'ednaPane', radius: mine ? 12 : 8, fillColor: fill, color: mine ? '#3E31D6' : '#ffffff',
-            weight: mine ? 4 : 2, opacity: 1, fillOpacity: 0.95
-        });
-        marker.bindPopup(buildEdnaPopup(s));
-        marker.on('click', () => showEdnaSample(s.uid));
-        ednaLayer.addLayer(marker);
-        bounds.extend([s.lat, s.lng]);
-    });
+    const onMap = drawEdnaMarkers(filtered, bounds);
 
     renderCampaignInfo();
     renderEdnaLegend();
@@ -1267,31 +1281,23 @@ function renderEdna(bounds) {
     renderEdnaStats(filtered, mixed);
     renderEdnaScatter(filtered, mixed);
     renderSamplers(filtered, mixed);
-    if (selectedEdnaUid && !filtered.some(s => s.uid === selectedEdnaUid)) hideEdnaDetail();
+    renderExplorer();
     return `${filtered.length} eDNA samples (${onMap} on map)`;
 }
 
-function buildEdnaPopup(s) {
-    const wrap = document.createElement('div');
-    const add = (cls, text) => { const d = document.createElement('div'); d.className = cls; d.textContent = text; wrap.appendChild(d); };
-    add('leaflet-popup-title', `eDNA sample ${s.id}`);
+// Hover text on a point (click opens the explorer)
+function buildEdnaTooltip(s) {
     const camp = campaignOf(s.project);
-    add('leaflet-popup-sub', [camp.title, s.date, s.area].filter(Boolean).join(' · '));
-    if (camp.group) add('text-xs font-semibold text-black', `Target group: ${groupLabel(camp.group)}`);
-    const chem = [['TN', ednaValue(s, 'tn')], ['TOC', ednaValue(s, 'toc')], ['Sal.', s.salinity]]
-        .filter(([, v]) => v !== null).map(([k, v]) => `${k} ${v}`).join(' · ');
-    if (chem) add('text-xs text-gray-600 mt-2', chem);
-    if (s.richness !== null) add('text-xs text-gray-600', `${s.richness} ${camp.group ? groupLabel(camp.group).toLowerCase() + ' ' : ''}taxa · ${s.readsTotal} reads`);
-    if (isMine(s)) add('text-xs font-semibold text-uio-blue mt-1', 'Your sample');
-    const btn = document.createElement('button');
-    btn.className = 'w-full bg-primary text-black text-xs font-semibold py-1.5 rounded hover:bg-uio-lightgreen transition-colors mt-3';
-    btn.textContent = 'View details';
-    btn.addEventListener('click', () => showEdnaSample(s.uid));
-    wrap.appendChild(btn);
+    const wrap = document.createElement('div');
+    const line = (cls, text) => { const d = document.createElement('div'); d.className = cls; d.textContent = text; wrap.appendChild(d); };
+    line('font-semibold', `Sample ${s.id}${s.area ? ' · ' + s.area : ''}`);
+    line('', [camp.title, s.date].filter(Boolean).join(' · '));
+    if (s.richness !== null) line('', `${s.richness} ${camp.group ? groupLabel(camp.group).toLowerCase() + ' ' : ''}taxa · ${s.readsTotal} reads`);
+    if (isMine(s)) line('font-semibold', 'Your sample');
+    line('', 'Click: details · Shift+click: add to comparison');
     return wrap;
 }
 
-// ---- statistics ---------------------------------------------------------------------------
 function renderEdnaStats(filtered, mixed) {
     const grid = document.getElementById('ednaStatsGrid');
     grid.innerHTML = '';
@@ -1368,17 +1374,17 @@ function renderEdnaScatter(filtered, mixed) {
     const sets = mixed
         ? [...new Set(pts.map(p => p.s.project))].sort().map(pr => ({
             label: campaignOf(pr).title,
-            data: pts.filter(p => p.s.project === pr).map(p => ({ x: p.x, y: p.y, id: p.s.id })),
+            data: pts.filter(p => p.s.project === pr).map(p => ({ x: p.x, y: p.y, id: p.s.id, uid: p.s.uid })),
             backgroundColor: campaignColor(pr), pointRadius: 4
         }))
         : ['low', 'normal', 'high', ''].map(g => ({
             label: g || 'no group',
-            data: pts.filter(p => p.s.group === g).map(p => ({ x: p.x, y: p.y, id: p.s.id })),
+            data: pts.filter(p => p.s.group === g).map(p => ({ x: p.x, y: p.y, id: p.s.id, uid: p.s.uid })),
             backgroundColor: GROUP_COLORS[g], pointRadius: 4
         })).filter(d => d.data.length);
     const rho = spearman(pts.map(p => p.x), pts.map(p => p.y));
     document.getElementById('ednaScatterNote').textContent = pts.length
-        ? `n=${pts.length}${rho !== null ? ` · Spearman ρ = ${rho.toFixed(2)}` : ''} · flagged chemistry values and samples with <${LOW_READS} reads are left out. Richness depends on sequencing depth.${mixed ? ' Campaigns cover different target groups, so richness is not comparable between the colours.' : ''}`
+        ? `n=${pts.length}${rho !== null ? ` · Spearman ρ = ${rho.toFixed(2)}` : ''} · flagged chemistry values and samples with <${LOW_READS} reads are left out. Richness depends on sequencing depth. Click a point to open that sample.${mixed ? ' Campaigns cover different target groups, so richness is not comparable between the colours.' : ''}`
         : 'No samples with both values.';
     if (ednaScatterChart) ednaScatterChart.destroy();
     ednaScatterChart = new Chart(document.getElementById('ednaScatter').getContext('2d'), {
@@ -1386,6 +1392,13 @@ function renderEdnaScatter(filtered, mixed) {
         data: { datasets: sets },
         options: {
             responsive: true, maintainAspectRatio: false,
+            onClick: (evt, els) => {                      // clicking a point in the chart opens that sample in the explorer
+                if (els && els.length) {
+                    const d = sets[els[0].datasetIndex].data[els[0].index];
+                    const smp = d && ednaSamples.find(x => x.uid === d.uid);
+                    if (smp) onEdnaMarkerClick(smp, evt && evt.native);
+                }
+            },
             plugins: {
                 legend: { labels: { boxWidth: 8, font: { size: 10 } } },
                 tooltip: { callbacks: { label: c => `#${c.raw.id}: ${c.raw.x}, ${c.raw.y} taxa` } }
@@ -1398,78 +1411,703 @@ function renderEdnaScatter(filtered, mixed) {
     });
 }
 
-// ---- sample detail ------------------------------------------------------------------------
-function hideEdnaDetail() {
-    selectedEdnaUid = null;
-    document.getElementById('ednaDetail').style.display = 'none';
+// =====================================================================
+// Explorer: pick locations, see EVERY species found there, compare locations
+// =====================================================================
+const EXPLORE_COLORS = ['#86A4F7', '#FEA11B', '#2EC483', '#FB6666', '#FFFEA7', '#E6ECFF'];   // UiO palette, one per compared location
+const MAX_COMPARE = EXPLORE_COLORS.length;
+
+let exploreOpen = false;
+let exploreLevel = 'point';        // 'point' = sampling points, 'area' = all samples of one area pooled
+let exploreSelected = null;        // unit id shown in the details tab
+let compareIds = [];               // unit ids in the comparison
+let exploreTab = 'details';        // 'details' | 'compare'
+let exploreSort = 'name';
+let exploreQuery = '';             // search in the list (location OR species name)
+let exploreVariant = 'main';       // sequencing run shown for a single sample
+let speciesQuery = '';             // filter inside the species table
+let speciesSort = 'abundance';
+let compareFilter = 'all';         // 'all' | 'shared' | 'partial' | 'unique'
+let exploreUnits = new Map();
+let exploreExtra = new Map();      // a single sample opened from inside a multi-sample location (not part of the list)
+let exploreParent = null;          // unit id to go back to
+let exploreCompareChart = null;
+const mainSpeciesCache = new Map();
+
+const h = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
+const fmtNum = v => (v === null || v === undefined ? '–' : (Math.abs(v) >= 100 ? v.toFixed(0) : String(+v.toPrecision(3))));
+const fmtPct = p => (p >= 0.1 ? (p >= 10 ? p.toFixed(0) : p.toFixed(1)) : '<0.1');      // p in percent
+const show = (el, on) => el.classList.toggle('hidden', !on);
+
+// ---- species per sample (one sequencing run; 'main' = the plain run, F/L etc. are other treatments) -------------
+function speciesOf(uid, variant = 'main') {
+    const key = `${uid}|${variant}`;
+    if (mainSpeciesCache.has(key)) return mainSpeciesCache.get(key);
+    const m = new Map();
+    (ednaLong.get(uid) || []).forEach(r => {
+        if (r.variant === variant && r.taxon !== 'no identification' && r.reads > 0) m.set(r.taxon, (m.get(r.taxon) || 0) + r.reads);
+    });
+    mainSpeciesCache.set(key, m);
+    return m;
 }
 
-function showEdnaSample(uid, keepVariant) {
-    const s = ednaSamples.find(x => x.uid === uid);
-    if (!s) return;
-    selectedEdnaUid = uid;
-    chartDefaults();
-    const box = document.getElementById('ednaDetail');
-    box.style.display = 'block';
-    document.getElementById('ednaDetailTitle').textContent = `eDNA sample ${s.id}`;
-    const camp = campaignOf(s.project);
-    const campLine = document.getElementById('ednaDetailCampaign');
-    campLine.innerHTML = '';
-    campLine.append(document.createTextNode(camp.title + ' '), groupBadge(camp.group));
+// ---- units: the things you can select ------------------------------------------------------------------------
+// Never pooled across target groups (fish and algae lists must not be mixed).
+function unitIdForSample(s, level) {
+    const grp = campaignOf(s.project).group || '';
+    if (level === 'area') return s.area ? `ar|${grp}|${s.area}` : null;
+    return s.lat !== null && s.lng !== null ? `pt|${grp}|${s.lat},${s.lng}` : `sm|${s.uid}`;
+}
 
-    const grid = document.getElementById('ednaDetailGrid');
-    grid.innerHTML = '';
-    const flag = (key, v, unit) => v === null ? '–' : `${v} ${unit}${s.qc.has(key) ? ' ⚠' : ''}`;
-    grid.append(
-        statCard('Date', s.date || '–', s.dateQuality === 'year_assumed' ? 'year assumed in source data' : (s.volumeMl !== null ? `${s.volumeMl} mL filtered` : '')),
-        statCard('Area', s.area || '–', s.group ? `nutrient group: ${s.group}` : ''),
-        statCard('Total N', flag('tn', s.tn, 'mg/L'), s.qc.has('tn') ? 'flagged: implausible value' : ''),
-        statCard('TOC', flag('toc', s.toc, 'mg/L'), s.qc.has('toc') ? 'flagged: implausible value' : ''),
-        statCard('Total P', s.totpFlag ? s.totpFlag + ' µg/L' : flag('totp', s.totp, 'µg/L'), s.qc.has('totp') ? 'flagged: implausible value' : ''),
-        statCard('Salinity / cond.', s.salinity === null ? '–' : `${s.salinity} ‰`, s.cond === null ? '' : `${s.cond} mS/cm${s.qc.has('cond') ? ' ⚠ flagged' : ''}`),
-        statCard(camp.group ? `${groupLabel(camp.group)} richness` : 'Richness', s.richness === null ? '–' : `${s.richness} taxa`,
-            s.readsTotal === null ? '' : `${s.readsTotal} reads${s.seqFlag ? ' · ' + s.seqFlag.replace('_', ' ') : ''}`),
-        statCard('Diversity (Shannon)', s.shannon === null ? '–' : String(s.shannon), s.topTaxon ? `top: ${taxonLabel(s.topTaxon)} (${Math.round(100 * s.topShare)} %)` : '')
-    );
-    document.getElementById('ednaSamplerLine').textContent = s.sampler
-        ? `Sampler ${samplerLabel(s.sampler)}${isMine(s) ? ' – this is you' : ''}` : 'Sampler not recorded';
+function buildUnits(filtered, level) {
+    const units = new Map();
+    filtered.forEach(s => {
+        const id = unitIdForSample(s, level);
+        if (!id) return;
+        if (!units.has(id)) units.set(id, { id, level, group: campaignOf(s.project).group || '', area: s.area, samples: [] });
+        units.get(id).samples.push(s);
+    });
+    units.forEach(u => {
+        u.samples.sort((a, b) => (a.date || '').localeCompare(b.date || '') || (parseFloat(a.id) - parseFloat(b.id)) || 0);
+        const withPos = u.samples.find(s => s.lat !== null && s.lng !== null);
+        u.lat = withPos ? withPos.lat : null;
+        u.lng = withPos ? withPos.lng : null;
+        u.projects = [...new Set(u.samples.map(s => s.project))];
+        u.dates = u.samples.map(s => s.date).filter(Boolean).sort();
+        u.area = u.area || (u.samples.find(s => s.area) || {}).area || '';
+        u._stats = null;
+    });
+    return units;
+}
 
-    // sequencing variants
-    const sel = document.getElementById('ednaVariant');
-    const variants = s.variants.length ? s.variants : [];
-    if (!keepVariant) {
-        sel.innerHTML = '';
-        variants.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v === 'main' ? 'main run' : `variant ${v}`; sel.appendChild(o); });
+function unitLabel(u) {
+    if (u.level === 'area') return u.area;
+    if (u.samples.length === 1) return `Sample ${u.samples[0].id}`;
+    return `${u.area || 'Position'} · ${u.lat !== null ? `${u.lat}, ${u.lng}` : 'no position'}`;
+}
+
+function unitSub(u) {
+    const multiProject = new Set(ednaSamples.map(s => s.project)).size > 1;
+    const range = u.dates.length ? (u.dates[0] === u.dates[u.dates.length - 1] ? u.dates[0] : `${u.dates[0]} → ${u.dates[u.dates.length - 1]}`) : '';
+    const n = u.samples.length;
+    const camp = multiProject ? u.projects.map(p => campaignOf(p).title).join(', ') : '';
+    if (u.level === 'area') return [`${n} sample${n === 1 ? '' : 's'}`, range, camp].filter(Boolean).join(' · ');
+    if (n === 1) return [u.area, range || 'no date', u.lat === null ? 'no position' : '', camp].filter(Boolean).join(' · ');
+    return [`${n} samples`, range, camp].filter(Boolean).join(' · ');
+}
+
+// ---- statistics of a unit: every species, how often found, how large a share of the reads ----------------
+function unitStats(u) {
+    if (u._stats) return u._stats;
+    const per = u.samples.map(s => ({ s, m: speciesOf(s.uid) })).filter(x => x.m.size > 0);
+    const taxa = new Map();
+    per.forEach(({ m }) => {
+        const total = [...m.values()].reduce((a, b) => a + b, 0);
+        m.forEach((reads, t) => {
+            const v = taxa.get(t) || { taxon: t, present: 0, reads: 0, propSum: 0 };
+            v.present++; v.reads += reads; v.propSum += reads / total;
+            taxa.set(t, v);
+        });
+    });
+    const n = per.length;
+    const rows = [...taxa.values()].map(v => ({ taxon: v.taxon, present: v.present, reads: v.reads, prop: v.propSum / n }))
+        .sort((a, b) => b.prop - a.prop || b.reads - a.reads);
+    const chem = {};
+    ['tn', 'toc', 'totp', 'salinity', 'cond'].forEach(k => {
+        const vals = u.samples.map(sm => ednaValue(sm, k)).filter(v => v !== null);
+        chem[k] = vals.length ? { n: vals.length, med: median(vals), min: Math.min(...vals), max: Math.max(...vals) } : null;
+    });
+    const reads = u.samples.map(sm => sm.readsTotal).filter(v => v !== null);
+    u._stats = {
+        n, rows, richness: rows.length, chem, lowReads: u.samples.filter(sm => sm.seqFlag).length,
+        readsMed: reads.length ? median(reads) : null, byTaxon: new Map(rows.map(r => [r.taxon, r])),
+        taxaText: rows.map(r => taxonLabel(r.taxon).toLowerCase()).join(' | ')
+    };
+    return u._stats;
+}
+
+// share of the reads is the mean over the samples of (reads of the species / identified reads of that sample),
+// so every sample counts equally and the shares of a location add up to 100 %.
+function compareMetrics(a, b) {
+    const A = unitStats(a).byTaxon, B = unitStats(b).byTaxon;
+    if (!A.size || !B.size) return { jaccard: null, shared: null, nShared: 0, nUnion: 0 };
+    let nShared = 0, minSum = 0;
+    A.forEach((r, t) => { const o = B.get(t); if (o) { nShared++; minSum += Math.min(r.prop, o.prop); } });
+    const nUnion = A.size + B.size - nShared;
+    return { jaccard: nShared / nUnion, shared: minSum, nShared, nUnion };
+}
+
+function speciesMatrix(units) {
+    const taxa = new Set();
+    units.forEach(u => unitStats(u).byTaxon.forEach((_, t) => taxa.add(t)));
+    return [...taxa].map(t => {
+        const cells = units.map(u => unitStats(u).byTaxon.get(t) || null);
+        return { taxon: t, cells, inCount: cells.filter(Boolean).length, maxProp: Math.max(...cells.map(c => (c ? c.prop : 0))) };
+    });
+}
+
+// ---- CSV download (public data only) -------------------------------------------------------------------------
+function toCsv(rows) {
+    return rows.map(r => r.map(v => {
+        const t = v === null || v === undefined ? '' : String(v);
+        return /[;"\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+    }).join(';')).join('\r\n');
+}
+function downloadCsv(filename, rows) {
+    const blob = new Blob(['\uFEFF' + toCsv(rows)], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+const slug = t => t.toLowerCase().replace(/[^a-z0-9æøå]+/g, '_').replace(/^_|_$/g, '').slice(0, 40) || 'location';
+
+// ---- opening, selecting, comparing ---------------------------------------------------------------------------
+function explorerNote(text, isWarning) {
+    const el = document.getElementById('exploreMsg');
+    el.textContent = text;
+    el.className = 'text-xs mt-0.5 ' + (isWarning ? 'text-uio-lightorange' : 'text-slate-400');
+}
+const DEFAULT_NOTE = 'Click a point on the map or pick a location from the list. Shift+click on the map adds a point to the comparison.';
+
+function openExplorer(tab) {
+    exploreOpen = true;
+    show(document.getElementById('explorer'), true);
+    show(document.getElementById('exploreOpenBtn'), false);
+    if (tab) exploreTab = tab;
+    explorerNote(DEFAULT_NOTE, false);
+    renderExplorer();
+}
+
+function closeExplorer() {
+    exploreOpen = false;
+    show(document.getElementById('explorer'), false);
+    show(document.getElementById('exploreOpenBtn'), ednaSamples.length > 0);
+}
+
+function setExploreTab(tab) {
+    exploreTab = tab;
+    renderExplorer();
+}
+
+function setExploreLevel(level) {
+    exploreLevel = level;
+    exploreSelected = null;
+    compareIds = [];
+    exploreQuery = '';
+    document.getElementById('exploreSearch').value = '';
+    renderExplorer();
+    redrawEdnaMarkers();
+}
+
+function selectUnit(id, opts) {
+    exploreSelected = id;
+    exploreParent = opts && opts.parent ? opts.parent : null;
+    exploreVariant = 'main';
+    speciesQuery = '';
+    exploreTab = 'details';
+    if (!exploreOpen) openExplorer(); else renderExplorer();
+    redrawEdnaMarkers();
+    const u = unitById(id);
+    if (u && opts && opts.zoom) zoomToUnit(u);
+}
+
+function toggleCompare(id) {
+    const at = compareIds.indexOf(id);
+    if (at >= 0) compareIds.splice(at, 1);
+    else if (compareIds.length >= MAX_COMPARE) { explorerNote(`You can compare up to ${MAX_COMPARE} locations at a time. Remove one first.`, true); return; }
+    else compareIds.push(id);
+    explorerNote(DEFAULT_NOTE, false);
+    renderExplorer();
+    redrawEdnaMarkers();
+}
+
+function onEdnaMarkerClick(s, ev) {
+    if (exploreLevel === 'area' && !s.area) exploreLevel = 'point';
+    const id = unitIdForSample(s, exploreLevel);
+    if (!exploreOpen) openExplorer();
+    if (ev && ev.shiftKey) { toggleCompare(id); exploreTab = 'compare'; renderExplorer(); }
+    else selectUnit(id, { zoom: false });
+}
+
+function zoomToUnit(u) {
+    const pts = u.samples.filter(s => s.lat !== null && s.lng !== null).map(s => [s.lat, s.lng]);
+    if (!pts.length || !map) return;
+    const panel = document.getElementById('explorer');
+    const left = (exploreOpen && panel.offsetWidth ? panel.offsetWidth : 0) + 40;        // keep the point clear of the panel
+    map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [left, 40], paddingBottomRight: [60, 40], maxZoom: 12 });
+}
+
+const unitById = id => exploreUnits.get(id) || exploreExtra.get(id);
+const visibleCompare = () => compareIds.map(id => exploreUnits.get(id)).filter(Boolean);
+
+function setupExplorerListeners() {
+    ['exploreOpenBtn', 'exploreOpenBtnSidebar'].forEach(id => document.getElementById(id).addEventListener('click', () => openExplorer()));
+    document.getElementById('exploreClose').addEventListener('click', closeExplorer);
+    document.querySelectorAll('#exploreLevel button').forEach(b => b.addEventListener('click', () => setExploreLevel(b.dataset.level)));
+    document.getElementById('exploreSearch').addEventListener('input', e => { exploreQuery = e.target.value; renderExploreList(); });
+    document.getElementById('exploreSort').addEventListener('change', e => { exploreSort = e.target.value; renderExploreList(); });
+    document.getElementById('exploreTabDetails').addEventListener('click', () => setExploreTab('details'));
+    document.getElementById('exploreTabCompare').addEventListener('click', () => setExploreTab('compare'));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && exploreOpen) closeExplorer(); });
+}
+
+// ---- rendering -----------------------------------------------------------------------------------------------
+function renderExplorer() {
+    const openBtn = document.getElementById('exploreOpenBtn');
+    show(openBtn, !exploreOpen && ednaSamples.length > 0);
+    if (!exploreOpen) return;
+
+    const filtered = getFilteredEdna();
+    exploreUnits = buildUnits(filtered, exploreLevel);
+    exploreExtra = new Map();
+    if (exploreSelected && exploreSelected.startsWith('sm|') && !exploreUnits.has(exploreSelected)) {
+        const smp = filtered.find(x => `sm|${x.uid}` === exploreSelected);
+        if (smp) { const u = [...buildUnits([smp], 'point').values()][0]; u.id = exploreSelected; exploreExtra.set(u.id, u); }
     }
-    sel.style.display = variants.length > 1 ? 'block' : 'none';
+    if (exploreSelected && !unitById(exploreSelected)) { exploreSelected = null; exploreParent = null; }
 
-    const rows = (ednaLong.get(uid) || []).filter(r => r.variant === (sel.value || 'main') && r.taxon !== 'no identification')
-        .sort((a, b) => b.reads - a.reads);
-    const total = rows.reduce((a, r) => a + r.reads, 0);
-    const top = rows.slice(0, 10);
-    const known = rows.filter(r => taxonNames.get(r.taxon));
-    const unverified = known.filter(r => taxonNames.get(r.taxon).status === 'unverified').length;
-    document.getElementById('ednaSpeciesNote').textContent = rows.length
-        ? `${rows.length} taxa, ${total} identified reads (top ${top.length} shown). Reads are not corrected for sequencing depth.` +
-          (taxonNames.size ? ` Norwegian names: ${known.length} of ${rows.length} taxa${unverified ? ` (${unverified} not yet checked against Artsdatabanken)` : ''}.` : '')
-        : 'No species data for this sample/variant.';
-    if (ednaSpeciesChart) ednaSpeciesChart.destroy();
-    ednaSpeciesChart = new Chart(document.getElementById('ednaSpeciesChart').getContext('2d'), {
+    document.querySelectorAll('#exploreLevel button').forEach(b => {
+        b.className = 'px-3 py-1 rounded transition-colors ' + (b.dataset.level === exploreLevel ? 'bg-primary text-black' : 'text-slate-300 hover:bg-slate-700');
+    });
+    const nCmp = visibleCompare().length;
+    const tabClass = on => 'px-3 py-1.5 text-sm font-medium rounded-t border-b-2 ' + (on ? 'border-primary text-white' : 'border-transparent text-slate-400 hover:text-slate-200');
+    const tD = document.getElementById('exploreTabDetails'), tC = document.getElementById('exploreTabCompare');
+    tD.className = tabClass(exploreTab === 'details');
+    tC.className = tabClass(exploreTab === 'compare');
+    tC.textContent = `Compare${nCmp ? ` (${nCmp})` : ''}`;
+
+    renderExploreList();
+    show(document.getElementById('exploreDetails'), exploreTab === 'details');
+    show(document.getElementById('exploreCompare'), exploreTab === 'compare');
+    if (exploreTab === 'details') renderExploreDetails(); else renderExploreCompare();
+}
+
+function unitMatches(u, q) {
+    const hay = `${unitLabel(u)} ${unitSub(u)} ${u.area} ${u.projects.map(p => campaignOf(p).title).join(' ')} ${unitStats(u).taxaText}`.toLowerCase();
+    return q.split(/\s+/).filter(Boolean).every(tok => hay.includes(tok));
+}
+
+function sortUnits(list) {
+    const nat = (a, b) => a.localeCompare(b, 'nb', { numeric: true });
+    const name = u => `${u.area} ${u.samples[0].id}`;
+    const tn = u => { const c = unitStats(u).chem.tn; return c ? c.med : -Infinity; };
+    const cmp = {
+        name: (a, b) => nat(name(a), name(b)),
+        richness: (a, b) => unitStats(b).richness - unitStats(a).richness || nat(name(a), name(b)),
+        tn: (a, b) => tn(b) - tn(a) || nat(name(a), name(b)),
+        date: (a, b) => (a.dates[0] || '9999').localeCompare(b.dates[0] || '9999') || nat(name(a), name(b))
+    }[exploreSort];
+    return list.sort(cmp);
+}
+
+function renderExploreList() {
+    const ul = document.getElementById('exploreList');
+    ul.innerHTML = '';
+    const q = exploreQuery.trim().toLowerCase();
+    let list = [...exploreUnits.values()];
+    if (q) list = list.filter(u => unitMatches(u, q));
+    sortUnits(list);
+    const noun = exploreLevel === 'area' ? 'areas' : 'sampling points';
+    document.getElementById('exploreCount').textContent = q ? `${list.length} of ${exploreUnits.size} ${noun}` : `${list.length} ${noun}`;
+
+    list.forEach(u => {
+        const st = unitStats(u);
+        const ci = compareIds.indexOf(u.id);
+        const li = h('li', 'flex items-start gap-2 px-2 py-1.5 rounded cursor-pointer border ' +
+            (u.id === exploreSelected ? 'bg-slate-700/70 border-uio-lightblue/60' : 'border-transparent hover:bg-slate-800'));
+        li.dataset.unit = u.id;
+        const cb = h('input'); cb.type = 'checkbox'; cb.checked = ci >= 0; cb.className = 'mt-1 flex-shrink-0';
+        cb.title = 'Add to comparison';
+        cb.addEventListener('click', ev => ev.stopPropagation());
+        cb.addEventListener('change', () => toggleCompare(u.id));
+        const body = h('div', 'min-w-0 flex-1');
+        const title = h('div', 'flex items-center gap-1.5');
+        if (ci >= 0) { const dot = h('span', 'inline-block w-2.5 h-2.5 rounded-full flex-shrink-0'); dot.style.background = EXPLORE_COLORS[ci]; title.appendChild(dot); }
+        title.appendChild(h('span', 'text-sm text-slate-100 truncate', unitLabel(u)));
+        body.appendChild(title);
+        body.appendChild(h('div', 'text-[11px] text-slate-400 truncate', unitSub(u)));
+        const tn = st.chem.tn;
+        let metrics = st.n ? `${st.richness} taxa` : 'no species data';
+        if (tn) metrics += ` · TN ${fmtNum(tn.med)}`;
+        body.appendChild(h('div', 'text-[11px] text-slate-500', metrics));
+        if (q) {                                          // searched by species: show which one matched
+            const hits = st.rows.filter(r => q.split(/\s+/).filter(Boolean).some(tok => taxonLabel(r.taxon).toLowerCase().includes(tok)))
+                .slice(0, 2).map(r => taxonLabel(r.taxon).split(' (')[0]);
+            if (hits.length && !unitLabel(u).toLowerCase().includes(q)) body.appendChild(h('div', 'text-[11px] text-uio-lightgreen truncate', `has: ${hits.join(', ')}`));
+        }
+        li.append(cb, body);
+        li.addEventListener('click', () => selectUnit(u.id, { zoom: true }));
+        ul.appendChild(li);
+        if (u.id === exploreSelected && li.scrollIntoView) li.scrollIntoView({ block: 'nearest' });
+    });
+    if (!list.length) ul.appendChild(h('li', 'text-xs text-slate-400 p-3', q ? 'Nothing matches. Try a place name, a sample number or a species.' : 'No locations for the current filters.'));
+}
+
+// species name cell: Norwegian name (when known) with the scientific name below
+function taxonCell(taxon) {
+    const td = h('td', 'py-1 pr-2 align-top');
+    const n = taxonNames.get(taxon);
+    const sci = taxon.replace(/_/g, ' ');
+    if (n && n.no) {
+        td.appendChild(h('div', 'text-slate-100', n.no.charAt(0).toUpperCase() + n.no.slice(1)));
+        td.appendChild(h('div', 'text-[11px] text-slate-400 italic', sci));
+    } else {
+        td.appendChild(h('div', 'text-slate-100 italic', sci));
+    }
+    return td;
+}
+
+function unitCards(u, st) {
+    const cards = [];
+    const c = st.chem;
+    const rng = x => (x && x.n > 1 ? `median · ${fmtNum(x.min)}–${fmtNum(x.max)}` : (x ? '' : ''));
+    if (u.samples.length === 1) {
+        const s = u.samples[0];
+        const flag = (k, x, unit) => (x === null ? '–' : `${fmtNum(x)} ${unit}${s.qc.has(k) ? ' ⚠' : ''}`);
+        cards.push(
+            statCard('Date', s.date || '–', s.dateQuality === 'year_assumed' ? 'year assumed in source data' : (s.volumeMl !== null ? `${s.volumeMl} mL filtered` : '')),
+            statCard('Area', s.area || '–', s.group ? `nutrient group: ${s.group}` : ''),
+            statCard('Total N', flag('tn', s.tn, 'mg/L'), s.qc.has('tn') ? 'flagged: implausible value' : ''),
+            statCard('TOC', flag('toc', s.toc, 'mg/L'), s.qc.has('toc') ? 'flagged: implausible value' : ''),
+            statCard('Total P', s.totpFlag ? `${s.totpFlag} µg/L` : flag('totp', s.totp, 'µg/L'), s.qc.has('totp') ? 'flagged: implausible value' : ''),
+            statCard('Salinity', s.salinity === null ? '–' : `${s.salinity} ‰`, s.cond === null ? '' : `${s.cond} mS/cm${s.qc.has('cond') ? ' ⚠ flagged' : ''}`),
+            statCard(campaignOf(s.project).group ? `${groupLabel(campaignOf(s.project).group)} richness` : 'Richness', st.n ? `${st.richness} taxa` : '–',
+                s.readsTotal === null ? '' : `${s.readsTotal} reads${s.seqFlag ? ' · ' + s.seqFlag.replace('_', ' ') : ''}`),
+            statCard('Diversity (Shannon)', s.shannon === null ? '–' : String(s.shannon), s.topTaxon ? `top: ${taxonLabel(s.topTaxon)}` : '')
+        );
+    } else {
+        const groups = { high: 0, normal: 0, low: 0 };
+        u.samples.forEach(s => { if (groups[s.group] !== undefined) groups[s.group]++; });
+        const med = (x, unit) => (x ? `${fmtNum(x.med)} ${unit}` : '–');
+        cards.push(
+            statCard('Samples', String(u.samples.length), `${st.n} with species data${st.lowReads ? ` · ${st.lowReads} low-read` : ''}`),
+            statCard('Period', u.dates.length ? `${u.dates[0]} →` : '–', u.dates.length ? u.dates[u.dates.length - 1] : ''),
+            statCard('Species found', st.n ? `${st.richness} taxa` : '–', st.n ? 'all samples together' : ''),
+            statCard('Nutrient groups', `${groups.high} / ${groups.normal} / ${groups.low}`, 'high / normal / low'),
+            statCard('Total N', med(c.tn, 'mg/L'), rng(c.tn)),
+            statCard('TOC', med(c.toc, 'mg/L'), rng(c.toc)),
+            statCard('Total P', med(c.totp, 'µg/L'), rng(c.totp)),
+            statCard('Salinity', med(c.salinity, '‰'), rng(c.salinity))
+        );
+    }
+    return cards;
+}
+
+function renderExploreDetails() {
+    const box = document.getElementById('exploreDetails');
+    box.innerHTML = '';
+    const u = unitById(exploreSelected);
+    if (!u) {
+        box.appendChild(h('p', 'text-sm text-slate-300', 'No location selected.'));
+        box.appendChild(h('p', 'text-xs text-slate-400 mt-2',
+            'Pick a location from the list, click a point on the map, or click a point in the richness chart. You will see every species found there. ' +
+            'Tick the boxes in the list (or Shift+click points on the map) to compare locations. In the list, search for a species such as "torsk" to find where it was found.'));
+        return;
+    }
+    const st = unitStats(u);
+    const single = u.samples.length === 1;
+
+    // back to the location this sample was opened from
+    const parent = exploreParent && unitById(exploreParent);
+    if (parent) {
+        const back = h('button', 'text-xs text-uio-lightblue hover:underline mb-2', `← back to ${unitLabel(parent)}`); back.type = 'button';
+        back.addEventListener('click', () => selectUnit(parent.id, { zoom: false }));
+        box.appendChild(back);
+    }
+
+    // header
+    const head = h('div', 'flex items-start justify-between gap-3 flex-wrap');
+    const left = h('div', 'min-w-0');
+    left.appendChild(h('h3', 'text-lg font-semibold text-white', unitLabel(u)));
+    left.appendChild(h('p', 'text-xs text-slate-400', unitSub(u)));
+    const campLine = h('p', 'text-xs text-slate-400 mt-1');
+    u.projects.forEach(p => { campLine.append(document.createTextNode(campaignOf(p).title + ' '), groupBadge(campaignOf(p).group), document.createTextNode(' ')); });
+    left.appendChild(campLine);
+    const right = h('div', 'flex gap-2 flex-wrap');
+    const inCmp = compareIds.includes(u.id);
+    const btn = (text, cls, fn) => { const b = h('button', 'text-xs font-semibold px-3 py-1.5 rounded-md transition-colors ' + cls, text); b.type = 'button'; b.addEventListener('click', fn); return b; };
+    if (exploreUnits.has(u.id)) right.appendChild(
+        btn(inCmp ? 'Remove from comparison' : 'Add to comparison', inCmp ? 'bg-slate-700 hover:bg-slate-600 text-slate-100' : 'bg-primary hover:bg-uio-lightgreen text-black', () => toggleCompare(u.id)));
+    right.append(
+        btn('Show on map', 'bg-slate-700 hover:bg-slate-600 text-slate-100', () => zoomToUnit(u)),
+        btn('Download species (CSV)', 'bg-slate-700 hover:bg-slate-600 text-slate-100', () => downloadCsv(`species_${slug(unitLabel(u))}.csv`, speciesCsvRows(u, st)))
+    );
+    head.append(left, right);
+    box.appendChild(head);
+
+    const grid = h('div', 'grid grid-cols-2 md:grid-cols-4 gap-2 mt-4');
+    unitCards(u, st).forEach(c => grid.appendChild(c));
+    box.appendChild(grid);
+    if (single && u.samples[0].sampler) box.appendChild(h('p', 'text-xs text-slate-400 mt-2',
+        `Sampler ${samplerLabel(u.samples[0].sampler)}${isMine(u.samples[0]) ? ' – this is you' : ''}`));
+
+    // the individual samples of a multi-sample location: open one to see its own species and sequencing runs
+    if (!single) {
+        box.appendChild(h('h4', 'text-sm font-semibold uppercase tracking-wider text-uio-green mt-6 mb-2', `Samples at this location (${u.samples.length})`));
+        const wrapS = h('div', 'overflow-x-auto');
+        const ts = h('table', 'w-full text-xs');
+        const hs = h('tr');
+        ['Sample', 'Date', 'Species', 'Reads', 'Total N', ''].forEach(t => hs.appendChild(h('th', 'text-left text-slate-400 font-medium pb-1 pr-3', t)));
+        ts.appendChild(hs);
+        u.samples.forEach(sm => {
+            const tr = h('tr', 'border-t border-slate-700/60 hover:bg-slate-800 cursor-pointer');
+            const n = speciesOf(sm.uid).size;
+            [sm.id, sm.date || '–', n ? String(n) : '–', sm.readsTotal === null ? '–' : String(sm.readsTotal), ednaValue(sm, 'tn') === null ? '–' : fmtNum(ednaValue(sm, 'tn'))]
+                .forEach(v => tr.appendChild(h('td', 'py-1 pr-3 text-slate-200', v)));
+            const go = h('td', 'py-1 text-uio-lightblue', 'View ▸');
+            tr.appendChild(go);
+            tr.addEventListener('click', () => selectUnit(`sm|${sm.uid}`, { zoom: false, parent: u.id }));
+            ts.appendChild(tr);
+        });
+        wrapS.appendChild(ts);
+        box.appendChild(wrapS);
+    }
+
+    // sequencing runs of a single sample
+    let rows = st.rows, nUse = st.n;
+    if (single && u.samples[0].variants.length > 1) {
+        const sel = h('select', 'mt-3 bg-slate-800 border border-slate-600 rounded py-1 px-2 text-xs text-white');
+        u.samples[0].variants.forEach(v => { const o = h('option', '', v === 'main' ? 'main run' : `variant ${v} (another treatment of the same sample)`); o.value = v; sel.appendChild(o); });
+        sel.value = exploreVariant;
+        sel.addEventListener('change', () => { exploreVariant = sel.value; renderExploreDetails(); });
+        box.appendChild(sel);
+        if (exploreVariant !== 'main') {
+            const m = speciesOf(u.samples[0].uid, exploreVariant);
+            const tot = [...m.values()].reduce((a, b) => a + b, 0);
+            rows = [...m.entries()].map(([taxon, reads]) => ({ taxon, present: 1, reads, prop: reads / tot })).sort((a, b) => b.reads - a.reads);
+            nUse = m.size ? 1 : 0;
+        }
+    }
+
+    // species table
+    box.appendChild(h('h4', 'text-sm font-semibold uppercase tracking-wider text-uio-green mt-6 mb-2',
+        `All species found (${rows.length})`));
+    if (!rows.length) { box.appendChild(h('p', 'text-xs text-slate-400', 'No species data for this location.')); return; }
+
+    const tools = h('div', 'flex flex-wrap items-center gap-2 mb-2');
+    const inp = h('input', 'flex-1 min-w-[10rem] bg-slate-800 border border-slate-600 rounded-md py-1.5 px-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-primary');
+    inp.type = 'search'; inp.placeholder = 'Filter species…'; inp.value = speciesQuery;
+    const tbl = h('table', 'w-full text-xs');
+    const draw = () => {
+        tbl.innerHTML = '';
+        const hd = h('tr');
+        ['Species', 'Share of reads', 'Reads'].concat(nUse > 1 ? ['Found in'] : []).forEach((t, i) => hd.appendChild(h('th', 'text-left text-slate-400 font-medium pb-1 pr-2' + (i === 1 ? ' w-44' : ''), t)));
+        tbl.appendChild(hd);
+        const q = speciesQuery.trim().toLowerCase();
+        let list = rows.filter(r => !q || taxonLabel(r.taxon).toLowerCase().includes(q));
+        if (speciesSort === 'name') list = [...list].sort((a, b) => taxonLabel(a.taxon).localeCompare(taxonLabel(b.taxon), 'nb'));
+        list.forEach(r => {
+            const tr = h('tr', 'border-t border-slate-700/60');
+            tr.appendChild(taxonCell(r.taxon));
+            const share = h('td', 'py-1 pr-2 align-top');
+            const bar = h('div', 'h-1.5 rounded bg-uio-green'); bar.style.width = `${Math.max(2, Math.min(100, r.prop * 100))}%`;
+            share.append(h('div', 'text-slate-200', `${fmtPct(r.prop * 100)} %`), bar);
+            tr.appendChild(share);
+            tr.appendChild(h('td', 'py-1 pr-2 align-top text-slate-300', String(r.reads)));
+            if (nUse > 1) tr.appendChild(h('td', 'py-1 pr-2 align-top text-slate-300', `${r.present} of ${nUse}`));
+            tbl.appendChild(tr);
+        });
+        if (!list.length) { const tr = h('tr'); const td = h('td', 'text-slate-400 py-2', 'No species match.'); td.colSpan = 4; tr.appendChild(td); tbl.appendChild(tr); }
+        count.textContent = q ? `${list.length} of ${rows.length}` : `${rows.length} species`;
+    };
+    const sortSel = h('select', 'bg-slate-800 border border-slate-600 rounded py-1 px-2 text-xs text-white');
+    [['abundance', 'Largest share first'], ['name', 'Name A–Z']].forEach(([v, t]) => { const o = h('option', '', t); o.value = v; sortSel.appendChild(o); });
+    sortSel.value = speciesSort;
+    const count = h('span', 'text-[11px] text-slate-400');
+    inp.addEventListener('input', () => { speciesQuery = inp.value; draw(); });
+    sortSel.addEventListener('change', () => { speciesSort = sortSel.value; draw(); });
+    tools.append(inp, sortSel, count);
+    box.append(tools, tbl);
+    draw();
+
+    const names = taxonNames.size ? ` Norwegian names: ${rows.filter(r => taxonNames.get(r.taxon)).length} of ${rows.length}` +
+        `${rows.some(r => (taxonNames.get(r.taxon) || {}).status === 'unverified') ? ' (some not yet checked against Artsdatabanken)' : ''}.` : '';
+    box.appendChild(h('p', 'text-[11px] text-slate-500 mt-3',
+        (nUse > 1 ? 'Share of reads = average over the samples of each sample\'s own shares (every sample counts equally); "Found in" = number of samples where the species was detected. ' : 'Share of reads = reads of the species divided by all identified reads of the sample. ') +
+        'Reads are not corrected for sequencing depth, and eDNA shows presence, not numbers of animals.' + names));
+}
+
+function speciesCsvRows(u, st) {
+    const out = [['scientific_name', 'norwegian_name', 'share_of_reads_percent', 'reads', 'found_in_samples', 'of_samples']];
+    st.rows.forEach(r => out.push([r.taxon.replace(/_/g, ' '), (taxonNames.get(r.taxon) || {}).no || '', (r.prop * 100).toFixed(2), r.reads, r.present, st.n]));
+    return out;
+}
+
+function renderExploreCompare() {
+    const box = document.getElementById('exploreCompare');
+    box.innerHTML = '';
+    if (exploreCompareChart) { exploreCompareChart.destroy(); exploreCompareChart = null; }
+    chartDefaults();
+    const units = visibleCompare();
+
+    // chosen locations as coloured chips
+    const chips = h('div', 'flex flex-wrap gap-2 items-center');
+    units.forEach((u, i) => {
+        const chip = h('span', 'inline-flex items-center gap-1.5 pl-2 pr-1 py-1 rounded-full bg-slate-800 border border-slate-600 text-xs text-slate-100');
+        const dot = h('span', 'inline-block w-2.5 h-2.5 rounded-full'); dot.style.background = EXPLORE_COLORS[i];
+        const x = h('button', 'text-slate-400 hover:text-white px-1', '×'); x.type = 'button'; x.title = 'Remove'; x.setAttribute('aria-label', `Remove ${unitLabel(u)}`);
+        x.addEventListener('click', () => toggleCompare(u.id));
+        chip.append(dot, document.createTextNode(unitLabel(u)), x);
+        chips.appendChild(chip);
+    });
+    if (units.length) {
+        const clear = h('button', 'text-xs text-slate-400 hover:text-white underline', 'Clear all'); clear.type = 'button';
+        clear.addEventListener('click', () => { compareIds = []; renderExplorer(); redrawEdnaMarkers(); });
+        chips.appendChild(clear);
+    }
+    box.appendChild(chips);
+
+    if (units.length < 2) {
+        box.appendChild(h('p', 'text-sm text-slate-300 mt-4', units.length ? 'Add at least one more location.' : 'No locations chosen yet.'));
+        box.appendChild(h('p', 'text-xs text-slate-400 mt-2',
+            'Tick the boxes in the list, press "Add to comparison" in the details, or Shift+click points on the map. You can compare up to ' + MAX_COMPARE + ' locations. ' +
+            'Tip: switch to "Areas" above to compare whole areas (all samples of an area pooled).'));
+        return;
+    }
+    if (new Set(units.map(u => u.group)).size > 1) box.appendChild(h('p', 'text-xs text-uio-lightorange mt-3',
+        'These locations come from campaigns with different target groups (' + [...new Set(units.map(u => groupLabel(u.group) || 'unknown'))].join(', ') + '): their species lists are not comparable.'));
+
+    // 1. side by side
+    box.appendChild(h('h4', 'text-sm font-semibold uppercase tracking-wider text-uio-green mt-5 mb-2', 'Side by side'));
+    const wrap = h('div', 'overflow-x-auto');
+    const t1 = h('table', 'w-full text-xs');
+    const hr = h('tr');
+    ['Location', 'Samples', 'Species', 'Total N', 'TOC', 'Total P', 'Salinity'].forEach(t => hr.appendChild(h('th', 'text-left text-slate-400 font-medium pb-1 pr-3', t)));
+    t1.appendChild(hr);
+    const med = x => (x ? fmtNum(x.med) : '–');
+    units.forEach((u, i) => {
+        const st = unitStats(u), c = st.chem;
+        const tr = h('tr', 'border-t border-slate-700/60');
+        const first = h('td', 'py-1 pr-3');
+        const dot = h('span', 'inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-middle'); dot.style.background = EXPLORE_COLORS[i];
+        first.append(dot, h('span', 'text-slate-100 align-middle', unitLabel(u)));
+        tr.appendChild(first);
+        [String(u.samples.length), st.n ? String(st.richness) : '–', med(c.tn), med(c.toc), med(c.totp), med(c.salinity)].forEach(v => tr.appendChild(h('td', 'py-1 pr-3 text-slate-300', v)));
+        t1.appendChild(tr);
+    });
+    wrap.appendChild(t1);
+    box.appendChild(wrap);
+    box.appendChild(h('p', 'text-[11px] text-slate-500 mt-1', 'Chemistry = median of the location\'s samples (mg/L, µg/L, ‰); flagged values are left out.'));
+
+    // 2. overlap + similarity
+    const rowsM = speciesMatrix(units);
+    const k = units.length;
+    const inAll = rowsM.filter(r => r.inCount === k).length;
+    const onlyOne = units.map((u, i) => rowsM.filter(r => r.inCount === 1 && r.cells[i]).length);
+    box.appendChild(h('h4', 'text-sm font-semibold uppercase tracking-wider text-uio-green mt-6 mb-2', 'Species overlap'));
+    box.appendChild(h('p', 'text-xs text-slate-300',
+        `${rowsM.length} species in total · ${inAll} found at all ${k} locations · ` +
+        units.map((u, i) => `${onlyOne[i]} only at ${unitLabel(u)}`).join(' · ')));
+
+    const simTable = (title, pick, note) => {
+        box.appendChild(h('p', 'text-xs text-slate-400 mt-3 mb-1', title));
+        const t = h('table', 'text-xs');
+        const hd = h('tr'); hd.appendChild(h('th', ''));
+        units.forEach((u, i) => { const th = h('th', 'px-2 pb-1 font-medium'); const d = h('span', 'inline-block w-2.5 h-2.5 rounded-full'); d.style.background = EXPLORE_COLORS[i]; th.appendChild(d); hd.appendChild(th); });
+        t.appendChild(hd);
+        units.forEach((a, i) => {
+            const tr = h('tr');
+            const th = h('th', 'text-left pr-3 py-0.5 font-normal text-slate-300 whitespace-nowrap');
+            const d = h('span', 'inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-middle'); d.style.background = EXPLORE_COLORS[i];
+            th.append(d, document.createTextNode(unitLabel(a)));
+            tr.appendChild(th);
+            units.forEach((b, j) => {
+                const v = i === j ? null : pick(compareMetrics(a, b));
+                const td = h('td', 'px-2 py-0.5 text-center rounded ' + (i === j ? 'text-slate-600' : 'text-slate-100'), i === j ? '–' : (v === null ? 'n/a' : `${Math.round(100 * v)} %`));
+                if (i !== j && v !== null) td.style.background = `rgba(46,196,131,${(0.12 + 0.6 * v).toFixed(2)})`;
+                tr.appendChild(td);
+            });
+            t.appendChild(tr);
+        });
+        box.appendChild(t);
+        box.appendChild(h('p', 'text-[11px] text-slate-500 mt-1', note));
+    };
+    simTable('Shared species (species found at both ÷ species found at either)', m => m.jaccard, 'Counts presence only: 100 % = identical species lists.');
+    simTable('Shared composition (overlap of the share-of-reads profiles)', m => m.shared, 'Also takes abundance into account: 100 % = identical composition.');
+
+    // 3. chart of the most abundant species
+    const top = [...rowsM].sort((a, b) => b.maxProp - a.maxProp).slice(0, 12);
+    box.appendChild(h('h4', 'text-sm font-semibold uppercase tracking-wider text-uio-green mt-6 mb-2', 'Most abundant species'));
+    const cw = h('div', 'bg-slate-800 rounded-lg p-2 border border-slate-700 relative'); cw.style.height = `${Math.max(200, 34 + top.length * (12 + 7 * k))}px`;
+    const canvas = h('canvas'); cw.appendChild(canvas); box.appendChild(cw);
+    exploreCompareChart = new Chart(canvas.getContext('2d'), {
         type: 'bar',
         data: {
             labels: top.map(r => taxonLabel(r.taxon)),
-            datasets: [{ label: '% of identified reads', fullNames: top.map(r => taxonLabel(r.taxon)), data: top.map(r => +(100 * r.reads / total).toFixed(1)), backgroundColor: '#2EC483', borderRadius: 2 }]
+            datasets: units.map((u, i) => ({ label: unitLabel(u), backgroundColor: EXPLORE_COLORS[i], borderRadius: 2,
+                data: top.map(r => +((r.cells[i] ? r.cells[i].prop : 0) * 100).toFixed(1)) }))
         },
         options: {
             indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: { legend: { labels: { boxWidth: 8, font: { size: 10 } } } },
             scales: {
                 x: { beginAtZero: true, title: { display: true, text: '% of identified reads' }, grid: { color: 'rgba(159,195,214,0.15)' } },
                 y: { grid: { display: false }, ticks: { font: { size: 10 } } }
             }
         }
     });
-    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // 4. species matrix
+    box.appendChild(h('h4', 'text-sm font-semibold uppercase tracking-wider text-uio-green mt-6 mb-2', 'Every species, location by location'));
+    const bar = h('div', 'flex flex-wrap items-center gap-1.5 mb-2');
+    const matrixHost = h('div', 'overflow-x-auto');
+    const counter = h('span', 'text-[11px] text-slate-400 ml-1');
+    const filters = [['all', 'All'], ['shared', `At all ${k}`], ['partial', 'At some'], ['unique', 'At only one']];
+    const drawMatrix = () => {
+        bar.querySelectorAll('button').forEach(b => { b.className = 'text-xs px-2.5 py-1 rounded-md ' + (b.dataset.f === compareFilter ? 'bg-primary text-black font-semibold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'); });
+        const keep = { all: () => true, shared: r => r.inCount === k, partial: r => r.inCount > 1 && r.inCount < k, unique: r => r.inCount === 1 }[compareFilter];
+        const list = rowsM.filter(keep).sort((a, b) => b.maxProp - a.maxProp);
+        matrixHost.innerHTML = '';
+        const t = h('table', 'w-full text-xs');
+        const hd = h('tr');
+        hd.appendChild(h('th', 'text-left text-slate-400 font-medium pb-1 pr-2', 'Species'));
+        units.forEach((u, i) => { const th = h('th', 'text-left text-slate-400 font-medium pb-1 pr-2'); const d = h('span', 'inline-block w-2.5 h-2.5 rounded-full mr-1'); d.style.background = EXPLORE_COLORS[i]; th.append(d, document.createTextNode(unitLabel(u).slice(0, 18))); hd.appendChild(th); });
+        hd.appendChild(h('th', 'text-left text-slate-400 font-medium pb-1', 'At'));
+        t.appendChild(hd);
+        list.forEach(r => {
+            const tr = h('tr', 'border-t border-slate-700/60');
+            tr.appendChild(taxonCell(r.taxon));
+            r.cells.forEach((c, i) => {
+                const td = h('td', 'py-1 pr-2 align-top');
+                if (c) {
+                    td.appendChild(h('div', 'text-slate-200', `${fmtPct(c.prop * 100)} %`));
+                    const b = h('div', 'h-1 rounded'); b.style.background = EXPLORE_COLORS[i]; b.style.width = `${Math.max(3, Math.min(100, c.prop * 100))}%`;
+                    td.appendChild(b);
+                    if (units[i].samples.length > 1) td.appendChild(h('div', 'text-[10px] text-slate-500', `${c.present} of ${unitStats(units[i]).n}`));
+                } else td.appendChild(h('span', 'text-slate-600', '–'));
+                tr.appendChild(td);
+            });
+            tr.appendChild(h('td', 'py-1 align-top text-slate-300', `${r.inCount}/${k}`));
+            t.appendChild(tr);
+        });
+        matrixHost.appendChild(t);
+        counter.textContent = `${list.length} species`;
+    };
+    filters.forEach(([f, label]) => { const b = h('button', '', label); b.type = 'button'; b.dataset.f = f; b.addEventListener('click', () => { compareFilter = f; drawMatrix(); }); bar.appendChild(b); });
+    const dl = h('button', 'ml-auto text-xs px-2.5 py-1 rounded-md bg-slate-700 hover:bg-slate-600 text-slate-100', 'Download comparison (CSV)'); dl.type = 'button';
+    dl.addEventListener('click', () => downloadCsv('comparison.csv', comparisonCsvRows(units, rowsM)));
+    bar.append(counter, dl);
+    box.append(bar, matrixHost);
+    drawMatrix();
+    box.appendChild(h('p', 'text-[11px] text-slate-500 mt-3', 'Shares are percentages of the identified reads of each location (see Details for how they are calculated). eDNA shows presence, not numbers of animals, and read counts are not corrected for sequencing depth.'));
+}
+
+function comparisonCsvRows(units, rowsM) {
+    const head = ['scientific_name', 'norwegian_name'];
+    units.forEach(u => { head.push(`share_percent: ${unitLabel(u)}`, `found_in: ${unitLabel(u)}`); });
+    head.push('found_at_n_locations');
+    const out = [head];
+    [...rowsM].sort((a, b) => b.maxProp - a.maxProp).forEach(r => {
+        const row = [r.taxon.replace(/_/g, ' '), (taxonNames.get(r.taxon) || {}).no || ''];
+        r.cells.forEach((c, i) => row.push(c ? (c.prop * 100).toFixed(2) : '', c ? `${c.present} of ${unitStats(units[i]).n}` : ''));
+        row.push(r.inCount);
+        out.push(row);
+    });
+    return out;
 }
 
 // ---- sampler comparison -------------------------------------------------------------------
