@@ -80,6 +80,7 @@
     function t(key, vars) {
         const hit = dict[key] !== undefined ? dict[key] : plainKeys[key];
         const text = lang === 'no' && hit !== undefined && hit !== '' ? hit : key;
+        if (debug && lang === 'no' && text === key) note(key, true);
         return vars ? fill(text, vars) : text;
     }
 
@@ -113,12 +114,12 @@
         return r === null ? core : r;
     }
 
-    function note(core) {
+    function note(core, raw) {                                       // raw: a t() key, written exactly as in the code
         if (!debug || !/[A-Za-z]{3}/.test(core) || /^[\d\s.,:;%‰µ+\-–→·/()]+$/.test(core)) return;
         const pieces = SEPARATORS.some(s => core.includes(s)) ? core.split(/ · | – /) : [core];
         pieces.forEach(p => {
             if (lookup(p) !== null || !/[A-Za-z]{3}/.test(p)) return;
-            const general = p.replace(/\d+(?:[.,]\d+)?/g, '{n}');
+            const general = raw ? p : p.replace(/\d+(?:[.,]\d+)?/g, '{n}');
             if (!missing.has(general)) missing.set(general, p);
         });
     }
@@ -225,8 +226,12 @@
     // only text that is written in index.html / script.js counts as "untranslated" (station names, species names and
     // free-text comments from the data are not UI text)
     let sourceText = null;
-    const sourcesReady = Promise.all(['index.html', 'script.js'].map(f => fetch(f, { cache: 'no-cache' }).then(r => r.text()).catch(() => '')))
-        .then(parts => { sourceText = parts.join('\n'); });
+    const sourceFiles = () => ['index.html', ...[...document.querySelectorAll('script[src]')].map(x => x.getAttribute('src'))
+        .filter(f => f && !/^(https?:)?\/\//.test(f) && !/i18n\.js$|^lang\//.test(f))];
+    if (debug) document.addEventListener('DOMContentLoaded', () => {
+        Promise.all(sourceFiles().map(f => fetch(f, { cache: 'no-cache' }).then(r => r.text()).catch(() => '')))
+            .then(parts => { sourceText = parts.join('\n'); });
+    });
     function uiMissing() {
         const all = [...missing.keys()];
         if (sourceText === null) return all;

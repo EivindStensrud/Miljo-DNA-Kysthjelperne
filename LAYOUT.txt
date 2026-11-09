@@ -370,3 +370,17 @@
            "English": "",  lines. Station names, species names and e-mail addresses are NOT listed (only UI text).
         3. Fill in the Norwegian, paste the lines into docs/lang/no.js (before the closing  });  ), commit.
         Unchanged English text never needs retranslating.
+
+14. GROUPS OF LOCATIONS  (docs/groups.js)
+   Collect sampling points into up to 6 groups, compare the groups, download their data. Tab "Groups" in the explorer.
+        * Right-click a point on the map = add it to / remove it from the ACTIVE group (radio button on the group card).
+          "Draw area on map": click corners on the map, double-click or Enter to finish -> every point inside joins the
+          active group. "+" / "Add to group" buttons in the location list and details do the same. A point belongs to one group.
+        * "Compare the groups" opens the normal Compare tab with the groups as columns (overlap, shared species, chemistry).
+        * "Species distribution": how many species were found at 1, 2, 3 ... locations and in 1, 2, 3 ... samples.
+        * Download (species tables / nutrient data / everything): CSV, or one ZIP when there are several files. Public,
+          anonymised data only (no names, no sampler codes). Species statistics leave out samples with < 500 reads.
+        * The groups are kept in the browser (localStorage) and "Copy share link" makes a link (#g=...) with the groups,
+          the campaign and the date range. Nothing is sent to a server; the link contains only coordinates and group names.
+        * Pooled groups mix target groups (fish / all organisms) when a campaign filter is not set: a warning is shown.
+        * New text in groups.js is translated like the rest (section 13); ?i18n=debug now also scans groups.js.

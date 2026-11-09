@@ -1062,6 +1062,7 @@ async function loadEdnaData() {
             document.querySelectorAll('input[name="ednaColor"]').forEach(r => { r.checked = r.value === 'campaign'; });
         }
         syncDateRange();
+        groupsAfterLoad();                                   // groups.js: saved groups / shared link
         refreshAll(true);
     } catch (e) {
         console.warn('eDNA data not loaded', e);
@@ -1258,14 +1259,16 @@ function drawEdnaMarkers(filtered, bounds) {
         const fill = ednaColorMode === 'sampler' ? samplerColor(s.sampler, counts)
             : ednaColorMode === 'campaign' ? campaignColor(s.project) : (GROUP_COLORS[s.group] || GROUP_COLORS['']);
         // ring: compared location (its own colour) > selected location (yellow) > "my sample" (blue)
-        const ring = ci >= 0 ? EXPLORE_COLORS[ci] : chosen ? '#FFFEA7' : mine ? '#3E31D6' : '#ffffff';
-        const thick = ci >= 0 || chosen || mine;
+        const gring = groupRingColor(s);                  // member of a location group (groups.js)
+        const ring = gring || (ci >= 0 ? EXPLORE_COLORS[ci] : chosen ? '#FFFEA7' : mine ? '#3E31D6' : '#ffffff');
+        const thick = !!gring || ci >= 0 || chosen || mine;
         const marker = L.circleMarker([s.lat, s.lng], {
-            pane: 'ednaPane', radius: (ci >= 0 || chosen) ? 11 : mine ? 12 : 8, fillColor: fill, color: ring,
+            pane: 'ednaPane', radius: (gring || ci >= 0 || chosen) ? 11 : mine ? 12 : 8, fillColor: fill, color: ring,
             weight: thick ? 4 : 2, opacity: 1, fillOpacity: 0.95
         });
         marker.bindTooltip(buildEdnaTooltip(s), { direction: 'top', sticky: true });
         marker.on('click', ev => onEdnaMarkerClick(s, ev && ev.originalEvent));
+        marker.on('contextmenu', ev => onEdnaMarkerRightClick(s, ev && ev.originalEvent));   // add to / remove from the active group
         ednaLayer.addLayer(marker);
         if (bounds) bounds.extend([s.lat, s.lng]);
     });
@@ -1304,7 +1307,9 @@ function buildEdnaTooltip(s) {
     line('', [camp.title, s.date].filter(Boolean).join(' · '));
     if (s.richness !== null) line('', `${s.richness} ${camp.group ? groupLabel(camp.group).toLowerCase() + ' ' : ''}taxa · ${s.readsTotal} reads`);
     if (isMine(s)) line('font-semibold', 'Your sample');
-    line('', 'Click: details · Shift+click: add to comparison');
+    const grp = groupOfPos(posKey(s));
+    if (grp && hasPos(s)) line('font-semibold', gName(grp));
+    line('', 'Click: details · Shift+click: add to comparison · Right-click: add to group');
     return wrap;
 }
 
@@ -1491,6 +1496,7 @@ function buildUnits(filtered, level) {
 }
 
 function unitLabel(u) {
+    if (u.level === 'group') return u.name;
     if (u.level === 'area') return u.area;
     if (u.samples.length === 1) return `Sample ${u.samples[0].id}`;
     return `${u.area || 'Position'} · ${u.lat !== null ? `${u.lat}, ${u.lng}` : 'no position'}`;
@@ -1500,6 +1506,7 @@ function unitSub(u) {
     const multiProject = new Set(ednaSamples.map(s => s.project)).size > 1;
     const range = u.dates.length ? (u.dates[0] === u.dates[u.dates.length - 1] ? u.dates[0] : `${u.dates[0]} → ${u.dates[u.dates.length - 1]}`) : '';
     const n = u.samples.length;
+    if (u.level === 'group') return [plural(u.nLoc, 'location', 'locations'), plural(n, 'sample', 'samples'), range].filter(Boolean).join(' · ');
     const camp = multiProject ? u.projects.map(p => campaignOf(p).title).join(', ') : '';
     if (u.level === 'area') return [`${n} sample${n === 1 ? '' : 's'}`, range, camp].filter(Boolean).join(' · ');
     if (n === 1) return [u.area, range || 'no date', u.lat === null ? 'no position' : '', camp].filter(Boolean).join(' · ');
@@ -1586,13 +1593,14 @@ function explorerNote(text, isWarning) {
     el.className = 'text-xs mt-0.5 ' + (isWarning ? 'text-uio-lightorange' : 'text-slate-400');
 }
 const DEFAULT_NOTE = 'Click a point on the map or pick a location from the list. Shift+click on the map adds a point to the comparison.';
+const defaultNote = () => t(DEFAULT_NOTE) + ' ' + t('Right-click adds a point to the active group (tab Groups).');
 
 function openExplorer(tab) {
     exploreOpen = true;
     show(document.getElementById('explorer'), true);
     show(document.getElementById('exploreOpenBtn'), false);
     if (tab) exploreTab = tab;
-    explorerNote(DEFAULT_NOTE, false);
+    explorerNote(defaultNote(), false);
     renderExplorer();
 }
 
@@ -1634,12 +1642,13 @@ function toggleCompare(id) {
     if (at >= 0) compareIds.splice(at, 1);
     else if (compareIds.length >= MAX_COMPARE) { explorerNote(`You can compare up to ${MAX_COMPARE} locations at a time. Remove one first.`, true); return; }
     else compareIds.push(id);
-    explorerNote(DEFAULT_NOTE, false);
+    explorerNote(defaultNote(), false);
     renderExplorer();
     redrawEdnaMarkers();
 }
 
 function onEdnaMarkerClick(s, ev) {
+    if (drawing) return;                                   // drawing an area: clicks on points only set corners
     if (exploreLevel === 'area' && !s.area) exploreLevel = 'point';
     const id = unitIdForSample(s, exploreLevel);
     if (!exploreOpen) openExplorer();
@@ -1655,8 +1664,8 @@ function zoomToUnit(u) {
     map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [left, 40], paddingBottomRight: [60, 40], maxZoom: 12 });
 }
 
-const unitById = id => exploreUnits.get(id) || exploreExtra.get(id);
-const visibleCompare = () => compareIds.map(id => exploreUnits.get(id)).filter(Boolean);
+const unitById = id => exploreUnits.get(id) || exploreExtra.get(id) || groupUnits.get(id);
+const visibleCompare = () => compareIds.map(id => unitById(id)).filter(Boolean);
 
 function setupExplorerListeners() {
     ['exploreOpenBtn', 'exploreOpenBtnSidebar'].forEach(id => document.getElementById(id).addEventListener('click', () => openExplorer()));
@@ -1666,6 +1675,7 @@ function setupExplorerListeners() {
     document.getElementById('exploreSort').addEventListener('change', e => { exploreSort = e.target.value; renderExploreList(); });
     document.getElementById('exploreTabDetails').addEventListener('click', () => setExploreTab('details'));
     document.getElementById('exploreTabCompare').addEventListener('click', () => setExploreTab('compare'));
+    document.getElementById('exploreTabGroups').addEventListener('click', () => setExploreTab('groups'));
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && exploreOpen) closeExplorer(); });
 }
 
@@ -1677,6 +1687,7 @@ function renderExplorer() {
 
     const filtered = getFilteredEdna();
     exploreUnits = buildUnits(filtered, exploreLevel);
+    groupUnits = buildGroupUnits(filtered);               // groups.js
     exploreExtra = new Map();
     if (exploreSelected && exploreSelected.startsWith('sm|') && !exploreUnits.has(exploreSelected)) {
         const smp = filtered.find(x => `sm|${x.uid}` === exploreSelected);
@@ -1689,15 +1700,18 @@ function renderExplorer() {
     });
     const nCmp = visibleCompare().length;
     const tabClass = on => 'px-3 py-1.5 text-sm font-medium rounded-t border-b-2 ' + (on ? 'border-primary text-white' : 'border-transparent text-slate-400 hover:text-slate-200');
-    const tD = document.getElementById('exploreTabDetails'), tC = document.getElementById('exploreTabCompare');
+    const tD = document.getElementById('exploreTabDetails'), tC = document.getElementById('exploreTabCompare'), tG = document.getElementById('exploreTabGroups');
     tD.className = tabClass(exploreTab === 'details');
     tC.className = tabClass(exploreTab === 'compare');
+    tG.className = tabClass(exploreTab === 'groups');
     tC.textContent = `Compare${nCmp ? ` (${nCmp})` : ''}`;
+    tG.textContent = `Groups${locGroups.length ? ` (${locGroups.length})` : ''}`;
 
     renderExploreList();
     show(document.getElementById('exploreDetails'), exploreTab === 'details');
     show(document.getElementById('exploreCompare'), exploreTab === 'compare');
-    if (exploreTab === 'details') renderExploreDetails(); else renderExploreCompare();
+    show(document.getElementById('exploreGroups'), exploreTab === 'groups');
+    if (exploreTab === 'details') renderExploreDetails(); else if (exploreTab === 'compare') renderExploreCompare(); else renderExploreGroups();
 }
 
 function unitMatches(u, q) {
@@ -1741,6 +1755,7 @@ function renderExploreList() {
         const body = h('div', 'min-w-0 flex-1');
         const title = h('div', 'flex items-center gap-1.5');
         if (ci >= 0) { const dot = h('span', 'inline-block w-2.5 h-2.5 rounded-full flex-shrink-0'); dot.style.background = EXPLORE_COLORS[ci]; title.appendChild(dot); }
+        const gb = groupListButton(u);
         title.appendChild(h('span', 'text-sm text-slate-100 truncate', unitLabel(u)));
         body.appendChild(title);
         body.appendChild(h('div', 'text-[11px] text-slate-400 truncate', unitSub(u)));
@@ -1754,6 +1769,7 @@ function renderExploreList() {
             if (hits.length && !unitLabel(u).toLowerCase().includes(q)) body.appendChild(h('div', 'text-[11px] text-uio-lightgreen truncate', `has: ${hits.join(', ')}`));
         }
         li.append(cb, body);
+        if (gb) li.appendChild(gb);
         li.addEventListener('click', () => selectUnit(u.id, { zoom: true }));
         ul.appendChild(li);
         if (u.id === exploreSelected && li.scrollIntoView) li.scrollIntoView({ block: 'nearest' });
@@ -1851,6 +1867,8 @@ function renderExploreDetails() {
     const btn = (text, cls, fn) => { const b = h('button', 'text-xs font-semibold px-3 py-1.5 rounded-md transition-colors ' + cls, text); b.type = 'button'; b.addEventListener('click', fn); return b; };
     if (exploreUnits.has(u.id)) right.appendChild(
         btn(inCmp ? 'Remove from comparison' : 'Add to comparison', inCmp ? 'bg-slate-700 hover:bg-slate-600 text-slate-100' : 'bg-primary hover:bg-uio-lightgreen text-black', () => toggleCompare(u.id)));
+    const gbtn = exploreUnits.has(u.id) ? groupDetailButton(u) : null;
+    if (gbtn) right.appendChild(gbtn);
     right.append(
         btn('Show on map', 'bg-slate-700 hover:bg-slate-600 text-slate-100', () => zoomToUnit(u)),
         btn('Download species (CSV)', 'bg-slate-700 hover:bg-slate-600 text-slate-100', () => downloadCsv(`species_${slug(unitLabel(u))}.csv`, speciesCsvRows(u, st)))
@@ -1970,7 +1988,7 @@ function renderExploreCompare() {
     const chips = h('div', 'flex flex-wrap gap-2 items-center');
     units.forEach((u, i) => {
         const chip = h('span', 'inline-flex items-center gap-1.5 pl-2 pr-1 py-1 rounded-full bg-slate-800 border border-slate-600 text-xs text-slate-100');
-        const dot = h('span', 'inline-block w-2.5 h-2.5 rounded-full'); dot.style.background = EXPLORE_COLORS[i];
+        const dot = h('span', 'inline-block w-2.5 h-2.5 rounded-full'); dot.style.background = unitColor(units[i], i);
         const x = h('button', 'text-slate-400 hover:text-white px-1', '×'); x.type = 'button'; x.title = 'Remove'; x.setAttribute('aria-label', `Remove ${unitLabel(u)}`);
         x.addEventListener('click', () => toggleCompare(u.id));
         chip.append(dot, document.createTextNode(unitLabel(u)), x);
@@ -1987,7 +2005,8 @@ function renderExploreCompare() {
         box.appendChild(h('p', 'text-sm text-slate-300 mt-4', units.length ? 'Add at least one more location.' : 'No locations chosen yet.'));
         box.appendChild(h('p', 'text-xs text-slate-400 mt-2',
             t('Tick the boxes in the list, press "Add to comparison" in the details, or Shift+click points on the map. You can compare up to {n} locations.', { n: MAX_COMPARE }) + ' ' +
-            t('Tip: switch to "Areas" above to compare whole areas (all samples of an area pooled).')));
+            t('Tip: switch to "Areas" above to compare whole areas (all samples of an area pooled).') + ' ' +
+            t('Or open the "Groups" tab to pool several locations into groups and compare the groups.')));
         return;
     }
     if (new Set(units.map(u => u.group)).size > 1) box.appendChild(h('p', 'text-xs text-uio-lightorange mt-3',
@@ -2005,7 +2024,7 @@ function renderExploreCompare() {
         const st = unitStats(u), c = st.chem;
         const tr = h('tr', 'border-t border-slate-700/60');
         const first = h('td', 'py-1 pr-3');
-        const dot = h('span', 'inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-middle'); dot.style.background = EXPLORE_COLORS[i];
+        const dot = h('span', 'inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-middle'); dot.style.background = unitColor(units[i], i);
         first.append(dot, h('span', 'text-slate-100 align-middle', unitLabel(u)));
         tr.appendChild(first);
         [String(u.samples.length), st.n ? String(st.richness) : '–', med(c.tn), med(c.toc), med(c.totp), med(c.salinity)].forEach(v => tr.appendChild(h('td', 'py-1 pr-3 text-slate-300', v)));
@@ -2029,12 +2048,12 @@ function renderExploreCompare() {
         box.appendChild(h('p', 'text-xs text-slate-400 mt-3 mb-1', title));
         const t = h('table', 'text-xs');
         const hd = h('tr'); hd.appendChild(h('th', ''));
-        units.forEach((u, i) => { const th = h('th', 'px-2 pb-1 font-medium'); const d = h('span', 'inline-block w-2.5 h-2.5 rounded-full'); d.style.background = EXPLORE_COLORS[i]; th.appendChild(d); hd.appendChild(th); });
+        units.forEach((u, i) => { const th = h('th', 'px-2 pb-1 font-medium'); const d = h('span', 'inline-block w-2.5 h-2.5 rounded-full'); d.style.background = unitColor(units[i], i); th.appendChild(d); hd.appendChild(th); });
         t.appendChild(hd);
         units.forEach((a, i) => {
             const tr = h('tr');
             const th = h('th', 'text-left pr-3 py-0.5 font-normal text-slate-300 whitespace-nowrap');
-            const d = h('span', 'inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-middle'); d.style.background = EXPLORE_COLORS[i];
+            const d = h('span', 'inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-middle'); d.style.background = unitColor(units[i], i);
             th.append(d, document.createTextNode(unitLabel(a)));
             tr.appendChild(th);
             units.forEach((b, j) => {
@@ -2060,7 +2079,7 @@ function renderExploreCompare() {
         type: 'bar',
         data: {
             labels: top.map(r => taxonShort(r.taxon)),
-            datasets: units.map((u, i) => ({ label: unitLabel(u), backgroundColor: EXPLORE_COLORS[i], borderRadius: 2,
+            datasets: units.map((u, i) => ({ label: unitLabel(u), backgroundColor: unitColor(units[i], i), borderRadius: 2,
                 data: top.map(r => +((r.cells[i] ? r.cells[i].prop : 0) * 100).toFixed(1)) }))
         },
         options: {
@@ -2087,7 +2106,7 @@ function renderExploreCompare() {
         const t = h('table', 'w-full text-xs');
         const hd = h('tr');
         hd.appendChild(h('th', 'text-left text-slate-400 font-medium pb-1 pr-2', 'Species'));
-        units.forEach((u, i) => { const th = h('th', 'text-left text-slate-400 font-medium pb-1 pr-2'); const d = h('span', 'inline-block w-2.5 h-2.5 rounded-full mr-1'); d.style.background = EXPLORE_COLORS[i]; th.append(d, document.createTextNode(unitLabel(u).slice(0, 18))); hd.appendChild(th); });
+        units.forEach((u, i) => { const th = h('th', 'text-left text-slate-400 font-medium pb-1 pr-2'); const d = h('span', 'inline-block w-2.5 h-2.5 rounded-full mr-1'); d.style.background = unitColor(units[i], i); th.append(d, document.createTextNode(unitLabel(u).slice(0, 18))); hd.appendChild(th); });
         hd.appendChild(h('th', 'text-left text-slate-400 font-medium pb-1', 'At'));
         t.appendChild(hd);
         list.forEach(r => {
@@ -2097,7 +2116,7 @@ function renderExploreCompare() {
                 const td = h('td', 'py-1 pr-2 align-top');
                 if (c) {
                     td.appendChild(h('div', 'text-slate-200', `${fmtPct(c.prop * 100)} %`));
-                    const b = h('div', 'h-1 rounded'); b.style.background = EXPLORE_COLORS[i]; b.style.width = `${Math.max(3, Math.min(100, c.prop * 100))}%`;
+                    const b = h('div', 'h-1 rounded'); b.style.background = unitColor(units[i], i); b.style.width = `${Math.max(3, Math.min(100, c.prop * 100))}%`;
                     td.appendChild(b);
                     if (units[i].samples.length > 1) td.appendChild(h('div', 'text-[10px] text-slate-500', `${c.present} of ${unitStats(units[i]).n}`));
                 } else td.appendChild(h('span', 'text-slate-600', '–'));
