@@ -86,18 +86,18 @@
     <!-- Sidebar -->
     <aside class="w-96 bg-sidebar text-slate-300 flex flex-col h-full z-10 shadow-xl flex-shrink-0">
 
-        <!-- Header: University of Oslo logo (official file, see docs/img/PLACE_UIO_LOGO_HERE.txt) + title -->
+        <!-- Header: University of Oslo logo (docs/img/uio-logo-no.png, cropped) + partner logo, both on white chips; title -->
         <header class="flex-shrink-0 bg-slate-950 border-b border-slate-700">
             <div class="px-5 pt-4 pb-3 flex items-start justify-between gap-3">
                 <div class="flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0">
-                    <a href="https://www.uio.no/english/" data-href-no="https://www.uio.no/" target="_blank" rel="noopener" aria-label="University of Oslo" class="inline-block">
-                        <img id="uioLogo" src="img/uio-logo.svg" alt="University of Oslo" class="h-10 w-auto"
+                    <a href="https://www.uio.no/english/" data-href-no="https://www.uio.no/" target="_blank" rel="noopener" aria-label="University of Oslo" class="inline-block bg-white rounded px-2 py-1">
+                        <img id="uioLogo" src="img/uio-logo-no.png" alt="University of Oslo" class="h-8 w-auto block"
                              onerror="this.style.display='none'; document.getElementById('uioLogoFallback').style.display='inline-block';">
-                        <span id="uioLogoFallback" style="display:none" class="text-white text-lg font-semibold tracking-wide">University of Oslo</span>
+                        <span id="uioLogoFallback" style="display:none" class="text-slate-900 text-sm font-semibold tracking-wide">University of Oslo</span>
                     </a>
                     <!-- partner logo: black on transparent, so it sits on a white chip (the logo itself is not changed) -->
                     <a href="https://www.oslofjorden.org/" target="_blank" rel="noopener" data-no-i18n aria-label="Oslofjordens Friluftsråd" class="inline-block bg-white rounded px-2 py-1">
-                        <img id="ofLogo" src="img/oslofjordens-friluftsraad-logo.png" alt="Oslofjordens Friluftsråd" class="h-7 w-auto block"
+                        <img id="ofLogo" src="img/oslofjordens-friluftsraad-logo.png" alt="Oslofjordens Friluftsråd" class="h-8 w-auto block"
                              onerror="this.parentNode.style.display='none';">
                     </a>
                 </div>
