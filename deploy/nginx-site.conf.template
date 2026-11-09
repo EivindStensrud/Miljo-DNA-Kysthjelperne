@@ -1,0 +1,37 @@
+# nginx site for the Kysthjelperne dashboard (static files only).
+# setup_vm.sh fills in @DOMAIN@ and @ROOT@. HTTPS is added afterwards by certbot (see README.md).
+server {
+    listen 80;
+    listen [::]:80;
+    server_name @DOMAIN@;
+
+    root @ROOT@;
+    index index.html;
+
+    # the site is plain static files: no scripting, no uploads
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # never serve hidden files (.git, .env, ...), nothing like that should be here anyway
+    location ~ /\. {
+        deny all;
+        return 404;
+    }
+
+    # data and code are re-read after at most 5 minutes, so a new build shows up quickly
+    location ~* \.(csv|json|js|html)$ {
+        add_header Cache-Control "public, max-age=300";
+        add_header X-Content-Type-Options "nosniff" always;
+    }
+    location ~* \.(png|svg|jpg|jpeg|ico|webp)$ {
+        add_header Cache-Control "public, max-age=86400";
+    }
+
+    # compress text and data
+    gzip on;
+    gzip_types text/css application/javascript application/json text/csv text/plain image/svg+xml;
+
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+}
