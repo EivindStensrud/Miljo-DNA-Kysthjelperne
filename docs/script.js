@@ -1823,8 +1823,8 @@ function renderExploreDetails() {
     if (!u) {
         box.appendChild(h('p', 'text-sm text-slate-300', 'No location selected.'));
         box.appendChild(h('p', 'text-xs text-slate-400 mt-2',
-            'Pick a location from the list, click a point on the map, or click a point in the richness chart. You will see every species found there. ' +
-            'Tick the boxes in the list (or Shift+click points on the map) to compare locations. In the list, search for a species such as "torsk" to find where it was found.'));
+            t('Pick a location from the list, click a point on the map, or click a point in the richness chart. You will see every species found there.') + ' ' +
+            t('Tick the boxes in the list (or Shift+click points on the map) to compare locations. In the list, search for a species such as "torsk" to find where it was found.')));
         return;
     }
     const st = unitStats(u);
@@ -1943,12 +1943,14 @@ function renderExploreDetails() {
     box.append(tools, tbl);
     draw();
 
-    const names = taxonNames.size ? ` Norwegian names: ${rows.filter(r => taxonNames.get(r.taxon)).length} of ${rows.length}` +
-        `${rows.some(r => (taxonNames.get(r.taxon) || {}).status === 'unverified') ? ' (some not yet checked against Artsdatabanken)' : ''}.` : '';
+    const named = rows.filter(r => taxonNames.get(r.taxon)).length;
+    const unchecked = rows.some(r => (taxonNames.get(r.taxon) || {}).status === 'unverified');
+    const names = taxonNames.size ? ' ' + t(unchecked ? 'Norwegian names: {a} of {b} (some not yet checked against Artsdatabanken).' : 'Norwegian names: {a} of {b}.', { a: named, b: rows.length }) : '';
     box.appendChild(h('p', 'text-[11px] text-slate-500 mt-3',
-        (nUse > 1 ? 'Share of reads = average over the samples of each sample\'s own shares (every sample counts equally); "Found in" = number of samples where the species was detected. ' : 'Share of reads = reads of the species divided by all identified reads of the sample. ') +
-        (st.lowLeft ? `${st.lowLeft} sample${st.lowLeft === 1 ? '' : 's'} with fewer than ${LOW_READS} reads ${st.lowLeft === 1 ? 'is' : 'are'} left out of this table. ` : '') +
-        'Reads are not corrected for sequencing depth, and eDNA shows presence, not numbers of animals.' + names));
+        (nUse > 1 ? t('Share of reads = average over the samples of each sample\'s own shares (every sample counts equally); "Found in" = number of samples where the species was detected.') + ' '
+                  : t('Share of reads = reads of the species divided by all identified reads of the sample.') + ' ') +
+        (st.lowLeft ? t(st.lowLeft === 1 ? '{n} sample with fewer than {m} reads is left out of this table.' : '{n} samples with fewer than {m} reads are left out of this table.', { n: st.lowLeft, m: LOW_READS }) + ' ' : '') +
+        t('Reads are not corrected for sequencing depth, and eDNA shows presence, not numbers of animals.') + names));
 }
 
 function speciesCsvRows(u, st) {
@@ -1984,12 +1986,12 @@ function renderExploreCompare() {
     if (units.length < 2) {
         box.appendChild(h('p', 'text-sm text-slate-300 mt-4', units.length ? 'Add at least one more location.' : 'No locations chosen yet.'));
         box.appendChild(h('p', 'text-xs text-slate-400 mt-2',
-            'Tick the boxes in the list, press "Add to comparison" in the details, or Shift+click points on the map. You can compare up to ' + MAX_COMPARE + ' locations. ' +
-            'Tip: switch to "Areas" above to compare whole areas (all samples of an area pooled).'));
+            t('Tick the boxes in the list, press "Add to comparison" in the details, or Shift+click points on the map. You can compare up to {n} locations.', { n: MAX_COMPARE }) + ' ' +
+            t('Tip: switch to "Areas" above to compare whole areas (all samples of an area pooled).')));
         return;
     }
     if (new Set(units.map(u => u.group)).size > 1) box.appendChild(h('p', 'text-xs text-uio-lightorange mt-3',
-        'These locations come from campaigns with different target groups (' + [...new Set(units.map(u => groupLabel(u.group) || 'unknown'))].join(', ') + '): their species lists are not comparable.'));
+        t('These locations come from campaigns with different target groups ({g}): their species lists are not comparable.', { g: [...new Set(units.map(u => I18N.tr(groupLabel(u.group) || 'unknown')))].join(', ') })));
 
     // 1. side by side
     box.appendChild(h('h4', 'text-sm font-semibold uppercase tracking-wider text-uio-green mt-5 mb-2', 'Side by side'));
@@ -2020,8 +2022,8 @@ function renderExploreCompare() {
     const onlyOne = units.map((u, i) => rowsM.filter(r => r.inCount === 1 && r.cells[i]).length);
     box.appendChild(h('h4', 'text-sm font-semibold uppercase tracking-wider text-uio-green mt-6 mb-2', 'Species overlap'));
     box.appendChild(h('p', 'text-xs text-slate-300',
-        `${rowsM.length} species in total · ${inAll} found at all ${k} locations · ` +
-        units.map((u, i) => `${onlyOne[i]} only at ${unitLabel(u)}`).join(' · ')));
+        t('{n} species in total', { n: rowsM.length }) + ' · ' + t('{n} found at all {k} locations', { n: inAll, k }) + ' · ' +
+        units.map((u, i) => t('{n} only at {x}', { n: onlyOne[i], x: unitLabel(u) })).join(' · ')));
 
     const simTable = (title, pick, note) => {
         box.appendChild(h('p', 'text-xs text-slate-400 mt-3 mb-1', title));
@@ -2163,7 +2165,7 @@ function renderSamplers(filtered, mixed) {
     });
     const shown = [...bySampler.entries()].filter(([, a]) => a.length >= MIN_SAMPLER_GROUP).sort((a, b) => b[1].length - a[1].length);
     if (shown.length < 2) {
-        box.textContent = 'Not enough samplers with ' + MIN_SAMPLER_GROUP + '+ samples for a comparison.';
+        box.textContent = t('Not enough samplers with {n}+ samples for a comparison.', { n: MIN_SAMPLER_GROUP });
         return;
     }
     const med = (a, key) => { const v = a.map(s => ednaValue(s, key)).filter(x => x !== null); return v.length ? +median(v).toPrecision(3) : '–'; };

@@ -353,3 +353,20 @@
         * "qc_limits": {"toc_mgl_max": null} switches the upper limit for organic carbon off (the 2022 limit of
           20 mg/L would hide half of the 2025 NPOC values). Other keys: totp_ugl_max, tn_mgl_min.
         * Chemistry is only published for samples that have sequence data.
+
+13. NORWEGIAN / ENGLISH  (docs/i18n.js + docs/lang/no.js)
+   You keep developing in ENGLISH (index.html, script.js). The Norwegian text lives in ONE file, docs/lang/no.js.
+        * The page opens in Norwegian. Visitors switch with the NO | EN buttons in the header (remembered in the
+          browser). ?lang=en or ?lang=no in the address overrides (and is remembered).
+        * docs/lang/no.js is a dictionary:  "English text": "Norsk tekst",
+          - {n} / {x} in a key = any text or number;  {n:d} = numbers only. In the Norwegian value write plain {n}.
+          - Text that is not in the dictionary simply stays English, so nothing breaks when you add English text.
+        * Text that script.js builds from pieces uses  t("English with {n}", {n: 5}).
+        * Chart.js labels are translated automatically.
+        * NEW CAMPAIGN: its title and description (project.json) are shown as text, so add them to no.js as well.
+   WORKFLOW WHEN YOU HAVE CHANGED ENGLISH TEXT (now and then)
+        1. Open the page with  ?i18n=debug  (e.g. http://localhost:8000/?i18n=debug), click through the page.
+        2. The orange button at the bottom left, "Untranslated (N)", downloads the missing texts as
+           "English": "",  lines. Station names, species names and e-mail addresses are NOT listed (only UI text).
+        3. Fill in the Norwegian, paste the lines into docs/lang/no.js (before the closing  });  ), commit.
+        Unchanged English text never needs retranslating.
