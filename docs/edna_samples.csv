@@ -1,103 +1,267 @@
-﻿project;sample_id;sample_type;date;date_quality;lat;lon;area;push;volume_ml;tn_mgl;toc_mgl;totp_ugl;totp_flag;cond_mscm;salinity_ppt;nutrient_group;qc;has_meta;has_chem;has_species;seq_variants;reads_total;reads_identified;richness;shannon;top_taxon;top_share;seq_flag;sampler_hash
-kysthjelperne_2022;1;sample;2022-09-27;exact;59.873;10.612;Drøbak;20;1200;0.059;2.426;;<2;35.7;27;normal;;1;1;1;main|F|L;4109;4109;9;1.921;Pomatoschistus_minutus;0.319;;a76d5ac30466884f5d867fbb3ca41861
-kysthjelperne_2022;2;sample;;;;;;;;;;;;;;;;0;0;1;F|L;;;;;;;variants_only;
-kysthjelperne_2022;3;sample;;;;;;;;;;;;;;;;0;0;1;F|L;;;;;;;variants_only;
-kysthjelperne_2022;4;sample;;;;;;;;;;;;;;;;0;0;1;F|L;;;;;;;variants_only;
-kysthjelperne_2022;6;sample;2022-09-16;exact;59.702;10.522;Drøbak;20;1200;0.076;148.7;;<2;32.4;26;normal;toc;1;1;1;main;633;633;8;1.763;Gobiusculus_flavescens;0.273;;a76d5ac30466884f5d867fbb3ca41861
-kysthjelperne_2022;8;sample;2022-09-16;exact;59.649;10.606;Drøbak;20;1200;0.069;2.881;;<2;32.6;25;normal;;1;1;1;main;1230;1230;6;1.427;Limanda_limanda;0.502;;a76d5ac30466884f5d867fbb3ca41861
-kysthjelperne_2022;9;sample;;missing;59.702;10.522;Drøbak;20;1200;0.061;2.916;;<2;0.001;38;normal;cond;1;1;1;main;874;874;6;1.741;Limanda_limanda;0.222;;a76d5ac30466884f5d867fbb3ca41861
-kysthjelperne_2022;10;sample;2022-09-27;exact;59.873;10.612;Drøbak;20;1200;0.147;5.241;;<2;0.001;29;high;cond;1;1;1;main;2399;2399;10;1.639;Gobiusculus_flavescens;0.383;;a76d5ac30466884f5d867fbb3ca41861
-kysthjelperne_2022;11;sample;2022-06-14;year_assumed;59.734;10.513;Sætre;20;1200;0.138;2.808;;<2;31.5;22;high;;1;1;1;main;11434;11412;25;2.164;Gobiusculus_flavescens;0.346;;6a7b42d586e80aa5f3e758ea49325732
-kysthjelperne_2022;12;sample;2022-06-09;exact;59.676;10.571;Sætre;20;1200;0.091;2.652;3;;29.3;23;normal;;1;1;1;main;3109;3109;5;0.513;Ctenolabrus_rupestris;0.872;;6a7b42d586e80aa5f3e758ea49325732
-kysthjelperne_2022;13;sample;2022-06-08;exact;59.663;10.585;Sætre;20;1200;0.167;2.989;;<2;26.8;19;high;;1;1;1;main;12642;12642;13;1.843;Pomatoschistus_microps;0.311;;6a7b42d586e80aa5f3e758ea49325732
-kysthjelperne_2022;14;sample;2022-06-10;exact;59.727;10.519;Sætre;20;1200;0.114;2.722;;<2;29.8;22;normal;;1;1;1;main;5836;5836;12;1.694;Ctenolabrus_rupestris;0.448;;6a7b42d586e80aa5f3e758ea49325732
-kysthjelperne_2022;15;sample;2022-06-14;exact;59.696;10.519;Sætre;20;1200;0.167;3.014;2;;26.4;18;high;;1;1;1;main;2448;2448;8;1.72;Phoxinus;0.354;;6a7b42d586e80aa5f3e758ea49325732
-kysthjelperne_2022;16;sample;2022-07-26;exact;59.880;10.530;Sandvika;20;1200;0.127;3.162;370;;28.3;21;high;totp;1;1;1;main;798;798;8;1.131;Gasterosteus_aculeatus;0.584;;2f7d580df2f0baab76907ecc0f5bdd4c
-kysthjelperne_2022;17;sample;2022-07-24;exact;59.920;10.670;Sandvika;20;1200;0.12;3.276;16.8;;25.9;18;normal;;1;1;1;main;836;775;8;1.679;Gobiusculus_flavescens;0.311;;2f7d580df2f0baab76907ecc0f5bdd4c
-kysthjelperne_2022;18;sample;2022-07-26;exact;58.880;10.530;Sandvika;20;1200;0.126;2.945;6;;30.4;22;high;;1;1;1;main;797;797;5;1.314;Gobiusculus_flavescens;0.523;;2f7d580df2f0baab76907ecc0f5bdd4c
-kysthjelperne_2022;19;sample;;;;;;;;0.137;3.183;12;;26.2;18;high;;0;1;1;main;242;242;6;1.62;Gobiusculus_flavescens;0.384;low_reads;
-kysthjelperne_2022;21;sample;2022-08-23;exact;59.873;10.779;Oslo;20;1200;0.059;3.237;;<2;35.3;28;normal;;1;1;1;main;8388;8388;10;1.42;Gobiusculus_flavescens;0.595;;77be7d639b7a94f1866cc5169a8dc905
-kysthjelperne_2022;23;sample;2022-08-23;exact;59.843;10.775;Oslo;20;1200;0.055;3.057;;<2;33.2;26;normal;;1;1;1;main;9109;9109;15;2.042;Pomatoschistus_microps;0.282;;77be7d639b7a94f1866cc5169a8dc905
-kysthjelperne_2022;24;sample;2022-08-23;exact;59.869;10.782;Oslo;20;1200;0.042;2.739;;<2;33.6;27;low;;1;1;1;main;857;857;7;1.845;Belone_belone;0.216;;77be7d639b7a94f1866cc5169a8dc905
-kysthjelperne_2022;25;sample;2022-08-23;exact;59.854;10.782;Oslo;20;1200;0.001;2.769;;<2;33.2;27;low;tn;1;1;1;main;12215;12215;17;1.996;Pomatoschistus_pictus;0.343;;77be7d639b7a94f1866cc5169a8dc905
-kysthjelperne_2022;41;sample;2022-07-06;exact;59.878;10.566;Oslo;20;1200;0.035;2.596;;<2;32.1;26;low;;1;1;1;main;422;422;6;1.396;Belone_belone;0.365;low_reads;716d7631f2b7d40b3d97591034cfb212
-kysthjelperne_2022;42;sample;2022-07-06;exact;59.877;10.563;Oslo;20;1200;0.043;2.515;;<2;30.9;25;low;;1;1;1;main;451;451;5;1.066;Belone_belone;0.534;low_reads;716d7631f2b7d40b3d97591034cfb212
-kysthjelperne_2022;43;sample;;;;;;;;0.022;2.608;2;;33.3;28;low;;0;1;1;main;121;121;1;-0.0;Scomber_scombrus;1.0;low_reads;
-kysthjelperne_2022;44;sample;;;;;;;;0.041;2.557;2;;33.4;28;low;;0;1;1;main;0;0;0;;;;no_reads;
-kysthjelperne_2022;45;sample;2022-09-04;exact;59.875;10.599;Oslo;20;1200;0.045;2.406;2;;33.9;27;low;;1;1;1;main;900;900;11;1.861;Gobiusculus_flavescens;0.403;;716d7631f2b7d40b3d97591034cfb212
-kysthjelperne_2022;46;sample;2022-09-04;exact;59.854;10.688;Oslo;20;1200;0.053;2.365;2;;34.3;27;low;;1;1;1;main;516;516;10;1.808;Aphia_minuta;0.335;;716d7631f2b7d40b3d97591034cfb212
-kysthjelperne_2022;47;sample;;;;;;;;0.036;2.612;2;;33.8;27;low;;0;1;1;main;56;56;6;1.699;Taurulus_bubalis;0.286;low_reads;
-kysthjelperne_2022;48;sample;2022-09-04;exact;59.847;10.549;Oslo;20;1200;0.056;2.353;2;;33;27;normal;;1;1;1;main;6449;6431;14;0.965;Ctenolabrus_rupestris;0.773;;716d7631f2b7d40b3d97591034cfb212
-kysthjelperne_2022;49;sample;2022-09-04;exact;59.880;10.567;Oslo;20;1200;0.022;2.561;2;;33.6;27;low;;1;1;1;main;2986;2986;12;2.178;Gasterosteus_aculeatus;0.26;;716d7631f2b7d40b3d97591034cfb212
-kysthjelperne_2022;50;sample;2022-09-04;exact;59.821;10.609;Oslo;20;1200;0.032;2.382;3;;34;28;low;;1;1;1;main;1485;1485;5;1.394;Scomber_scombrus;0.45;;716d7631f2b7d40b3d97591034cfb212
-kysthjelperne_2022;64;sample;2022-07-17;exact;59.856;10.576;Sandvika;20;1200;0.098;3.514;;<2;31.1;20;normal;;1;1;1;main;20307;20307;13;0.242;Scomber_scombrus;0.956;;9e61e7cbe03cc29bdb9caf59f17bf7eb
-kysthjelperne_2022;74;sample;2022-07-17;exact;59.080;10.429;Sandefjord;20;1200;0.156;2.778;2;;32.6;24;high;;1;1;1;main;17249;17249;17;1.741;Pomatoschistus_microps;0.442;;4426414d16b7ffdbeabf29627cc6e9b7
-kysthjelperne_2022;75;sample;2022-07-17;exact;59.846;10.540;Sandvika;20;1200;0.085;3.527;;<2;30.9;23;normal;;1;1;1;main;1459;1439;7;1.204;Gobius;0.575;;9e61e7cbe03cc29bdb9caf59f17bf7eb
-kysthjelperne_2022;76;sample;2022-07-10;exact;59.489;10.684;Moss;20;1200;0.114;3.362;;<2;30.1;22;normal;;1;1;1;main;5745;5704;15;2.053;Gobiusculus_flavescens;0.272;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
-kysthjelperne_2022;77;sample;2022-07-11;exact;59.482;10.686;Moss;20;1200;0.095;4.251;;<2;29.8;22;normal;;1;1;1;main;8363;8363;4;0.941;Symphodus_melops;0.468;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
-kysthjelperne_2022;78;sample;2022-07-11;exact;59.463;10.674;Moss;20;1200;0.131;2.807;12;;30;22;high;;1;1;1;main;7227;7119;21;1.569;Ctenolabrus_rupestris;0.669;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
-kysthjelperne_2022;79;sample;2022-07-11;exact;59.446;10.661;Moss;20;1200;0.103;4.388;;<2;30.2;22;normal;;1;1;1;main;12111;11809;14;1.294;Ctenolabrus_rupestris;0.685;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
-kysthjelperne_2022;80;sample;2022-07-11;exact;59.426;10.642;Moss;20;1200;0.121;3.041;;<2;29.7;22;high;;1;1;1;main;5314;5314;13;1.898;Ctenolabrus_rupestris;0.396;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
-kysthjelperne_2022;81;sample;2022-07-11;exact;59.421;10.616;Moss;20;1200;0.133;2.905;4;;30.6;22;high;;1;1;1;main;2364;2356;11;1.057;Symphodus_melops;0.606;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
-kysthjelperne_2022;82;sample;2022-07-11;exact;59.417;10.594;Moss;20;1200;0.129;3.04;2.5;;31.4;22;high;;1;1;1;main;2772;2772;12;2.181;Merlangius_merlangus;0.203;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
-kysthjelperne_2022;83;sample;2022-07-11;exact;59.426;10.588;Moss;20;1200;0.097;78.22;;<2;29.2;21;normal;toc;1;1;1;main;9911;9363;15;1.732;Pholis_gunnellus;0.305;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
-kysthjelperne_2022;84;sample;2022-07-12;exact;59.433;10.587;Moss;20;1200;0.069;2.963;3;;28.9;21;normal;;1;1;1;main;2633;2633;8;1.68;Symphodus_melops;0.351;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
-kysthjelperne_2022;85;sample;;;;;;;;0.091;4.305;;<2;28.6;21;normal;;0;1;1;main;0;0;0;;;;no_reads;
-kysthjelperne_2022;86;sample;;;;;;;;0.108;4.161;;<2;30.3;23;normal;;0;1;0;;;;;;;;;
-kysthjelperne_2022;87;sample;2022-07-12;exact;59.479;10.625;Moss;20;1200;0.179;2.683;;<2;30.2;23;high;;1;1;1;main;3030;2542;10;1.83;Symphodus_melops;0.3;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
-kysthjelperne_2022;88;sample;2022-07-12;exact;59.460;10.620;Moss;20;1200;0.132;3.216;;<2;29.5;23;high;;1;1;1;main;3591;3591;6;0.887;Ctenolabrus_rupestris;0.733;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
-kysthjelperne_2022;89;sample;;;;;;;;0.106;3.786;;<2;29.8;22;normal;;0;1;1;main;0;0;0;;;;no_reads;
-kysthjelperne_2022;90;sample;2022-07-12;exact;59.441;10.604;Moss;20;1200;0.128;3.795;;<2;31.2;23;high;;1;1;1;main;15452;15302;23;1.395;Ctenolabrus_rupestris;0.657;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
-kysthjelperne_2022;91;sample;2022-06-14;exact;59.284;10.504;Other;20;1200;0.124;3.748;;<2;30.1;22;high;;1;1;1;main;4421;4015;15;1.906;Symphodus_melops;0.408;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;92;sample;2022-06-13;exact;59.247;10.494;Tønsberg;20;1200;0.073;2.347;;<2;31.9;24;normal;;1;1;1;main;2218;2166;8;0.985;Taurulus_bubalis;0.63;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;93;sample;2022-06-13;exact;59.188;10.574;Tønsberg;20;1200;0.115;2.332;;<2;32.8;25;normal;;1;1;1;main;4801;4801;12;1.113;Ctenolabrus_rupestris;0.743;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;94;sample;2022-06-13;exact;59.221;10.537;Tønsberg;20;1200;0.091;2.579;;<2;32.1;25;normal;;1;1;1;main;8205;8177;17;1.485;Scomber_scombrus;0.441;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;95;sample;2022-06-13;exact;59.176;10.599;Færder;20;1200;0.068;2.179;;<2;33;26;normal;;1;1;1;main;10035;10035;13;1.363;Ctenolabrus_rupestris;0.586;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;96;sample;2022-06-14;exact;59.349;10.473;Tønsberg;20;1200;0.213;2.58;;<2;29.5;22;high;;1;1;1;main;15535;15535;22;1.253;Ctenolabrus_rupestris;0.509;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;97;sample;2022-06-14;exact;59.266;10.495;Tønsberg;20;1200;0.146;2.642;10;;30.1;23;high;;1;1;1;main;13519;13507;18;1.234;Ctenolabrus_rupestris;0.41;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;98;sample;2022-06-13;exact;59.226;10.531;Tønsberg;20;1200;0.081;520;;<2;26.3;20;normal;toc;1;1;1;main;2393;2339;5;0.829;Ctenolabrus_rupestris;0.71;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;99;sample;2022-06-13;exact;59.213;10.538;Tønsberg;20;1200;0.075;115;;<2;27.6;21;normal;toc;1;1;1;main;1238;1238;9;0.93;Ctenolabrus_rupestris;0.771;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;100;sample;2022-06-13;exact;59.205;10.556;Tønsberg;20;1200;0.079;2.307;50;;34.7;25;normal;;1;1;1;main;24490;24215;22;1.308;Ctenolabrus_rupestris;0.64;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;101;sample;2022-06-13;exact;59.210;10.542;Tønsberg;20;1200;0.074;2.353;;<2;33.8;25;normal;;1;1;1;main;6699;6699;17;0.887;Ctenolabrus_rupestris;0.805;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;102;sample;2022-06-14;exact;59.260;10.487;Tønsberg;20;1200;0.05;2.097;;<2;0.001;6;low;cond;1;1;1;main;18034;18002;20;1.458;Ctenolabrus_rupestris;0.534;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;103;sample;2022-06-14;exact;59.301;10.522;Tønsberg;20;1200;0.213;2.554;;<2;30;22;high;;1;1;1;main;1576;1576;6;0.325;Hippoglossoides_platessoides;0.928;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;104;sample;2022-06-13;exact;59.175;10.600;Tønsberg;20;1200;0.101;2.268;;<2;33.9;25;normal;;1;1;1;main;14960;14960;15;1.041;Ctenolabrus_rupestris;0.719;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;105;sample;2022-06-13;exact;59.239;10.508;Færder;20;1200;0.096;2.916;;<2;31.7;24;normal;;1;1;1;main;14681;14662;30;1.409;Scomber_scombrus;0.543;;a6bfb9408960a1a8600e0aee10a676f1
-kysthjelperne_2022;106;sample;2022-07-17;exact;59.064;10.434;Sandefjord;20;1200;0.13;2.376;4;;35.1;26;high;;1;1;1;main;14826;14811;19;1.71;Trachinus_draco;0.359;;4426414d16b7ffdbeabf29627cc6e9b7
-kysthjelperne_2022;108;sample;2022-07-20;exact;59.135;10.845;Fredrikstad;20;1200;0.093;3.008;;<2;19.7;14;normal;;1;1;1;main;3922;3922;7;0.406;Pollachius_virens;0.92;;f43bd3e493da7ccfc9b1053be5274dab
-kysthjelperne_2022;109;sample;;;;;;;;0.072;2.733;;<2;31.7;23;normal;;0;1;0;;;;;;;;;
-kysthjelperne_2022;110;sample;2022-06-28;exact;59.868;10.665;Nesodden;20;1200;0.096;2.989;;<2;31.8;23;normal;;1;1;1;main;3168;3168;10;1.406;Scomber_scombrus;0.6;;45ac9d3c7e0cb6e1544a1b1f2034c280
-kysthjelperne_2022;111;sample;2022-07-21;exact;59.233;10.741;Fredrikstad;20;1200;0.084;2.765;;<2;25.1;18;normal;;1;1;1;main;3908;3857;19;2.533;Ammodytes_marinus;0.168;;f43bd3e493da7ccfc9b1053be5274dab
-kysthjelperne_2022;113;sample;2022-06-28;exact;59.864;10.670;Nesodden;20;1200;0.124;2.839;8;;31.9;24;high;;1;1;1;main;2808;2808;8;1.484;Ctenolabrus_rupestris;0.447;;45ac9d3c7e0cb6e1544a1b1f2034c280
-kysthjelperne_2022;118;sample;2022-08-26;exact;59.804;10.535;Drøbak;;0;0.001;1.584;23;;38.9;31;low;tn;1;1;1;main;8190;8160;9;0.777;Gadus_morhua;0.796;;f2bb71c57abae358e9a4d138c8b07542
-kysthjelperne_2022;120;sample;2022-09-07;exact;59.073;10.238;Sandefjord;20;1200;0.047;2.888;4;;31.8;25;low;;1;1;1;main;721;702;5;1.576;Gasterosteus_aculeatus;0.259;;d5ed5e3f297127401d6378ccfc5d0b6f
-kysthjelperne_2022;121;sample;2022-09-07;exact;59.110;10.229;Sandefjord;20;1200;0.065;22.61;3;;34.6;27;normal;toc;1;1;1;main;1017;1017;5;1.129;Aphia_minuta;0.566;;d5ed5e3f297127401d6378ccfc5d0b6f
-kysthjelperne_2022;134;sample;2022-08-25;exact;59.472;10.382;Drøbak;;0;0.001;12.83;10;;33.2;26;low;tn;1;1;1;main;1113;1113;11;1.984;Scomber_scombrus;0.356;;f2bb71c57abae358e9a4d138c8b07542
-kysthjelperne_2022;139;sample;2022-07-28;exact;59.165;10.393;Sandefjord;20;1200;0.031;3.915;3;;31.1;25;low;;1;1;1;main;2402;2402;12;2.177;Scomber_scombrus;0.223;;d5ed5e3f297127401d6378ccfc5d0b6f
-kysthjelperne_2022;140;sample;2022-07-28;exact;59.171;10.389;Sandefjord;20;1200;0.037;2.114;3;;37.6;30;low;;1;1;1;main;20124;20124;18;0.665;Ctenolabrus_rupestris;0.866;;d5ed5e3f297127401d6378ccfc5d0b6f
-kysthjelperne_2022;141;sample;2022-08-03;exact;59.912;10.700;Oslo;20;1200;0.054;2.836;3;;32.3;26;normal;;1;1;1;main;1729;1729;3;1.058;Pollachius_virens;0.448;;65c917967d326fa551d1742171590194
-kysthjelperne_2022;143;sample;2022-08-13;exact;59.896;10.667;Oslo;20;1200;0.053;3.165;4;;33.6;27;low;;1;1;1;main;7749;7749;2;0.667;Scomber_scombrus;0.613;;65c917967d326fa551d1742171590194
-kysthjelperne_2022;144;sample;2022-07-29;exact;59.893;10.738;Oslo;20;1200;0.047;4.881;4;;32.8;26;low;;1;1;1;main;2724;2724;4;1.372;Gadidae;0.277;;65c917967d326fa551d1742171590194
-kysthjelperne_2022;145;sample;2022-07-23;exact;59.889;10.698;Oslo;20;1200;0.049;4.138;4;;32.6;26;low;;1;1;1;main;2138;2138;2;0.686;Pomatoschistus_minutus;0.56;;65c917967d326fa551d1742171590194
-kysthjelperne_2022;159;sample;;;;;;;;0.099;5.842;13;;31.1;21;normal;;0;1;0;;;;;;;;;
-kysthjelperne_2022;160;sample;;;;;;;;0.118;5.752;;<2;30.4;21;normal;;0;1;1;main;0;0;0;;;;no_reads;
-kysthjelperne_2022;162;sample;2022-09-11;exact;59.649;10.633;Drøbak;20;1200;0.043;2.666;4;;31.9;26;low;;1;1;1;main;1354;1354;9;1.037;Platichthys_flesus;0.53;;1284d57b7e609f9ba9a2a23d88f43c57
-kysthjelperne_2022;164;sample;;;;;;;;0.046;3.151;3;;32.4;26;low;;0;1;1;main;0;0;0;;;;no_reads;
-kysthjelperne_2022;167;sample;;;;;;;;0.04;3.035;3;;33.8;27;low;;0;1;1;main;262;262;1;-0.0;Gasterosteus_aculeatus;1.0;low_reads;
-kysthjelperne_2022;169;sample;2022-07-23;exact;59.875;10.723;Oslo;20;1200;0.051;5.278;3;;31;26;low;;1;1;1;main;421;421;2;0.042;Ctenolabrus_rupestris;0.993;low_reads;65c917967d326fa551d1742171590194
-kysthjelperne_2022;170;sample;;;;;;;;0.054;3.719;3;;33.3;27;normal;;0;1;1;main;73;73;3;1.057;Symphodus_melops;0.425;low_reads;
-kysthjelperne_2022;171;sample;;missing;59.832;10.514;Sandvika;20;1200;0.107;4.158;6;;33.8;24;normal;;1;1;1;main;6408;4658;25;2.503;Ctenolabrus_rupestris;0.247;;da9283089e488ef3eb4276db01b33e6c
-kysthjelperne_2022;172;sample;;;;;;;;0.134;4.523;;<2;33.7;24;high;;0;1;0;;;;;;;;;
-kysthjelperne_2022;173;sample;;;;;;;;0.107;4.762;;<2;32.2;23;normal;;0;1;1;main;4;4;1;-0.0;Symphodus_melops;1.0;low_reads;
-kysthjelperne_2022;178;sample;;missing;59.892;10.551;Sandvika;20;1200;0.097;3.311;3;;32.6;21;normal;;1;1;1;main;871;871;4;1.173;Raniceps_raninus;0.466;;da9283089e488ef3eb4276db01b33e6c
-kysthjelperne_2022;186;sample;;;;;;;;0.036;4.558;3;;32.2;26;normal;;0;1;1;main;63;63;4;1.124;Gobiusculus_flavescens;0.54;low_reads;
-kysthjelperne_2022;187;sample;;;;;;;;0.064;3.053;3;;33;27;normal;;0;1;1;main;303;303;6;1.642;Engraulis_encrasicolus;0.267;low_reads;
-kysthjelperne_2022;190;sample;;missing;59.876;10.585;Sandvika;20;1200;0.105;3.41;;<2;32.6;23;normal;;1;1;1;main;1854;1854;5;1.199;Gobiusculus_flavescens;0.472;;da9283089e488ef3eb4276db01b33e6c
-kysthjelperne_2022;192;sample;;missing;59.894;10.675;Sandvika;20;1200;0.109;3.012;;<2;31.2;23;normal;;1;1;1;main;7184;7184;6;1.168;Gobiusculus_flavescens;0.494;;da9283089e488ef3eb4276db01b33e6c
-kysthjelperne_2022;193;sample;;missing;59.884;10.717;Sandvika;20;1200;0.099;3.743;;<2;33.4;24;normal;;1;1;1;main;1216;1171;7;1.522;Ctenolabrus_rupestris;0.429;;da9283089e488ef3eb4276db01b33e6c
-kysthjelperne_2022;194;sample;;;;;;;;0.114;5.867;;<2;0.001;25;normal;cond;0;1;1;main;2;2;1;-0.0;Scomber_scombrus;1.0;low_reads;
-kysthjelperne_2022;201;sample;2022-09-07;exact;59.094;10.755;Sandefjord;20;1200;0.053;2.414;7;;35.5;29;low;;1;1;1;main;2399;2399;11;1.874;Gobiusculus_flavescens;0.403;;d5ed5e3f297127401d6378ccfc5d0b6f
-kysthjelperne_2022;203;sample;2022-07-28;exact;59.155;10.369;Sandefjord;20;1200;0.001;2.166;4;;37;29;low;tn;1;1;1;main;4245;4126;10;1.613;Gobiusculus_flavescens;0.514;;d5ed5e3f297127401d6378ccfc5d0b6f
-kysthjelperne_2022;205;sample;2022-08-20;exact;59.869;10.755;;20;1200;0.052;3.212;4;;33.1;27;low;;1;1;1;main;3044;3003;17;1.983;Gobiusculus_flavescens;0.433;;ab07b3e355d5620f16e9210961dd78a9
-kysthjelperne_2022;N;negative_control;;;;;;;;;;;;;;;;0;0;1;main;267;0;0;;;;low_reads;
-kysthjelperne_2022;P;positive_control;;;;;;;;;;;;;;;;0;0;1;main;27405;27405;11;2.102;Taurulus_bubalis;0.194;;
+﻿project;sample_id;sample_type;date;date_quality;lat;lon;pos_source;area;push;volume_ml;tn_mgl;toc_mgl;totp_ugl;totp_flag;cond_mscm;salinity_ppt;nutrient_group;qc;has_meta;has_chem;has_species;seq_variants;main_run;reads_total;reads_identified;richness;shannon;top_taxon;top_share;seq_flag;sampler_hash
+kysthjelperne_2022;1;sample;2022-09-27;exact;59.873;10.612;;Drøbak;20;1200;0.059;2.426;;<2;35.7;27;normal;;1;1;1;main|F|L;;4109;4109;9;1.921;Pomatoschistus_minutus;0.319;;a76d5ac30466884f5d867fbb3ca41861
+kysthjelperne_2022;2;sample;;;;;;;;;;;;;;;;;0;0;1;F|L;;;;;;;;variants_only;
+kysthjelperne_2022;3;sample;;;;;;;;;;;;;;;;;0;0;1;F|L;;;;;;;;variants_only;
+kysthjelperne_2022;4;sample;;;;;;;;;;;;;;;;;0;0;1;F|L;;;;;;;;variants_only;
+kysthjelperne_2022;6;sample;2022-09-16;exact;59.702;10.522;;Drøbak;20;1200;0.076;148.7;;<2;32.4;26;normal;toc;1;1;1;main;;633;633;8;1.763;Gobiusculus_flavescens;0.273;;a76d5ac30466884f5d867fbb3ca41861
+kysthjelperne_2022;8;sample;2022-09-16;exact;59.649;10.606;;Drøbak;20;1200;0.069;2.881;;<2;32.6;25;normal;;1;1;1;main;;1230;1230;6;1.427;Limanda_limanda;0.502;;a76d5ac30466884f5d867fbb3ca41861
+kysthjelperne_2022;9;sample;;missing;59.702;10.522;;Drøbak;20;1200;0.061;2.916;;<2;0.001;38;normal;cond;1;1;1;main;;874;874;6;1.741;Limanda_limanda;0.222;;a76d5ac30466884f5d867fbb3ca41861
+kysthjelperne_2022;10;sample;2022-09-27;exact;59.873;10.612;;Drøbak;20;1200;0.147;5.241;;<2;0.001;29;high;cond;1;1;1;main;;2399;2399;10;1.639;Gobiusculus_flavescens;0.383;;a76d5ac30466884f5d867fbb3ca41861
+kysthjelperne_2022;11;sample;2022-06-14;year_assumed;59.734;10.513;;Sætre;20;1200;0.138;2.808;;<2;31.5;22;high;;1;1;1;main;;11434;11412;25;2.164;Gobiusculus_flavescens;0.346;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2022;12;sample;2022-06-09;exact;59.676;10.571;;Sætre;20;1200;0.091;2.652;3;;29.3;23;normal;;1;1;1;main;;3109;3109;5;0.513;Ctenolabrus_rupestris;0.872;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2022;13;sample;2022-06-08;exact;59.663;10.585;;Sætre;20;1200;0.167;2.989;;<2;26.8;19;high;;1;1;1;main;;12642;12642;13;1.843;Pomatoschistus_microps;0.311;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2022;14;sample;2022-06-10;exact;59.727;10.519;;Sætre;20;1200;0.114;2.722;;<2;29.8;22;normal;;1;1;1;main;;5836;5836;12;1.694;Ctenolabrus_rupestris;0.448;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2022;15;sample;2022-06-14;exact;59.696;10.519;;Sætre;20;1200;0.167;3.014;2;;26.4;18;high;;1;1;1;main;;2448;2448;8;1.72;Phoxinus;0.354;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2022;16;sample;2022-07-26;exact;59.880;10.530;;Sandvika;20;1200;0.127;3.162;370;;28.3;21;high;totp;1;1;1;main;;798;798;8;1.131;Gasterosteus_aculeatus;0.584;;2f7d580df2f0baab76907ecc0f5bdd4c
+kysthjelperne_2022;17;sample;2022-07-24;exact;59.920;10.670;;Sandvika;20;1200;0.12;3.276;16.8;;25.9;18;normal;;1;1;1;main;;836;775;8;1.679;Gobiusculus_flavescens;0.311;;2f7d580df2f0baab76907ecc0f5bdd4c
+kysthjelperne_2022;18;sample;2022-07-26;exact;58.880;10.530;;Sandvika;20;1200;0.126;2.945;6;;30.4;22;high;;1;1;1;main;;797;797;5;1.314;Gobiusculus_flavescens;0.523;;2f7d580df2f0baab76907ecc0f5bdd4c
+kysthjelperne_2022;19;sample;;;;;;;;;0.137;3.183;12;;26.2;18;high;;0;1;1;main;;242;242;6;1.62;Gobiusculus_flavescens;0.384;low_reads;
+kysthjelperne_2022;21;sample;2022-08-23;exact;59.873;10.779;;Oslo;20;1200;0.059;3.237;;<2;35.3;28;normal;;1;1;1;main;;8388;8388;10;1.42;Gobiusculus_flavescens;0.595;;77be7d639b7a94f1866cc5169a8dc905
+kysthjelperne_2022;23;sample;2022-08-23;exact;59.843;10.775;;Oslo;20;1200;0.055;3.057;;<2;33.2;26;normal;;1;1;1;main;;9109;9109;15;2.042;Pomatoschistus_microps;0.282;;77be7d639b7a94f1866cc5169a8dc905
+kysthjelperne_2022;24;sample;2022-08-23;exact;59.869;10.782;;Oslo;20;1200;0.042;2.739;;<2;33.6;27;low;;1;1;1;main;;857;857;7;1.845;Belone_belone;0.216;;77be7d639b7a94f1866cc5169a8dc905
+kysthjelperne_2022;25;sample;2022-08-23;exact;59.854;10.782;;Oslo;20;1200;0.001;2.769;;<2;33.2;27;low;tn;1;1;1;main;;12215;12215;17;1.996;Pomatoschistus_pictus;0.343;;77be7d639b7a94f1866cc5169a8dc905
+kysthjelperne_2022;41;sample;2022-07-06;exact;59.878;10.566;;Oslo;20;1200;0.035;2.596;;<2;32.1;26;low;;1;1;1;main;;422;422;6;1.396;Belone_belone;0.365;low_reads;716d7631f2b7d40b3d97591034cfb212
+kysthjelperne_2022;42;sample;2022-07-06;exact;59.877;10.563;;Oslo;20;1200;0.043;2.515;;<2;30.9;25;low;;1;1;1;main;;451;451;5;1.066;Belone_belone;0.534;low_reads;716d7631f2b7d40b3d97591034cfb212
+kysthjelperne_2022;43;sample;;;;;;;;;0.022;2.608;2;;33.3;28;low;;0;1;1;main;;121;121;1;-0.0;Scomber_scombrus;1.0;low_reads;
+kysthjelperne_2022;44;sample;;;;;;;;;0.041;2.557;2;;33.4;28;low;;0;1;1;main;;0;0;0;;;;no_reads;
+kysthjelperne_2022;45;sample;2022-09-04;exact;59.875;10.599;;Oslo;20;1200;0.045;2.406;2;;33.9;27;low;;1;1;1;main;;900;900;11;1.861;Gobiusculus_flavescens;0.403;;716d7631f2b7d40b3d97591034cfb212
+kysthjelperne_2022;46;sample;2022-09-04;exact;59.854;10.688;;Oslo;20;1200;0.053;2.365;2;;34.3;27;low;;1;1;1;main;;516;516;10;1.808;Aphia_minuta;0.335;;716d7631f2b7d40b3d97591034cfb212
+kysthjelperne_2022;47;sample;;;;;;;;;0.036;2.612;2;;33.8;27;low;;0;1;1;main;;56;56;6;1.699;Taurulus_bubalis;0.286;low_reads;
+kysthjelperne_2022;48;sample;2022-09-04;exact;59.847;10.549;;Oslo;20;1200;0.056;2.353;2;;33;27;normal;;1;1;1;main;;6449;6431;14;0.965;Ctenolabrus_rupestris;0.773;;716d7631f2b7d40b3d97591034cfb212
+kysthjelperne_2022;49;sample;2022-09-04;exact;59.880;10.567;;Oslo;20;1200;0.022;2.561;2;;33.6;27;low;;1;1;1;main;;2986;2986;12;2.178;Gasterosteus_aculeatus;0.26;;716d7631f2b7d40b3d97591034cfb212
+kysthjelperne_2022;50;sample;2022-09-04;exact;59.821;10.609;;Oslo;20;1200;0.032;2.382;3;;34;28;low;;1;1;1;main;;1485;1485;5;1.394;Scomber_scombrus;0.45;;716d7631f2b7d40b3d97591034cfb212
+kysthjelperne_2022;64;sample;2022-07-17;exact;59.856;10.576;;Sandvika;20;1200;0.098;3.514;;<2;31.1;20;normal;;1;1;1;main;;20307;20307;13;0.242;Scomber_scombrus;0.956;;9e61e7cbe03cc29bdb9caf59f17bf7eb
+kysthjelperne_2022;74;sample;2022-07-17;exact;59.080;10.429;;Sandefjord;20;1200;0.156;2.778;2;;32.6;24;high;;1;1;1;main;;17249;17249;17;1.741;Pomatoschistus_microps;0.442;;4426414d16b7ffdbeabf29627cc6e9b7
+kysthjelperne_2022;75;sample;2022-07-17;exact;59.846;10.540;;Sandvika;20;1200;0.085;3.527;;<2;30.9;23;normal;;1;1;1;main;;1459;1439;7;1.204;Gobius;0.575;;9e61e7cbe03cc29bdb9caf59f17bf7eb
+kysthjelperne_2022;76;sample;2022-07-10;exact;59.489;10.684;;Moss;20;1200;0.114;3.362;;<2;30.1;22;normal;;1;1;1;main;;5745;5704;15;2.053;Gobiusculus_flavescens;0.272;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
+kysthjelperne_2022;77;sample;2022-07-11;exact;59.482;10.686;;Moss;20;1200;0.095;4.251;;<2;29.8;22;normal;;1;1;1;main;;8363;8363;4;0.941;Symphodus_melops;0.468;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
+kysthjelperne_2022;78;sample;2022-07-11;exact;59.463;10.674;;Moss;20;1200;0.131;2.807;12;;30;22;high;;1;1;1;main;;7227;7119;21;1.569;Ctenolabrus_rupestris;0.669;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
+kysthjelperne_2022;79;sample;2022-07-11;exact;59.446;10.661;;Moss;20;1200;0.103;4.388;;<2;30.2;22;normal;;1;1;1;main;;12111;11809;14;1.294;Ctenolabrus_rupestris;0.685;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
+kysthjelperne_2022;80;sample;2022-07-11;exact;59.426;10.642;;Moss;20;1200;0.121;3.041;;<2;29.7;22;high;;1;1;1;main;;5314;5314;13;1.898;Ctenolabrus_rupestris;0.396;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
+kysthjelperne_2022;81;sample;2022-07-11;exact;59.421;10.616;;Moss;20;1200;0.133;2.905;4;;30.6;22;high;;1;1;1;main;;2364;2356;11;1.057;Symphodus_melops;0.606;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
+kysthjelperne_2022;82;sample;2022-07-11;exact;59.417;10.594;;Moss;20;1200;0.129;3.04;2.5;;31.4;22;high;;1;1;1;main;;2772;2772;12;2.181;Merlangius_merlangus;0.203;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
+kysthjelperne_2022;83;sample;2022-07-11;exact;59.426;10.588;;Moss;20;1200;0.097;78.22;;<2;29.2;21;normal;toc;1;1;1;main;;9911;9363;15;1.732;Pholis_gunnellus;0.305;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
+kysthjelperne_2022;84;sample;2022-07-12;exact;59.433;10.587;;Moss;20;1200;0.069;2.963;3;;28.9;21;normal;;1;1;1;main;;2633;2633;8;1.68;Symphodus_melops;0.351;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
+kysthjelperne_2022;85;sample;;;;;;;;;0.091;4.305;;<2;28.6;21;normal;;0;1;1;main;;0;0;0;;;;no_reads;
+kysthjelperne_2022;86;sample;;;;;;;;;0.108;4.161;;<2;30.3;23;normal;;0;1;0;;;;;;;;;;
+kysthjelperne_2022;87;sample;2022-07-12;exact;59.479;10.625;;Moss;20;1200;0.179;2.683;;<2;30.2;23;high;;1;1;1;main;;3030;2542;10;1.83;Symphodus_melops;0.3;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
+kysthjelperne_2022;88;sample;2022-07-12;exact;59.460;10.620;;Moss;20;1200;0.132;3.216;;<2;29.5;23;high;;1;1;1;main;;3591;3591;6;0.887;Ctenolabrus_rupestris;0.733;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
+kysthjelperne_2022;89;sample;;;;;;;;;0.106;3.786;;<2;29.8;22;normal;;0;1;1;main;;0;0;0;;;;no_reads;
+kysthjelperne_2022;90;sample;2022-07-12;exact;59.441;10.604;;Moss;20;1200;0.128;3.795;;<2;31.2;23;high;;1;1;1;main;;15452;15302;23;1.395;Ctenolabrus_rupestris;0.657;;9be9c7b62c1ee9c6c4e0fc21d2289dd1
+kysthjelperne_2022;91;sample;2022-06-14;exact;59.284;10.504;;Other;20;1200;0.124;3.748;;<2;30.1;22;high;;1;1;1;main;;4421;4015;15;1.906;Symphodus_melops;0.408;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;92;sample;2022-06-13;exact;59.247;10.494;;Tønsberg;20;1200;0.073;2.347;;<2;31.9;24;normal;;1;1;1;main;;2218;2166;8;0.985;Taurulus_bubalis;0.63;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;93;sample;2022-06-13;exact;59.188;10.574;;Tønsberg;20;1200;0.115;2.332;;<2;32.8;25;normal;;1;1;1;main;;4801;4801;12;1.113;Ctenolabrus_rupestris;0.743;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;94;sample;2022-06-13;exact;59.221;10.537;;Tønsberg;20;1200;0.091;2.579;;<2;32.1;25;normal;;1;1;1;main;;8205;8177;17;1.485;Scomber_scombrus;0.441;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;95;sample;2022-06-13;exact;59.176;10.599;;Færder;20;1200;0.068;2.179;;<2;33;26;normal;;1;1;1;main;;10035;10035;13;1.363;Ctenolabrus_rupestris;0.586;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;96;sample;2022-06-14;exact;59.349;10.473;;Tønsberg;20;1200;0.213;2.58;;<2;29.5;22;high;;1;1;1;main;;15535;15535;22;1.253;Ctenolabrus_rupestris;0.509;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;97;sample;2022-06-14;exact;59.266;10.495;;Tønsberg;20;1200;0.146;2.642;10;;30.1;23;high;;1;1;1;main;;13519;13507;18;1.234;Ctenolabrus_rupestris;0.41;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;98;sample;2022-06-13;exact;59.226;10.531;;Tønsberg;20;1200;0.081;520;;<2;26.3;20;normal;toc;1;1;1;main;;2393;2339;5;0.829;Ctenolabrus_rupestris;0.71;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;99;sample;2022-06-13;exact;59.213;10.538;;Tønsberg;20;1200;0.075;115;;<2;27.6;21;normal;toc;1;1;1;main;;1238;1238;9;0.93;Ctenolabrus_rupestris;0.771;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;100;sample;2022-06-13;exact;59.205;10.556;;Tønsberg;20;1200;0.079;2.307;50;;34.7;25;normal;;1;1;1;main;;24490;24215;22;1.308;Ctenolabrus_rupestris;0.64;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;101;sample;2022-06-13;exact;59.210;10.542;;Tønsberg;20;1200;0.074;2.353;;<2;33.8;25;normal;;1;1;1;main;;6699;6699;17;0.887;Ctenolabrus_rupestris;0.805;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;102;sample;2022-06-14;exact;59.260;10.487;;Tønsberg;20;1200;0.05;2.097;;<2;0.001;6;low;cond;1;1;1;main;;18034;18002;20;1.458;Ctenolabrus_rupestris;0.534;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;103;sample;2022-06-14;exact;59.301;10.522;;Tønsberg;20;1200;0.213;2.554;;<2;30;22;high;;1;1;1;main;;1576;1576;6;0.325;Hippoglossoides_platessoides;0.928;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;104;sample;2022-06-13;exact;59.175;10.600;;Tønsberg;20;1200;0.101;2.268;;<2;33.9;25;normal;;1;1;1;main;;14960;14960;15;1.041;Ctenolabrus_rupestris;0.719;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;105;sample;2022-06-13;exact;59.239;10.508;;Færder;20;1200;0.096;2.916;;<2;31.7;24;normal;;1;1;1;main;;14681;14662;30;1.409;Scomber_scombrus;0.543;;a6bfb9408960a1a8600e0aee10a676f1
+kysthjelperne_2022;106;sample;2022-07-17;exact;59.064;10.434;;Sandefjord;20;1200;0.13;2.376;4;;35.1;26;high;;1;1;1;main;;14826;14811;19;1.71;Trachinus_draco;0.359;;4426414d16b7ffdbeabf29627cc6e9b7
+kysthjelperne_2022;108;sample;2022-07-20;exact;59.135;10.845;;Fredrikstad;20;1200;0.093;3.008;;<2;19.7;14;normal;;1;1;1;main;;3922;3922;7;0.406;Pollachius_virens;0.92;;f43bd3e493da7ccfc9b1053be5274dab
+kysthjelperne_2022;109;sample;;;;;;;;;0.072;2.733;;<2;31.7;23;normal;;0;1;0;;;;;;;;;;
+kysthjelperne_2022;110;sample;2022-06-28;exact;59.868;10.665;;Nesodden;20;1200;0.096;2.989;;<2;31.8;23;normal;;1;1;1;main;;3168;3168;10;1.406;Scomber_scombrus;0.6;;45ac9d3c7e0cb6e1544a1b1f2034c280
+kysthjelperne_2022;111;sample;2022-07-21;exact;59.233;10.741;;Fredrikstad;20;1200;0.084;2.765;;<2;25.1;18;normal;;1;1;1;main;;3908;3857;19;2.533;Ammodytes_marinus;0.168;;f43bd3e493da7ccfc9b1053be5274dab
+kysthjelperne_2022;113;sample;2022-06-28;exact;59.864;10.670;;Nesodden;20;1200;0.124;2.839;8;;31.9;24;high;;1;1;1;main;;2808;2808;8;1.484;Ctenolabrus_rupestris;0.447;;45ac9d3c7e0cb6e1544a1b1f2034c280
+kysthjelperne_2022;118;sample;2022-08-26;exact;59.804;10.535;;Drøbak;;0;0.001;1.584;23;;38.9;31;low;tn;1;1;1;main;;8190;8160;9;0.777;Gadus_morhua;0.796;;f2bb71c57abae358e9a4d138c8b07542
+kysthjelperne_2022;120;sample;2022-09-07;exact;59.073;10.238;;Sandefjord;20;1200;0.047;2.888;4;;31.8;25;low;;1;1;1;main;;721;702;5;1.576;Gasterosteus_aculeatus;0.259;;d5ed5e3f297127401d6378ccfc5d0b6f
+kysthjelperne_2022;121;sample;2022-09-07;exact;59.110;10.229;;Sandefjord;20;1200;0.065;22.61;3;;34.6;27;normal;toc;1;1;1;main;;1017;1017;5;1.129;Aphia_minuta;0.566;;d5ed5e3f297127401d6378ccfc5d0b6f
+kysthjelperne_2022;134;sample;2022-08-25;exact;59.472;10.382;;Drøbak;;0;0.001;12.83;10;;33.2;26;low;tn;1;1;1;main;;1113;1113;11;1.984;Scomber_scombrus;0.356;;f2bb71c57abae358e9a4d138c8b07542
+kysthjelperne_2022;139;sample;2022-07-28;exact;59.165;10.393;;Sandefjord;20;1200;0.031;3.915;3;;31.1;25;low;;1;1;1;main;;2402;2402;12;2.177;Scomber_scombrus;0.223;;d5ed5e3f297127401d6378ccfc5d0b6f
+kysthjelperne_2022;140;sample;2022-07-28;exact;59.171;10.389;;Sandefjord;20;1200;0.037;2.114;3;;37.6;30;low;;1;1;1;main;;20124;20124;18;0.665;Ctenolabrus_rupestris;0.866;;d5ed5e3f297127401d6378ccfc5d0b6f
+kysthjelperne_2022;141;sample;2022-08-03;exact;59.912;10.700;;Oslo;20;1200;0.054;2.836;3;;32.3;26;normal;;1;1;1;main;;1729;1729;3;1.058;Pollachius_virens;0.448;;65c917967d326fa551d1742171590194
+kysthjelperne_2022;143;sample;2022-08-13;exact;59.896;10.667;;Oslo;20;1200;0.053;3.165;4;;33.6;27;low;;1;1;1;main;;7749;7749;2;0.667;Scomber_scombrus;0.613;;65c917967d326fa551d1742171590194
+kysthjelperne_2022;144;sample;2022-07-29;exact;59.893;10.738;;Oslo;20;1200;0.047;4.881;4;;32.8;26;low;;1;1;1;main;;2724;2724;4;1.372;Gadidae;0.277;;65c917967d326fa551d1742171590194
+kysthjelperne_2022;145;sample;2022-07-23;exact;59.889;10.698;;Oslo;20;1200;0.049;4.138;4;;32.6;26;low;;1;1;1;main;;2138;2138;2;0.686;Pomatoschistus_minutus;0.56;;65c917967d326fa551d1742171590194
+kysthjelperne_2022;159;sample;;;;;;;;;0.099;5.842;13;;31.1;21;normal;;0;1;0;;;;;;;;;;
+kysthjelperne_2022;160;sample;;;;;;;;;0.118;5.752;;<2;30.4;21;normal;;0;1;1;main;;0;0;0;;;;no_reads;
+kysthjelperne_2022;162;sample;2022-09-11;exact;59.649;10.633;;Drøbak;20;1200;0.043;2.666;4;;31.9;26;low;;1;1;1;main;;1354;1354;9;1.037;Platichthys_flesus;0.53;;1284d57b7e609f9ba9a2a23d88f43c57
+kysthjelperne_2022;164;sample;;;;;;;;;0.046;3.151;3;;32.4;26;low;;0;1;1;main;;0;0;0;;;;no_reads;
+kysthjelperne_2022;167;sample;;;;;;;;;0.04;3.035;3;;33.8;27;low;;0;1;1;main;;262;262;1;-0.0;Gasterosteus_aculeatus;1.0;low_reads;
+kysthjelperne_2022;169;sample;2022-07-23;exact;59.875;10.723;;Oslo;20;1200;0.051;5.278;3;;31;26;low;;1;1;1;main;;421;421;2;0.042;Ctenolabrus_rupestris;0.993;low_reads;65c917967d326fa551d1742171590194
+kysthjelperne_2022;170;sample;;;;;;;;;0.054;3.719;3;;33.3;27;normal;;0;1;1;main;;73;73;3;1.057;Symphodus_melops;0.425;low_reads;
+kysthjelperne_2022;171;sample;;missing;59.832;10.514;;Sandvika;20;1200;0.107;4.158;6;;33.8;24;normal;;1;1;1;main;;6408;4658;25;2.503;Ctenolabrus_rupestris;0.247;;da9283089e488ef3eb4276db01b33e6c
+kysthjelperne_2022;172;sample;;;;;;;;;0.134;4.523;;<2;33.7;24;high;;0;1;0;;;;;;;;;;
+kysthjelperne_2022;173;sample;;;;;;;;;0.107;4.762;;<2;32.2;23;normal;;0;1;1;main;;4;4;1;-0.0;Symphodus_melops;1.0;low_reads;
+kysthjelperne_2022;178;sample;;missing;59.892;10.551;;Sandvika;20;1200;0.097;3.311;3;;32.6;21;normal;;1;1;1;main;;871;871;4;1.173;Raniceps_raninus;0.466;;da9283089e488ef3eb4276db01b33e6c
+kysthjelperne_2022;186;sample;;;;;;;;;0.036;4.558;3;;32.2;26;normal;;0;1;1;main;;63;63;4;1.124;Gobiusculus_flavescens;0.54;low_reads;
+kysthjelperne_2022;187;sample;;;;;;;;;0.064;3.053;3;;33;27;normal;;0;1;1;main;;303;303;6;1.642;Engraulis_encrasicolus;0.267;low_reads;
+kysthjelperne_2022;190;sample;;missing;59.876;10.585;;Sandvika;20;1200;0.105;3.41;;<2;32.6;23;normal;;1;1;1;main;;1854;1854;5;1.199;Gobiusculus_flavescens;0.472;;da9283089e488ef3eb4276db01b33e6c
+kysthjelperne_2022;192;sample;;missing;59.894;10.675;;Sandvika;20;1200;0.109;3.012;;<2;31.2;23;normal;;1;1;1;main;;7184;7184;6;1.168;Gobiusculus_flavescens;0.494;;da9283089e488ef3eb4276db01b33e6c
+kysthjelperne_2022;193;sample;;missing;59.884;10.717;;Sandvika;20;1200;0.099;3.743;;<2;33.4;24;normal;;1;1;1;main;;1216;1171;7;1.522;Ctenolabrus_rupestris;0.429;;da9283089e488ef3eb4276db01b33e6c
+kysthjelperne_2022;194;sample;;;;;;;;;0.114;5.867;;<2;0.001;25;normal;cond;0;1;1;main;;2;2;1;-0.0;Scomber_scombrus;1.0;low_reads;
+kysthjelperne_2022;201;sample;2022-09-07;exact;59.094;10.755;;Sandefjord;20;1200;0.053;2.414;7;;35.5;29;low;;1;1;1;main;;2399;2399;11;1.874;Gobiusculus_flavescens;0.403;;d5ed5e3f297127401d6378ccfc5d0b6f
+kysthjelperne_2022;203;sample;2022-07-28;exact;59.155;10.369;;Sandefjord;20;1200;0.001;2.166;4;;37;29;low;tn;1;1;1;main;;4245;4126;10;1.613;Gobiusculus_flavescens;0.514;;d5ed5e3f297127401d6378ccfc5d0b6f
+kysthjelperne_2022;205;sample;2022-08-20;exact;59.869;10.755;;;20;1200;0.052;3.212;4;;33.1;27;low;;1;1;1;main;;3044;3003;17;1.983;Gobiusculus_flavescens;0.433;;ab07b3e355d5620f16e9210961dd78a9
+kysthjelperne_2022;N;negative_control;;;;;;;;;;;;;;;;;0;0;1;main;;267;0;0;;;;low_reads;
+kysthjelperne_2022;P;positive_control;;;;;;;;;;;;;;;;;0;0;1;main;;27405;27405;11;2.102;Taurulus_bubalis;0.194;;
+kysthjelperne_2025;2004;sample;2024-11-10;exact;59.665;10.601;log;Sætre;;1200;5.267;17.86;;;;;;;1;1;1;main;H;23617;23617;23;0.452;Dinophyceae;0.919;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2007;sample;2024-11-12;exact;59.901;10.750;log;Oslo;;510;1.15;3.309;;;;;;;1;1;1;main;H;5158;5158;22;0.845;Heterocapsa rotundata;0.804;;2c1f7112051f3380b48bc7dd1fb8d69b
+kysthjelperne_2025;2009;sample;2024-11-14;exact;59.910;10.643;log;Lysaker;;900;1.06;3.01;;;;;;;1;1;1;main;H;29110;29110;12;0.171;Dinophyceae;0.974;;a47db4148214d71ff8465c8b2b59a2d3
+kysthjelperne_2025;2010;sample;2025-02-27;exact;59.178;10.716;log;Fredrikstad;;1200;0.1672;13.66;27.7715;;;;;;1;1;1;main;H;27119;27119;18;1.173;Thalassiosira nordenskioeldii;0.513;;47d013f17d13c36dea5e45039027688a
+kysthjelperne_2025;2011;sample;2024-12-09;exact;59.901;10.750;log;Oslo;;1200;0.732;1.83;18.254;;;;;;1;1;1;main;H;8218;8218;28;1.966;Dinophyceae;0.287;;2c1f7112051f3380b48bc7dd1fb8d69b
+kysthjelperne_2025;2012;sample;2024-12-07;exact;59.027;10.067;log;Larvik;;1200;2.128;6.76;11.459;;;;;;1;1;1;main;H;4974;4974;27;1.004;Pylaiella littoralis_Pylaiella sp. 1littoralis;0.794;;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2013;sample;2024-09-29;exact;59.386;10.478;log;Horten;;1200;3.59;11.96;;;;;;;1;1;1;main|R;H;2789;2789;20;1.212;Arenicola marina;0.703;;348700a113af14aeb6f7fa984de95e84
+kysthjelperne_2025;2014;sample;2024-11-04;exact;59.057;10.411;log;Færder/Tjøme;;1200;0.649;1.537;16.42;;;;;;1;1;1;main;H;9911;9911;17;0.986;Paracalanus parvus;0.772;;be5513fa44e66b4eeefae63f754b9b93
+kysthjelperne_2025;2019;sample;2024-11-12;exact;59.887;10.733;log;Oslo;;1200;1.097;3.12;;;;;;;1;1;1;main|R;H;6123;6123;26;2.059;Dinophyceae;0.367;;2c1f7112051f3380b48bc7dd1fb8d69b
+kysthjelperne_2025;2026;sample;2024-11-17;exact;59.051;10.226;log;Sandefjord2 Svinevika;;1200;4.767;16.09;;;;;;;1;1;1;main;R;554;554;7;1.341;Bathycoccus prasinos;0.532;;f3b27c9602977b7c9e97b35d275123a9
+kysthjelperne_2025;2027;sample;2024-01-09;exact;59.178;10.718;log;Fredrikstad;;1200;1.67;3.1;22.287;;;;;;1;1;1;main;H;4257;4257;56;2.83;Bathycoccus prasinos;0.228;;2e0721102e0180cbbd44da41f6454354
+kysthjelperne_2025;2031;sample;2024-09-29;exact;59.368;10.514;log;Horten;;1200;6.34;36.43;;;;;;;1;1;1;main;H;687;687;16;1.737;Bathycoccus prasinos;0.412;;348700a113af14aeb6f7fa984de95e84
+kysthjelperne_2025;2034;sample;2025-01-05;exact;59.910;10.643;log;Lysaker;;1200;;;13.292;;;;;;1;1;1;main;H;6874;6874;23;1.321;Dinophyceae;0.668;;a47db4148214d71ff8465c8b2b59a2d3
+kysthjelperne_2025;2035;sample;2024-11-10;exact;59.676;10.567;log;Sætre;;1200;1.385;4.14;;;;;;;1;1;1;main;H;572;572;8;0.97;Dinophyceae;0.67;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2037;sample;2025-06-02;exact;59.556;10.239;log;Holmestrand;;1200;0.5308;4.352;;;;;;;1;1;1;main;H;3766;3766;27;1.465;Bathycoccus prasinos;0.503;;df5a13db546eb82d2636119d1a09c20f
+kysthjelperne_2025;2041;sample;2024-12-13;exact;59.881;10.764;workbook;Oslo;;1200;;;11.817;;;;;;1;1;1;main;H;1976;1976;35;2.172;Melosira;0.371;;8df68275e46734a8c9ce99a182cacb0f
+kysthjelperne_2025;2042;sample;2024-01-09;exact;59.218;10.691;log;Fredrikstad;;1200;1.31;2.11;24.82;;;;;;1;1;1;main;H;9248;9248;69;2.65;Bathycoccus prasinos;0.341;;090a696b2d18e26378f808ad139e75c6
+kysthjelperne_2025;2044;sample;2025-04-24;exact;59.178;10.718;log;Fredrikstad;;1200;0.1799;9.7639;;;;;;;1;1;1;main;H;8958;8958;23;1.028;Bathycoccus prasinos;0.731;;2398db9acde284f22d1d78477052b71e
+kysthjelperne_2025;2048;sample;2024-11-10;exact;59.666;10.586;log;Sætre;;1200;2.92;9.57;;;;;;;1;1;1;main|R;H;2443;2443;20;1.847;Dinophyceae;0.348;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2097;sample;2024-11-19;exact;59.368;10.515;log;Horten;;1200;0.802;2.078;;;;;;;1;1;1;main;H;20976;20976;34;1.533;Dinophyceae;0.574;;348700a113af14aeb6f7fa984de95e84
+kysthjelperne_2025;2100;sample;2024-12-09;exact;59.851;10.688;log;Nesodden, Hellviktangen;;1200;1.202;3.492;;;;;;;1;1;1;main;H;2422;2422;16;1.813;Hematodinium;0.293;;96eae2c13a0387ad431a5b56d40729f8
+kysthjelperne_2025;2101;sample;2024-11-19;exact;59.386;10.480;log;Horten;;1200;1.414;4.24;;;;;;;1;1;1;main|R;H;2625;2625;23;1.221;Bathycoccus prasinos;0.678;;348700a113af14aeb6f7fa984de95e84
+kysthjelperne_2025;2102;sample;2024-12-06;exact;59.722;10.727;log;Bunnefjorden;;1200;1.07;3.037;12.102;;;;;;1;1;1;main;H;4514;4514;10;1.145;Candidatus Methylopumilus planktonicus_Candidatus Methylopumilus universalis;0.612;;c5e7dbe0f95f578bec9dceceeb067224
+kysthjelperne_2025;2104;sample;2024-10-10;exact;59.852;10.687;station;Bunnefjorden;;;2.142;6.815;;;;;;;1;1;1;main|M;H;10881;10881;23;1.508;Dinophyceae;0.552;;
+kysthjelperne_2025;2117;sample;2024-12-07;exact;59.023;10.096;log;Larvik;;1200;3.82;12.76;;;;;;;1;1;1;main;H;3629;3629;25;1.968;Paracalanus parvus;0.445;;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2118;sample;2025-06-02;exact;59.547;10.250;log;Holmestrand;;1200;0.173;2.204;;;;;;;1;1;1;main;R;1061;1061;8;1.111;Amphibalanus improvisus_Balanus sp.;0.469;;df5a13db546eb82d2636119d1a09c20f
+kysthjelperne_2025;2123;sample;2025-02-27;exact;59.218;10.690;log;Fredrikstad;;1200;;;23.6369;;;;;;1;1;1;main;H;35781;35781;15;0.656;Heterocapsa rotundata;0.852;;47d013f17d13c36dea5e45039027688a
+kysthjelperne_2025;2126;sample;2024-11-04;exact;59.830;10.762;workbook;bunnefjorden;20;1200;24.256;89.975;;;;;;;1;1;1;main;H;6850;6850;12;0.796;Acartia tonsa;0.762;;8136611bee5ace8cd677ea5c4728a8fd
+kysthjelperne_2025;2131;sample;2025-01-11;exact;59.027;10.067;log;Larvik;;1200;1.39;2.32;17.8;;;;;;1;1;1;main;H;7518;7518;39;1.548;Paracalanus parvus;0.474;;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2133;sample;2024-11-17;exact;59.096;10.250;log;Sandefjord1 Tangen;;1200;0.2858;6.424;;;;;;;1;1;1;main;H;5650;5650;19;1.618;Bathycoccus prasinos;0.378;;7a3a749d6cf5e4110d6e8c919205d423
+kysthjelperne_2025;2134;sample;2024-11-09;exact;59.851;10.688;log;Hellviktangen, Nesodden;;1200;1.22;3.557;;;;;;;1;1;1;main;R;0;0;0;;;;no_reads;96eae2c13a0387ad431a5b56d40729f8
+kysthjelperne_2025;2137;sample;2024-11-21;exact;59.889;10.593;log;Snarøya;;1200;1.099;3.12;;;;;;;1;1;1;main;R;2515;2515;9;0.275;Dinophyceae;0.949;;a47db4148214d71ff8465c8b2b59a2d3
+kysthjelperne_2025;2138;sample;2024-12-09;exact;59.870;10.655;log;Other;;1200;1.005;2.796;14.621;;;;;;1;1;1;main;H;17103;17103;28;1.203;Evadne sp._Evadne nordmanni_Evadne sp. 12NJNB0017_Evadne sp. 12NJNB0019_Evadne sp. 12NJNB0018_Evadne spinifera_Evadne sp. 12NJNB0016;0.456;;96eae2c13a0387ad431a5b56d40729f8
+kysthjelperne_2025;2140;sample;;missing;59.870;10.655;station;Indre_vest;;;1.378;4.11;;;;;;;1;1;1;main;H;8119;8119;22;0.625;Dinophyceae;0.882;;
+kysthjelperne_2025;2141;sample;2024-12-09;exact;59.887;10.733;log;Oslo;;1200;0.7187;1.78;12.514;;;;;;1;1;1;main|M;H;3419;3419;19;1.039;Hematodinium;0.739;;2c1f7112051f3380b48bc7dd1fb8d69b
+kysthjelperne_2025;2143;sample;2025-02-15;exact;59.556;10.240;log;Holmestrand;;1200;0.204;9.49;26.5633;;;;;;1;1;1;main;H;35567;35567;24;1.609;Paracalanus parvus;0.328;;df5a13db546eb82d2636119d1a09c20f
+kysthjelperne_2025;2173;sample;2024-12-01;exact;59.909;10.643;log;Lysaker;;1200;1.81;2.84;;;;;;;1;1;1;main;H;7400;7400;25;1.539;Polydora onagawaensis;0.541;;a47db4148214d71ff8465c8b2b59a2d3
+kysthjelperne_2025;2243;sample;2025-01-30;exact;59.679;10.553;workbook;Sætre;;;;;16.5788;;;;;;1;1;1;main;H;22181;22181;24;0.785;Heterocapsa rotundata;0.778;;
+kysthjelperne_2025;2247;sample;2025-06-16;exact;59.909;10.643;log;Lysaker;;1200;0.1401;148.1;;;;;;;1;1;1;main;H;1895;1895;18;1.246;Micromonas commoda_Micromonas pusilla;0.426;;a47db4148214d71ff8465c8b2b59a2d3
+kysthjelperne_2025;2249;sample;2025-01-20;exact;59.057;10.411;log;Færder/Tjøme;;1200;11.93;31.41;40.716;;;;;;1;1;1;main;H;38994;38994;37;1.342;Paracalanus parvus;0.576;;be5513fa44e66b4eeefae63f754b9b93
+kysthjelperne_2025;2250;sample;2024-12-08;exact;59.852;10.557;log;Høyerholmen;;1200;1.16;2.915;12.397;;;;;;1;1;1;main;R;0;0;0;;;;no_reads;9e61e7cbe03cc29bdb9caf59f17bf7eb
+kysthjelperne_2025;2255;sample;2025-01-30;exact;59.676;10.567;log;Sætre;;960;;;23.838;;;;;;1;1;1;main;H;21088;21088;37;1.279;Bathycoccus prasinos;0.618;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2259;sample;2025-06-09;exact;59.888;10.592;log;Fornebu;;1200;0.07828;89.84;;;;;;;1;1;1;main;R;1374;1374;2;0.126;Bathycoccus prasinos;0.972;;a47db4148214d71ff8465c8b2b59a2d3
+kysthjelperne_2025;2263;sample;2025-01-30;exact;59.684;10.542;log;Sætre;;900;;;14.376;;;;;;1;1;1;main;H;3557;3557;19;1.223;Heterocapsa rotundata;0.604;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2266;sample;2024-12-17;exact;59.461;10.358;workbook;Holmestrand;;;4.83;11.83;8.788;;;;;;1;1;1;main;H;15235;15235;40;1.887;Abra alba;0.371;;
+kysthjelperne_2025;2271;sample;2025-03-10;exact;59.461;10.358;log;Holmestrand;;1200;0.2231;24.69;42.1201;;;;;;1;1;1;main;H;32474;32474;31;1.207;Thalassiosira nordenskioeldii;0.584;;7fa0929973ce316d6a28a1dce7a8c02a
+kysthjelperne_2025;2273;sample;2025-03-15;exact;59.901;10.750;log;Oslo;;1200;0.07902;14.36;11.9386;;;;;;1;1;1;main;R;296;296;10;1.695;uncultured dinoflagellate_Margalefidinium polykrikoides;0.47;low_reads;2c1f7112051f3380b48bc7dd1fb8d69b
+kysthjelperne_2025;2274;sample;2024-11-28;exact;59.895;10.674;log;Hukodden;;1200;;;11.117;;;;;;1;1;1;main|R;H;43;43;6;1.552;Hematodinium;0.419;low_reads;9e61e7cbe03cc29bdb9caf59f17bf7eb
+kysthjelperne_2025;2279;sample;2025-01-17;exact;59.881;10.764;workbook;Oslo;;1200;5.37;13.305;16.276;;;;;;1;1;1;main;H;11230;11230;36;2.386;Harmothoe imbricata_Harmothoe aff. imbricata CMC02;0.236;;a24ae07b3122ef647104922e70dbc785
+kysthjelperne_2025;2281;sample;2025-02-03;exact;59.461;10.358;log;Holmestrand;;1200;;;25.1803;;;;;;1;1;1;main;H;27800;27800;30;1.527;Heterocapsa rotundata;0.356;;7fa0929973ce316d6a28a1dce7a8c02a
+kysthjelperne_2025;2282;sample;2024-12-01;exact;59.888;10.592;log;Fornebu;;1200;0.948;2.59;;;;;;;1;1;1;main;H;7476;7469;21;1.715;Dinophyceae;0.397;;a47db4148214d71ff8465c8b2b59a2d3
+kysthjelperne_2025;2285;sample;2025-01-30;exact;59.665;10.601;log;Sætre;;1200;;;29.5496;;;;;;1;1;1;main;H;8024;8024;34;1.912;Harmothoe imbricata_Harmothoe aff. imbricata CMC02;0.36;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2287;sample;2025-01-13;exact;59.851;10.688;log;Hellviktangen, Nesodden;;1200;16.619;44.33;23.466;;;;;;1;1;1;main;H;6406;6393;43;1.794;Acartia hudsonica_Acartia tonsa;0.554;;96eae2c13a0387ad431a5b56d40729f8
+kysthjelperne_2025;2292;sample;2025-01-07;exact;59.683;10.544;log;Sætre;;1200;;;10.669;;;;;;1;1;1;main;H;3799;3799;34;2.187;Heterocapsa rotundata;0.373;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2308;sample;2025-03-07;exact;59.027;10.067;log;Larvik;;900;0.1261;4.605;18.5164;;;;;;1;1;1;main;R;14;14;2;0.52;Bathycoccus prasinos;0.786;low_reads;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2312;sample;2025-03-07;exact;59.023;10.096;log;Larvik;;1200;0.9232;75.29;45.6311;;;;;;1;1;1;main;H;13862;13862;25;0.937;Thalassiosira nordenskioeldii;0.752;;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2329;sample;2024-12-11;exact;59.386;10.480;log;Horten;;1200;22.89;80.148;8.269;;;;;;1;1;1;main;H;1018;1018;17;2.011;Hematodinium;0.332;;348700a113af14aeb6f7fa984de95e84
+kysthjelperne_2025;2373;sample;2024-11-20;exact;59.461;10.358;log;Holmestrand;;1200;1.176;3.4;;;;;;;1;1;1;main;H;9246;9246;20;0.71;Heterocapsa rotundata;0.822;;7fa0929973ce316d6a28a1dce7a8c02a
+kysthjelperne_2025;2374;sample;2024-11-17;exact;59.852;10.557;log;Høyerholmen;;1200;8.18;28.17;19.634;;;;;;1;1;1;main;R;642;642;7;1.232;Bathycoccus prasinos;0.461;;9e61e7cbe03cc29bdb9caf59f17bf7eb
+kysthjelperne_2025;2503;sample;2024-12-11;exact;59.368;10.515;log;Horten;;1200;3.31;10.948;9.468;;;;;;1;1;1;main;H;3339;3326;17;1.834;Paracalanus parvus;0.427;;348700a113af14aeb6f7fa984de95e84
+kysthjelperne_2025;2504;sample;2025-02-07;exact;59.023;10.096;log;Larvik;;1200;;;44.3022;;;;;;1;1;1;main;H;16826;16826;21;1.586;Heterocapsa;0.355;;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2505;sample;2025-02-20;exact;59.901;10.750;log;Oslo;;1200;;;25.1728;;;;;;1;1;1;main;H;15792;15792;11;0.266;Bathycoccus prasinos;0.952;;2c1f7112051f3380b48bc7dd1fb8d69b
+kysthjelperne_2025;2507;sample;2024-12-09;exact;59.666;10.584;log;Sætre;;1200;5.76;19.61;13.11;;;;;;1;1;1;main;H;3297;3297;25;2.045;Pseudochattonella farcimen;0.335;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2509;sample;2024-12-26;exact;59.053;10.226;log;Sandefjord2 Svinevika;;1200;;;12.1805;;;;;;1;1;1;main;H;1180;1180;22;1.655;Bathycoccus prasinos;0.591;;7a3a749d6cf5e4110d6e8c919205d423
+kysthjelperne_2025;2510;sample;2025-02-03;exact;59.910;10.643;log;Lysaker;;1200;;;32.6942;;;;;;1;1;1;main;H;31050;31050;30;1.202;Polydora onagawaensis;0.491;;a47db4148214d71ff8465c8b2b59a2d3
+kysthjelperne_2025;2512;sample;2025-01-11;exact;59.023;10.096;log;Larvik;;1200;15.54;41.36;19.762;;;;;;1;1;1;main;H;9790;9790;30;1.335;Harmothoe imbricata_Harmothoe aff. imbricata CMC02;0.669;;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2517;sample;2025-01-26;exact;59.053;10.226;log;Sandefjord2 Svinevika;;480;;;19.262;;;;;;1;1;1;main;R;313;313;3;0.418;Bathycoccus prasinos;0.891;low_reads;7a3a749d6cf5e4110d6e8c919205d423
+kysthjelperne_2025;2519;sample;2025-01-07;exact;59.666;10.585;log;Sætre;;1200;;;11.659;;;;;;1;1;1;main|R;H;322;322;9;1.369;Bathycoccus prasinos;0.584;low_reads;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2520;sample;2025-01-21;exact;59.368;10.515;log;Horten;;1200;;;16.329;;;;;;1;1;1;main;H;20428;20412;37;1.729;Heterocapsa;0.421;;051cee7dc82efd058d2ea560d6726cc5
+kysthjelperne_2025;2521;sample;2025-02-09;exact;59.896;10.755;log;Oslofjorden;;900;;;70.4763;;;;;;1;1;1;main;H;8507;8507;18;0.37;Bathycoccus prasinos;0.933;;ff5abbe6116f8c355287f72570b1bcd6
+kysthjelperne_2025;2522;sample;2025-02-05;exact;59.722;10.727;log;Bunnefjorden;;1200;;;12.089;;;;;;1;1;1;main;H;1660;1660;7;0.36;Bathycoccus prasinos;0.929;;c5e7dbe0f95f578bec9dceceeb067224
+kysthjelperne_2025;2523;sample;2025-01-18;exact;59.745;10.725;log;Bunnefjorden;;480;;;26.443;;;;;;1;1;1;main;H;8204;8204;7;0.994;Candidatus Methylopumilus planktonicus_Candidatus Methylopumilus universalis;0.571;;8136611bee5ace8cd677ea5c4728a8fd
+kysthjelperne_2025;2524;sample;2025-06-02;exact;59.722;10.727;log;Bunnefjorden;;1200;0.3948;42.88;;;;;;;1;1;1;main;H;12900;12900;22;1.706;Oithona similis;0.3;;c5e7dbe0f95f578bec9dceceeb067224
+kysthjelperne_2025;2525;sample;2025-02-17;exact;59.896;10.674;log;Huk;;1200;0.1092;9.901;12.3348;;;;;;1;1;1;main;R;31;31;2;0.491;Bathycoccus prasinos;0.806;low_reads;9e61e7cbe03cc29bdb9caf59f17bf7eb
+kysthjelperne_2025;2526;sample;2025-01-11;exact;59.870;10.655;log;Other;;1200;1.82;1.2;27.064;;;;;;1;1;1;main;H;25572;25572;48;1.565;Dinophyceae;0.496;;96eae2c13a0387ad431a5b56d40729f8
+kysthjelperne_2025;2528;sample;2024-12-09;exact;59.664;10.601;log;Sætre;;1200;34.406;120.848;8.593;;;;;;1;1;1;main;H;3424;3424;24;1.634;Dinophyceae;0.613;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2529;sample;2025-02-07;exact;59.027;10.067;log;Larvik;;1200;;;;;;;;;1;0;1;main;H;13786;13786;35;1.05;Heterocapsa rotundata;0.766;;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2530;sample;;;;;;;;;;;;;;;;;0;0;1;main;H;277;277;15;2.431;Craspedacusta sowerbii;0.162;low_reads;
+kysthjelperne_2025;2536;sample;2025-05-26;exact;59.895;10.679;log;Hukodden;;1200;0.1457;48.28;;;;;;;1;1;1;main;R;1184;1184;5;0.958;Bathycoccus prasinos;0.649;;9e61e7cbe03cc29bdb9caf59f17bf7eb
+kysthjelperne_2025;2538;sample;2025-02-24;exact;59.881;10.764;workbook;Oslo;;1200;0.2821;298.8;33.6641;;;;;;1;1;1;main;H;3258;3258;26;2.045;Candidatus Pelagibacterales;0.371;;a24ae07b3122ef647104922e70dbc785
+kysthjelperne_2025;2539;sample;2025-01-05;exact;59.664;10.601;log;Sætre;;1200;;;17.86;;;;;;1;1;1;main;R;3;3;1;-0.0;Hematodinium;1.0;low_reads;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2542;sample;2025-02-07;exact;59.870;10.655;log;Other;;1200;;;28.9175;;;;;;1;1;1;main;H;2379;2379;17;1.954;Spio;0.407;;96eae2c13a0387ad431a5b56d40729f8
+kysthjelperne_2025;2544;sample;2025-01-07;exact;59.676;10.567;log;Sætre;;1200;;;17.577;;;;;;1;1;1;main;H;9132;9132;40;2.387;Heterocapsa rotundata;0.254;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2549;sample;2025-02-16;exact;59.052;10.226;log;Sandefjord2 Svinevika;;1200;0.08818;25.24;28.1264;;;;;;1;1;1;main;H;37246;37246;27;1.937;Paracalanus parvus;0.336;;7a3a749d6cf5e4110d6e8c919205d423
+kysthjelperne_2025;2551;sample;2025-06-07;exact;59.027;10.067;log;Larvik;;1200;0.1029;29.26;;;;;;;1;1;1;main;R;1822;1822;3;0.488;Bathycoccus prasinos;0.845;;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2560;sample;2025-06-30;exact;59.057;10.411;log;Færder/Tjøme;;960;0.262;27.85;;;;;;;1;1;1;main;R;293;293;6;1.251;Bittium reticulatum;0.468;low_reads;be5513fa44e66b4eeefae63f754b9b93
+kysthjelperne_2025;2562;sample;2025-04-08;exact;59.676;10.567;log;Furuholmen;;1200;0.225;17.69;10.2858;;;;;;1;1;1;main;H;5654;5654;8;1.416;Heterocapsa rotundata;0.371;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2563;sample;2025-04-08;exact;59.684;10.542;log;Dynea;;1200;0.6295;67.17;10.275;;;;;;1;1;1;main;H;32228;32228;16;1.202;Bathycoccus prasinos;0.384;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2565;sample;2025-04-08;exact;59.027;10.067;log;Larvik;;1200;0.875;55.06;13.0155;;;;;;1;1;1;main;H;19273;19273;19;1.555;Micromonas commoda_Micromonas pusilla;0.438;;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2566;sample;2025-04-08;exact;59.683;10.544;log;Chemring;;1200;0.257;66.66;12.2614;;;;;;1;1;1;main;H;23367;23367;17;1.257;Heterocapsa rotundata;0.461;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2567;sample;2025-06-07;exact;59.023;10.096;log;Larvik;;1200;0.08773;40.1;;;;;;;1;1;1;main;R;8961;8961;17;0.678;Paracalanus parvus;0.864;;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2570;sample;2025-03-08;exact;59.679;10.553;log;Sætre;;900;0.345;7.056;13.8888;;;;;;1;1;1;main;R;2431;2431;6;1.022;Heterocapsa rotundata;0.686;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2572;sample;2025-02-27;exact;59.467;10.629;log;Moss;;1200;0.182;12.74;21.5959;;;;;;1;1;1;main;R;2;2;1;-0.0;Littorina littorea;1.0;low_reads;6c33dea46c6e813f5767671e5bec8984
+kysthjelperne_2025;2573;sample;2025-05-05;exact;59.461;10.358;log;Holmestrand;;1200;0.1085;41.85;8.41373;;;;;;1;1;1;main;R;19;19;1;-0.0;Bathycoccus prasinos;1.0;low_reads;7fa0929973ce316d6a28a1dce7a8c02a
+kysthjelperne_2025;2575;sample;2025-03-02;exact;59.909;10.643;log;Lysaker;;1200;0.1428;58.58;23.1074;;;;;;1;1;1;main;H;25730;25730;11;0.973;Heterocapsa rotundata;0.664;;a47db4148214d71ff8465c8b2b59a2d3
+kysthjelperne_2025;2579;sample;2025-04-08;exact;59.023;10.096;log;Larvik;;1200;0.4675;27.72;8.04067;;;;;;1;1;1;main;H;23656;23656;17;1.206;Micromonas commoda_Micromonas pusilla;0.46;;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2582;sample;2025-03-22;exact;59.052;10.227;log;Sandefjord2 Svinevika;;600;0.1275;5.084;26.9774;;;;;;1;1;1;main;H;3079;3079;16;1.298;Heterocapsa rotundata;0.669;;f3b27c9602977b7c9e97b35d275123a9
+kysthjelperne_2025;2583;sample;2025-03-19;exact;59.368;10.515;log;Horten;;1200;0.08346;21.86;18.9976;;;;;;1;1;1;main;H;20730;20730;21;0.858;Heterocapsa rotundata;0.807;;e994e98353216fb5305bd3e48b4f979b
+kysthjelperne_2025;2584;sample;2025-03-31;exact;59.461;10.358;log;Holmestrand;;1200;0.07461;8.296;13.8348;;;;;;1;1;1;main;R;20;20;3;1.049;Bathycoccus prasinos;0.45;low_reads;7fa0929973ce316d6a28a1dce7a8c02a
+kysthjelperne_2025;2585;sample;2025-03-22;exact;59.096;10.250;log;Sandefjord1 Tangen;;600;0.2401;61.14;50.0864;;;;;;1;1;1;main;H;15751;15751;21;1.361;Heterocapsa rotundata;0.504;;7a3a749d6cf5e4110d6e8c919205d423
+kysthjelperne_2025;2588;sample;2025-08-01;exact;59.461;10.358;log;Holmestrand;;1200;0.0877;45.66;;;;;;;1;1;1;main;R;2106;2106;6;0.311;Penilia avirostris_uncultured Jiaozhou Bay zooplankton;0.936;;7fa0929973ce316d6a28a1dce7a8c02a
+kysthjelperne_2025;2590;sample;2025-03-03;exact;59.722;10.727;log;Bunnefjorden;;900;0.2607;7.654;17.6044;;;;;;1;1;1;main;H;38596;38596;27;1.245;Harmothoe imbricata_Harmothoe aff. imbricata CMC02;0.577;;c5e7dbe0f95f578bec9dceceeb067224
+kysthjelperne_2025;2592;sample;2025-05-02;exact;59.901;10.750;log;Oslo;;1200;0.2126;15.86;11.0759;;;;;;1;1;1;main;R;5827;5827;4;0.41;Micromonas commoda_Micromonas pusilla;0.868;;2c1f7112051f3380b48bc7dd1fb8d69b
+kysthjelperne_2025;2594;sample;2025-03-08;exact;59.870;10.655;log;Other;;900;0.1415;78.75;36.8603;;;;;;1;1;1;main;H;33516;33516;15;0.307;Heterocapsa rotundata;0.941;;96eae2c13a0387ad431a5b56d40729f8
+kysthjelperne_2025;2595;sample;2025-03-18;exact;59.896;10.755;log;Oslofjorden;;480;0.2906;43.77;20.2347;;;;;;1;1;1;main;H;371;371;18;1.632;Heterocapsa rotundata;0.609;low_reads;ff5abbe6116f8c355287f72570b1bcd6
+kysthjelperne_2025;2598;sample;2025-03-08;exact;59.684;10.542;workbook;Sætre;;;0.2705;7.978;12.0542;;;;;;1;1;1;main;H;68;68;4;1.213;Heterocapsa rotundata;0.441;low_reads;
+kysthjelperne_2025;2599;sample;2025-03-08;exact;59.665;10.601;log;Sætre;;1200;0.1292;30.48;23.7943;;;;;;1;1;1;main;H;9389;9389;20;1.224;Thalassiosira nordenskioeldii;0.546;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2600;sample;2025-03-08;exact;59.676;10.566;log;Sætre;;1200;0.0717;6.278;28.1715;;;;;;1;1;1;main;H;21927;21927;24;1.123;Thalassiosira nordenskioeldii;0.46;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2601;sample;2025-03-25;year_assumed;59.275;10.695;workbook;Engelsviken;;;0.07214;5.133;9.97772;;;;;;1;1;1;main;H;2421;2421;12;1.297;Bathycoccus prasinos;0.615;;
+kysthjelperne_2025;2614;sample;2025-06-06;exact;59.676;10.567;log;Furuholmen;;1200;0.08677;86.51;;;;;;;1;1;1;main;H;8657;8657;22;1.508;Obelia dichotoma_Obelia geniculata_Obelia sp. 2 SL-2013;0.565;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2617;sample;2025-04-29;exact;59.368;10.515;log;Horten;;1200;0.2448;16.26;11.2226;;;;;;1;1;1;main;H;3303;3303;9;0.954;Heterocapsa rotundata;0.694;;e994e98353216fb5305bd3e48b4f979b
+kysthjelperne_2025;2618;sample;2025-04-08;exact;59.665;10.601;log;Ailo fiskeplass;;1200;0.2607;15.82;10.1449;;;;;;1;1;1;main;H;7070;7070;11;1.332;Heterocapsa rotundata;0.436;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2622;sample;2025-07-02;exact;59.461;10.358;log;Holmestrand;;1200;0.1083;61.53;;;;;;;1;1;1;main;R;8752;8752;3;0.016;Bathycoccus prasinos;0.998;;7fa0929973ce316d6a28a1dce7a8c02a
+kysthjelperne_2025;2624;sample;2025-05-25;exact;59.852;10.557;log;Høyerholmen;;1200;0.4654;150.8;;;;;;;1;1;1;main;H;3696;3696;12;0.828;Bathycoccus prasinos;0.803;;9e61e7cbe03cc29bdb9caf59f17bf7eb
+kysthjelperne_2025;2627;sample;2025-05-15;exact;59.722;10.727;log;Bunnefjorden;;600;0.9096;55.78;;;;;;;1;1;1;main;H;3051;3051;14;1.479;Micromonas commoda_Micromonas pusilla;0.562;;c5e7dbe0f95f578bec9dceceeb067224
+kysthjelperne_2025;2629;sample;2025-05-29;exact;59.368;10.515;log;Horten;;1200;0.2412;51.47;;;;;;;1;1;1;main;H;7283;7283;25;1.233;Emiliania huxleyi_Gephyrocapsa muellerae_Gephyrocapsa parvula_Gephyrocapsa ericsonii;0.637;;e994e98353216fb5305bd3e48b4f979b
+kysthjelperne_2025;2630;sample;2025-04-05;exact;59.173;10.447;log;Færder;;1200;0.1185;18.03;22.093;;;;;;1;1;1;main;R;3829;3829;4;0.679;Micromonas commoda_Micromonas pusilla;0.674;;f51d646c28fc2327f3cd182ec576237b
+kysthjelperne_2025;2633;sample;2025-04-08;exact;59.722;10.727;log;Bunnefjorden;;1200;0.416;25;47.6089;;;;;;1;1;1;main;H;32187;32187;28;1.06;Bolinopsis infundibulum;0.721;;c5e7dbe0f95f578bec9dceceeb067224
+kysthjelperne_2025;2634;sample;2025-07-01;exact;59.901;10.750;log;Oslo;;1200;0.1586;12.94;;;;;;;1;1;1;main;R;21904;21904;4;0.171;Bathycoccus prasinos;0.962;;2c1f7112051f3380b48bc7dd1fb8d69b
+kysthjelperne_2025;2635;sample;2025-04-24;exact;59.218;10.690;log;Fredrikstad;;1200;0.165;78.76;;;;;;;1;1;1;main;H;4218;4218;15;1.309;Bathycoccus prasinos;0.544;;2398db9acde284f22d1d78477052b71e
+kysthjelperne_2025;2636;sample;2025-05-09;exact;59.870;10.655;log;Other;;1200;0.09412;19.49;;;;;;;1;1;1;main;R;426;426;5;0.828;Ctenolabrus rupestris;0.768;low_reads;96eae2c13a0387ad431a5b56d40729f8
+kysthjelperne_2025;2639;sample;2025-04-06;exact;59.853;10.556;log;Høyerholmen;;1200;0.1384;22.4;28.0992;;;;;;1;1;1;main;H;3604;3604;8;0.873;Bathycoccus prasinos;0.68;;9e61e7cbe03cc29bdb9caf59f17bf7eb
+kysthjelperne_2025;2643;sample;2025-04-06;exact;59.870;10.655;log;Other;;1200;0.5609;10.87;18.6233;;;;;;1;1;1;main;H;9754;9754;14;0.627;Heterocapsa rotundata;0.86;;96eae2c13a0387ad431a5b56d40729f8
+kysthjelperne_2025;2644;sample;2025-03-31;exact;59.910;10.643;log;Lysaker;;1200;0.1618;26.08;17.349;;;;;;1;1;1;main;H;2200;2200;10;1.067;Heterocapsa rotundata;0.735;;a47db4148214d71ff8465c8b2b59a2d3
+kysthjelperne_2025;2649;sample;2025-05-24;exact;59.901;10.750;log;Oslo;;1200;0.2995;79.27;;;;;;;1;1;1;main;H;15021;15021;23;1.851;Bathycoccus prasinos;0.416;;2c1f7112051f3380b48bc7dd1fb8d69b
+kysthjelperne_2025;2650;sample;2025-06-06;exact;59.684;10.541;log;Dynea;;1200;0.1633;340.8;;;;;;;1;1;1;main;H;241;241;13;2.337;Evadne sp._Evadne nordmanni_Evadne sp. 12NJNB0017_Evadne sp. 12NJNB0019_Evadne sp. 12NJNB0018_Evadne spinifera_Evadne sp. 12NJNB0016;0.183;low_reads;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2678;sample;2025-06-27;exact;59.386;10.480;log;Horten;;1200;0.09373;31.95;;;;;;;1;1;1;main;R;44;44;3;0.533;Bathycoccus prasinos;0.841;low_reads;e994e98353216fb5305bd3e48b4f979b
+kysthjelperne_2025;2679;sample;2025-06-06;exact;59.870;10.655;log;Other;;1200;0.06738;48.85;;;;;;;1;1;1;main;R;3;3;1;-0.0;Temora longicornis;1.0;low_reads;96eae2c13a0387ad431a5b56d40729f8
+kysthjelperne_2025;2684;sample;2025-06-06;exact;59.666;10.585;log;Sandspollen;;1200;0.0703;40.3;;;;;;;1;1;1;main;R;1189;1189;5;0.794;Paracalanus parvus;0.622;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2691;sample;2025-05-07;exact;59.023;10.096;log;Larvik;;1200;0.1042;49.11;;;;;;;1;1;1;main;R;4343;4343;7;0.917;Bathycoccus prasinos;0.682;;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2694;sample;2025-06-06;exact;59.683;10.543;log;Chemring;;1200;0.138;189;;;;;;;1;1;1;main;H;3832;3832;31;1.948;Bathycoccus prasinos;0.477;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2696;sample;2025-06-27;exact;59.368;10.515;log;Horten;;1200;0.1228;18;;;;;;;1;1;1;main;R;255;255;5;0.716;Echinoidea;0.82;low_reads;e994e98353216fb5305bd3e48b4f979b
+kysthjelperne_2025;2698;sample;2025-05-07;exact;59.027;10.067;log;Larvik;;1200;0.1844;182;;;;;;;1;1;1;main;R;453;453;6;0.561;Bathycoccus prasinos;0.865;low_reads;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;2701;sample;2025-05-08;exact;59.909;10.643;log;Lysaker;;1200;0.141;63.21;;;;;;;1;1;1;main;R;92;92;7;1.694;Micromonas commoda_Micromonas pusilla;0.315;low_reads;9a0daa9933d23a2bf23782c647d5cc86
+kysthjelperne_2025;2703;sample;2025-05-08;exact;59.888;10.592;log;Fornebu;;1200;0.132;252.4;;;;;;;1;1;1;main;R;2201;2201;3;0.14;Bathycoccus prasinos;0.973;;9a0daa9933d23a2bf23782c647d5cc86
+kysthjelperne_2025;2704;sample;2025-05-13;exact;59.676;10.566;log;Sandspollen;;240;0.1535;39.04;18.3966;;;;;;1;1;1;main;R;18;18;3;0.849;Bathycoccus prasinos;0.667;low_reads;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2705;sample;2025-05-13;exact;59.679;10.552;log;Chemring;;1200;0.3611;28.32;;;;;;;1;1;1;main;H;411;411;13;2.135;Bathycoccus prasinos;0.231;low_reads;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2707;sample;2025-06-09;exact;59.767;10.725;log;Bunnefjorden;;1200;0.1367;17.48;;;;;;;1;1;1;main;R;23919;23919;2;0.504;Bathycoccus prasinos;0.797;;9b134a5e967a6a6c03abfe1aea474b2a
+kysthjelperne_2025;2708;sample;2025-06-30;exact;59.881;10.764;workbook;Oslo;;1200;0.05306;24.05;;;;;;;1;1;1;main;R;4023;4023;2;0.014;Bathycoccus prasinos;0.998;;a24ae07b3122ef647104922e70dbc785
+kysthjelperne_2025;2709;sample;2025-05-13;exact;59.684;10.542;log;Dynea;;1200;0.5958;204;;;;;;;1;1;1;main;R;44;44;2;0.507;Bathycoccus prasinos;0.795;low_reads;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2710;sample;2025-06-06;exact;59.665;10.601;log;Ailo fiskeplass;;1200;0.2075;88.91;;;;;;;1;1;1;main;H;15762;15762;36;2.438;Paracalanus parvus;0.264;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2712;sample;2025-05-13;exact;59.676;10.566;log;Furuholmen;;1200;0.3451;111.9;;;;;;;1;1;1;main;H;1101;1101;14;1.64;Bathycoccus prasinos;0.457;;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2714;sample;;;;;;;;;;;;;;;;;0;0;1;main;H;4408;4408;22;1.338;Micromonas commoda_Micromonas pusilla;0.565;;
+kysthjelperne_2025;2718;sample;2025-05-13;exact;59.665;10.601;log;Ailo fiskeplass;;240;;;;;;;;;1;0;1;main;R;14;14;3;0.992;Bathycoccus prasinos;0.5;low_reads;6a7b42d586e80aa5f3e758ea49325732
+kysthjelperne_2025;2721;sample;;;;;;;;;;;;;;;;;0;0;1;main;R;85;85;1;-0.0;Bathycoccus prasinos;1.0;low_reads;
+kysthjelperne_2025;2724;sample;;;;;;;;;;;;;;;;;0;0;1;main;R;19839;19839;4;0.203;Bathycoccus prasinos;0.955;;
+kysthjelperne_2025;2725;sample;;;;;;;;;;;;;;;;;0;0;1;main;H;5654;5654;14;0.554;Bathycoccus prasinos;0.863;;
+kysthjelperne_2025;MOCK-H;positive_control;;;;;;;;;;;;;;;;;0;0;1;main;H;26330;26330;16;1.87;Littorina littorea;0.322;;
+kysthjelperne_2025;MOCK-H-2;positive_control;;;;;;;;;;;;;;;;;0;0;1;main;H;25193;25193;17;1.856;Littorina littorea;0.311;;
+kysthjelperne_2025;MOCK-H-3;positive_control;;;;;;;;;;;;;;;;;0;0;1;main;H;18552;18552;17;1.862;Littorina littorea;0.3;;
+kysthjelperne_2025;MOCK-M;positive_control;;;;;;;;;;;;;;;;;0;0;1;main;M;24255;24255;13;1.795;Littorina littorea;0.342;;
+kysthjelperne_2025;MOCK-R;positive_control;;;;;;;;;;;;;;;;;0;0;1;main;R;6636;6636;8;1.372;Pseudamussium peslutrae_Pseudamussium clavatum;0.436;;
+kysthjelperne_2025;N2;negative_control;;;;;;;;;;;;;;;;;0;0;1;main;H;47;47;4;0.93;Meira sp. (in: basidiomycete fungi);0.681;low_reads;
+kysthjelperne_2025;N2660;negative_control;2025-05-07;exact;59.027;10.067;log;Larvik;;;;;;;;;;;1;0;1;main;H;1645;1645;6;0.615;Homo sapiens;0.836;;92c47b5993cd33b937a4d1cd3bced0b2
+kysthjelperne_2025;N2662;negative_control;2025-05-08;exact;59.896;10.755;log;Oslo fjorden;;250;;;;;;;;;1;0;1;main;H;619;619;4;0.481;Homo sapiens;0.869;;ff5abbe6116f8c355287f72570b1bcd6
+kysthjelperne_2025;N2664;negative_control;2025-05-13;exact;59.676;10.566;workbook;Sætre;;;;;;;;;;;1;0;1;main;H;6444;6444;8;0.701;Homo sapiens;0.805;;
+kysthjelperne_2025;N2670;negative_control;2025-05-15;exact;59.722;10.727;log;Bunnefjorden;;;;;;;;;;;1;0;1;main;H;19;19;2;0.436;Bathycoccus prasinos;0.842;low_reads;c5e7dbe0f95f578bec9dceceeb067224
+kysthjelperne_2025;N4;negative_control;;;;;;;;;;;;;;;;;0;0;1;main;H;352;352;4;0.959;Homo sapiens;0.594;low_reads;
+kysthjelperne_2025;N5;negative_control;;;;;;;;;;;;;;;;;0;0;1;main;H;69;69;3;1.047;Meira sp. (in: basidiomycete fungi);0.478;low_reads;
+kysthjelperne_2025;N6;negative_control;;;;;;;;;;;;;;;;;0;0;1;main;H;73;73;2;0.126;Meira sp. (in: basidiomycete fungi);0.973;low_reads;
+kysthjelperne_2025;PCR-neg-H;negative_control;;;;;;;;;;;;;;;;;0;0;1;main;H;9099;9099;59;2.913;Pseudochattonella farcimen;0.14;;
+kysthjelperne_2025;PCR-neg-H-2;negative_control;;;;;;;;;;;;;;;;;0;0;1;main;H;3;3;1;-0.0;Penilia avirostris_uncultured Jiaozhou Bay zooplankton;1.0;low_reads;
+kysthjelperne_2025;PCR-neg-M;negative_control;;;;;;;;;;;;;;;;;0;0;1;main;M;342;342;1;-0.0;Homo sapiens;1.0;low_reads;
+kysthjelperne_2025;PCR-neg-R;negative_control;;;;;;;;;;;;;;;;;0;0;1;main;R;0;0;0;;;;no_reads;

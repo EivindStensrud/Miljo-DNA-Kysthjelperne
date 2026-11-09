@@ -972,8 +972,18 @@ function campaignColor(project) {
     return CAMPAIGN_PALETTE[Math.max(0, list.indexOf(project)) % CAMPAIGN_PALETTE.length];
 }
 // "Torsk (Gadus morhua)" when a Norwegian name is known, otherwise just the scientific name
+// Two naming styles: "Gadus_morhua" (2022: '_' = space) and "Acartia hudsonica_Acartia tonsa" (LCA table: names have
+// spaces and '_' separates species the LCA could not tell apart; '_13B' inside a strain name is not a separator).
+function taxonAlternatives(taxon) {
+    return taxon.includes(' ') ? taxon.split(/_(?=[^\d_])/).filter(Boolean) : [taxon.replace(/_/g, ' ')];
+}
+const taxonSci = taxon => taxonAlternatives(taxon).join(' / ');
+function taxonShort(taxon) {            // for chart axes: first alternative + how many more
+    const a = taxonAlternatives(taxon);
+    return a.length > 1 ? `${taxonLabel(a[0])} (+${a.length - 1} more)` : taxonLabel(taxon);
+}
 function taxonLabel(taxon) {
-    const sci = taxon.replace(/_/g, ' ');
+    const sci = taxonSci(taxon);
     const n = taxonNames.get(taxon);
     return n && n.no ? `${n.no.charAt(0).toUpperCase()}${n.no.slice(1)} (${sci})` : sci;
 }
@@ -996,7 +1006,7 @@ function parseEdnaRows(rows) {
         tn: numOrNull(r.tn_mgl), toc: numOrNull(r.toc_mgl), totp: numOrNull(r.totp_ugl), totpFlag: r.totp_flag || '',
         cond: numOrNull(r.cond_mscm), salinity: numOrNull(r.salinity_ppt),
         group: r.nutrient_group || '', qc: new Set((r.qc || '').split(';').filter(Boolean)),
-        hasMeta: r.has_meta === '1', variants: (r.seq_variants || '').split('|').filter(Boolean),
+        hasMeta: r.has_meta === '1', mainRun: r.main_run || '', variants: (r.seq_variants || '').split('|').filter(Boolean),
         readsTotal: numOrNull(r.reads_total), readsIdent: numOrNull(r.reads_identified), richness: numOrNull(r.richness),
         shannon: numOrNull(r.shannon), topTaxon: r.top_taxon || '', topShare: numOrNull(r.top_share),
         seqFlag: r.seq_flag || '', sampler: r.sampler_hash || ''
@@ -1499,7 +1509,11 @@ function unitSub(u) {
 // ---- statistics of a unit: every species, how often found, how large a share of the reads ----------------
 function unitStats(u) {
     if (u._stats) return u._stats;
-    const per = u.samples.map(s => ({ s, m: speciesOf(s.uid) })).filter(x => x.m.size > 0);
+    let per = u.samples.map(s => ({ s, m: speciesOf(s.uid) })).filter(x => x.m.size > 0);
+    // a sample with a handful of reads says little: when a location also has proper samples, leave the thin ones out
+    const good = per.filter(x => !x.s.seqFlag);
+    let lowLeft = 0;
+    if (per.length > 1 && good.length > 0 && good.length < per.length) { lowLeft = per.length - good.length; per = good; }
     const taxa = new Map();
     per.forEach(({ m }) => {
         const total = [...m.values()].reduce((a, b) => a + b, 0);
@@ -1519,7 +1533,7 @@ function unitStats(u) {
     });
     const reads = u.samples.map(sm => sm.readsTotal).filter(v => v !== null);
     u._stats = {
-        n, rows, richness: rows.length, chem, lowReads: u.samples.filter(sm => sm.seqFlag).length,
+        n, rows, richness: rows.length, chem, lowReads: u.samples.filter(sm => sm.seqFlag).length, lowLeft,
         readsMed: reads.length ? median(reads) : null, byTaxon: new Map(rows.map(r => [r.taxon, r])),
         taxaText: rows.map(r => taxonLabel(r.taxon).toLowerCase()).join(' | ')
     };
@@ -1751,8 +1765,13 @@ function renderExploreList() {
 function taxonCell(taxon) {
     const td = h('td', 'py-1 pr-2 align-top');
     const n = taxonNames.get(taxon);
-    const sci = taxon.replace(/_/g, ' ');
-    if (n && n.no) {
+    const alts = taxonAlternatives(taxon);
+    const sci = alts.join(' / ');
+    if (alts.length > 1) {                // ambiguous LCA hit: show the first, the rest on demand
+        td.title = sci;
+        td.appendChild(h('div', 'text-slate-100 italic', alts[0]));
+        td.appendChild(h('div', 'text-[11px] text-slate-400', `or ${alts.length - 1} other species (same marker sequence) – hover for all`));
+    } else if (n && n.no) {
         td.appendChild(h('div', 'text-slate-100', n.no.charAt(0).toUpperCase() + n.no.slice(1)));
         td.appendChild(h('div', 'text-[11px] text-slate-400 italic', sci));
     } else {
@@ -1784,7 +1803,7 @@ function unitCards(u, st) {
         u.samples.forEach(s => { if (groups[s.group] !== undefined) groups[s.group]++; });
         const med = (x, unit) => (x ? `${fmtNum(x.med)} ${unit}` : '–');
         cards.push(
-            statCard('Samples', String(u.samples.length), `${st.n} with species data${st.lowReads ? ` · ${st.lowReads} low-read` : ''}`),
+            statCard('Samples', String(u.samples.length), `${st.n} used for species${st.lowLeft ? ` · ${st.lowLeft} low-read left out` : (st.lowReads ? ` · ${st.lowReads} low-read` : '')}`),
             statCard('Period', u.dates.length ? `${u.dates[0]} →` : '–', u.dates.length ? u.dates[u.dates.length - 1] : ''),
             statCard('Species found', st.n ? `${st.richness} taxa` : '–', st.n ? 'all samples together' : ''),
             statCard('Nutrient groups', `${groups.high} / ${groups.normal} / ${groups.low}`, 'high / normal / low'),
@@ -1871,7 +1890,7 @@ function renderExploreDetails() {
     let rows = st.rows, nUse = st.n;
     if (single && u.samples[0].variants.length > 1) {
         const sel = h('select', 'mt-3 bg-slate-800 border border-slate-600 rounded py-1 px-2 text-xs text-white');
-        u.samples[0].variants.forEach(v => { const o = h('option', '', v === 'main' ? 'main run' : `variant ${v} (another treatment of the same sample)`); o.value = v; sel.appendChild(o); });
+        u.samples[0].variants.forEach(v => { const o = h('option', '', v === 'main' ? `main run${u.samples[0].mainRun ? ` (${u.samples[0].mainRun})` : ''}` : `run/variant ${v} (another sequencing run or treatment of the same sample)`); o.value = v; sel.appendChild(o); });
         sel.value = exploreVariant;
         sel.addEventListener('change', () => { exploreVariant = sel.value; renderExploreDetails(); });
         box.appendChild(sel);
@@ -1928,12 +1947,13 @@ function renderExploreDetails() {
         `${rows.some(r => (taxonNames.get(r.taxon) || {}).status === 'unverified') ? ' (some not yet checked against Artsdatabanken)' : ''}.` : '';
     box.appendChild(h('p', 'text-[11px] text-slate-500 mt-3',
         (nUse > 1 ? 'Share of reads = average over the samples of each sample\'s own shares (every sample counts equally); "Found in" = number of samples where the species was detected. ' : 'Share of reads = reads of the species divided by all identified reads of the sample. ') +
+        (st.lowLeft ? `${st.lowLeft} sample${st.lowLeft === 1 ? '' : 's'} with fewer than ${LOW_READS} reads ${st.lowLeft === 1 ? 'is' : 'are'} left out of this table. ` : '') +
         'Reads are not corrected for sequencing depth, and eDNA shows presence, not numbers of animals.' + names));
 }
 
 function speciesCsvRows(u, st) {
     const out = [['scientific_name', 'norwegian_name', 'share_of_reads_percent', 'reads', 'found_in_samples', 'of_samples']];
-    st.rows.forEach(r => out.push([r.taxon.replace(/_/g, ' '), (taxonNames.get(r.taxon) || {}).no || '', (r.prop * 100).toFixed(2), r.reads, r.present, st.n]));
+    st.rows.forEach(r => out.push([taxonSci(r.taxon), (taxonNames.get(r.taxon) || {}).no || '', (r.prop * 100).toFixed(2), r.reads, r.present, st.n]));
     return out;
 }
 
@@ -2037,7 +2057,7 @@ function renderExploreCompare() {
     exploreCompareChart = new Chart(canvas.getContext('2d'), {
         type: 'bar',
         data: {
-            labels: top.map(r => taxonLabel(r.taxon)),
+            labels: top.map(r => taxonShort(r.taxon)),
             datasets: units.map((u, i) => ({ label: unitLabel(u), backgroundColor: EXPLORE_COLORS[i], borderRadius: 2,
                 data: top.map(r => +((r.cells[i] ? r.cells[i].prop : 0) * 100).toFixed(1)) }))
         },
@@ -2102,7 +2122,7 @@ function comparisonCsvRows(units, rowsM) {
     head.push('found_at_n_locations');
     const out = [head];
     [...rowsM].sort((a, b) => b.maxProp - a.maxProp).forEach(r => {
-        const row = [r.taxon.replace(/_/g, ' '), (taxonNames.get(r.taxon) || {}).no || ''];
+        const row = [taxonSci(r.taxon), (taxonNames.get(r.taxon) || {}).no || ''];
         r.cells.forEach((c, i) => row.push(c ? (c.prop * 100).toFixed(2) : '', c ? `${c.present} of ${unitStats(units[i]).n}` : ''));
         row.push(r.inCount);
         out.push(row);

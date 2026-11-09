@@ -17,7 +17,9 @@ PROJECT_FILE = "project.json"
 TOP_KEYS = {"project", "description", "prepare", "sampling_log", "edna"}
 SAMPLING_KEYS = {"raw", "output", "date_from", "date_to", "no_comments"}
 EDNA_KEYS = {"metadata", "env", "species", "year", "extra_areas", "totp_one_means_below", "coord_decimals",
-             "title", "author", "target_group", "description", "meta_columns", "env_columns"}
+             "title", "author", "target_group", "description", "meta_columns", "env_columns",
+             "species_format", "metadata_format", "run_priority", "id_resolution", "workbook", "workbook_sheet",
+             "station_sheet", "workbook_columns", "qc_limits"}
 
 
 def _warn_unknown(found, allowed, where):

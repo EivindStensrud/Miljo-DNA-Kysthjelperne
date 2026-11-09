@@ -14,13 +14,15 @@ USAGE
     python fetch_taxon_names.py --debug-dir debug        # save the raw answers (to see what the service returned)
 
 HOW THE CSV WORKS  (open it in Excel / a text editor; separator is ;)
-    taxon            name as it appears in the species table (Gadus_morhua)
+    taxon            name as it appears in the species table (Gadus_morhua, or 2025: "Abra alba")
     scientific_name  the same with a space (Gadus morhua)
     norwegian_name   bokmål name that the website shows
     norwegian_name_nn  nynorsk name if it differs
     status           artsdatabanken   found by this script
                      manual           YOU typed the name - never overwritten by this script
                      unverified       a starting suggestion that has not been checked yet
+                     ambiguous        LCA name with several species (A_B_C): not looked up. You may still type a name,
+                                      e.g. a common name that fits all of them (then it becomes 'manual')
                      no_norwegian_name  the taxon exists but Artsdatabanken has no Norwegian name for it
                      not_found        Artsdatabanken does not know this name
                      error            network problem, will be tried again next time
@@ -62,8 +64,17 @@ def nfc(s):
     return unicodedata.normalize("NFC", s or "")
 
 
+ALT = re.compile(r"_(?=[^\d_])")
+
+
+def alternatives(taxon):
+    """2022 style 'Gadus_morhua' ('_' = space) -> 1 name.  LCA style 'Acartia hudsonica_Acartia tonsa' (names have
+    spaces, '_' separates species that the marker cannot tell apart) -> 2 names.  '_13B' inside a strain name stays."""
+    return ALT.split(taxon) if " " in taxon else [taxon.replace("_", " ")]
+
+
 def sci(taxon):
-    return re.sub(r"\s+", " ", taxon.replace("_", " ")).strip()
+    return " / ".join(re.sub(r"\s+", " ", a).strip() for a in alternatives(taxon))
 
 
 # ----------------------------------------------------------------------------------------------
@@ -231,8 +242,12 @@ def main():
             r["status"] = "manual"
             r["source"] = r["source"] or "manual"
 
+    for r in rows.values():                                  # several species in one name: no single Norwegian name exists
+        if len(alternatives(r["taxon"])) > 1 and not r["norwegian_name"]:
+            r["status"], r["source"] = "ambiguous", "LCA: several species share this sequence"
+
     def needs_lookup(r):
-        if r["status"] == "manual":
+        if r["status"] in ("manual", "ambiguous"):
             return False
         if args.recheck:
             return True
@@ -295,7 +310,7 @@ def main():
     print(f"File: {args.names}   ({len(rows)} taxa, {new} added this run)")
     for k, v in st.most_common():
         print(f"   {v:4d}  {k}")
-    missing = sorted(r["scientific_name"] for r in rows.values() if not r["norwegian_name"])
+    missing = sorted(r["scientific_name"] for r in rows.values() if not r["norwegian_name"] and r["status"] != "ambiguous")
     if missing:
         print(f"\nWithout a Norwegian name ({len(missing)}): " + ", ".join(missing[:40]) + (" ..." if len(missing) > 40 else ""))
         print("Type the name in the 'norwegian_name' column (status stays empty or 'manual') - it is kept on re-runs.")

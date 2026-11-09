@@ -1,2 +1,3 @@
 ﻿project;title;author;target_group;description
 kysthjelperne_2022;Fish eDNA - Oslofjord 2022;Lone Kvalheim;fish;Citizen-science eDNA sampling along the Oslofjord. The species table lists fish only.
+kysthjelperne_2025;eDNA metabarcoding - Kysthjelperne 2025;;all organisms;Citizen-science eDNA sampling along the Oslofjord. The species list comes from an LCA classification of metabarcoding reads and covers all organism groups, not only fish. A name with 'or N other species' means the sequence could not separate those species.

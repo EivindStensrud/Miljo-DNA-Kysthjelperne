@@ -1,87 +1,508 @@
 ﻿taxon;scientific_name;norwegian_name;norwegian_name_nn;status;source;taxon_id;accepted_name;checked
+Abra alba;Abra alba;;;;;;;
+Abra nitida;Abra nitida;;;;;;;
 Abramis_brama;Abramis brama;brasme;;unverified;suggestion, not checked;;;2026-10-21
+Acartia;Acartia;;;;;;;
+Acartia hudsonica_Acartia tonsa;Acartia hudsonica / Acartia tonsa;;;ambiguous;LCA: several species share this sequence;;;
+Acartia tonsa;Acartia tonsa;;;;;;;
+Acarus siro;Acarus siro;;;;;;;
+Acrochaetium sp. 1NL;Acrochaetium sp. 1NL;;;;;;;
+Aequorea vitrina;Aequorea vitrina;;;;;;;
+Ahnfeltia plicata;Ahnfeltia plicata;;;;;;;
+Akashiwo;Akashiwo;;;;;;;
+Akashiwo sanguinea;Akashiwo sanguinea;;;;;;;
+Alcyonidium polyoum;Alcyonidium polyoum;;;;;;;
+Alderia modesta;Alderia modesta;;;;;;;
+Alexandrium;Alexandrium;;;;;;;
+Alexandrium tamarense_Alexandrium sp. CCMP2079_Alexandrium sp. CCMP2080_Alexandrium sp. CCMP2724_Alexandrium pseudogonyaulax_Alexandrium minutum_Alexandrium sp. RFS-2009a_Alexandrium fundyense_Alexandrium concavum_Alexandrium catenella;Alexandrium tamarense / Alexandrium sp. CCMP2079 / Alexandrium sp. CCMP2080 / Alexandrium sp. CCMP2724 / Alexandrium pseudogonyaulax / Alexandrium minutum / Alexandrium sp. RFS-2009a / Alexandrium fundyense / Alexandrium concavum / Alexandrium catenella;;;ambiguous;LCA: several species share this sequence;;;
+Alitta succinea_Hediste diversicolor;Alitta succinea / Hediste diversicolor;;;ambiguous;LCA: several species share this sequence;;;
+Alitta virens;Alitta virens;;;;;;;
+Alphaproteobacteria;Alphaproteobacteria;;;;;;;
+Alphaproteobacteria bacterium US3C007;Alphaproteobacteria bacterium US3C007;;;;;;;
+Ameronothrus;Ameronothrus;;;;;;;
 Ammodytes_marinus;Ammodytes marinus;;;error;;;;2026-10-21
+Amphibalanus improvisus_Balanus sp.;Amphibalanus improvisus / Balanus sp.;;;ambiguous;LCA: several species share this sequence;;;
+Amphiura filiformis;Amphiura filiformis;;;;;;;
+Ancyromonas sigmoides;Ancyromonas sigmoides;;;;;;;
 Anguilla_anguilla;Anguilla anguilla;ål;;unverified;suggestion, not checked;;;2026-10-21
+Ansanella granifera;Ansanella granifera;;;;;;;
+Anser anser_Anser indicus_Anser cygnoides;Anser anser / Anser indicus / Anser cygnoides;;;ambiguous;LCA: several species share this sequence;;;
+Aphanomyces;Aphanomyces;;;;;;;
 Aphia;Aphia;;;error;;;;2026-10-21
 Aphia_minuta;Aphia minuta;;;error;;;;2026-10-21
+Apiospora arundinis;Apiospora arundinis;;;;;;;
+Aporrhais pespelecani;Aporrhais pespelecani;;;;;;;
+Arenicola marina;Arenicola marina;;;;;;;
+Arthropoda;Arthropoda;;;;;;;
+Arthropoda sp.;Arthropoda sp.;;;;;;;
+Arthropoda sp._Ramularia vizellae;Arthropoda sp. / Ramularia vizellae;;;ambiguous;LCA: several species share this sequence;;;
+Ascophyllum nodosum;Ascophyllum nodosum;;;;;;;
+Aspergillus tennesseensis_Aspergillus creber_Aspergillus puulaauensis;Aspergillus tennesseensis / Aspergillus creber / Aspergillus puulaauensis;;;ambiguous;LCA: several species share this sequence;;;
+Aspergillus versicolor_Aspergillus sydowii_Aspergillus amoenus;Aspergillus versicolor / Aspergillus sydowii / Aspergillus amoenus;;;ambiguous;LCA: several species share this sequence;;;
+Asterias rubens;Asterias rubens;;;;;;;
+Asterionella formosa;Asterionella formosa;;;;;;;
+Asterochloris sp. CNOR1;Asterochloris sp. CNOR1;;;;;;;
+Athripsodes cinereus_Trichoptera sp. BOLD:AAI7977;Athripsodes cinereus / Trichoptera sp. BOLD:AAI7977;;;ambiguous;LCA: several species share this sequence;;;
+Attheya;Attheya;;;;;;;
+Audouinella hermannii;Audouinella hermannii;;;;;;;
+Aulacoseira ambigua;Aulacoseira ambigua;;;;;;;
+Aureobasidium lini_Aureobasidium leucospermi_Arthropoda sp._Humulus lupulus_Aureobasidium pullulans;Aureobasidium lini / Aureobasidium leucospermi / Arthropoda sp. / Humulus lupulus / Aureobasidium pullulans;;;ambiguous;LCA: several species share this sequence;;;
+Aureobasidium melanogenum;Aureobasidium melanogenum;;;;;;;
+Aureococcus anophagefferens;Aureococcus anophagefferens;;;;;;;
+Azadinium dalianense_Azadinium cf. poporum HJ-2011_Azadinium poporum_uncultured Thecadinium_Azadinium obesum_Azadinium spinosum_uncultured Peridinium_Protoceratium reticulatum_Lingulaulax polyedra_uncultured dinoflagellate_Thoracosphaera heimii;Azadinium dalianense / Azadinium cf. poporum HJ-2011 / Azadinium poporum / uncultured Thecadinium / Azadinium obesum / Azadinium spinosum / uncultured Peridinium / Protoceratium reticulatum / Lingulaulax polyedra / uncultured dinoflagellate / Thoracosphaera heimii;;;ambiguous;LCA: several species share this sequence;;;
+Azadinium dalianense_Azadinium cf. poporum HJ-2011_Azadinium poporum_uncultured Thecadinium_uncultured dinoflagellate_Azadinium obesum_Azadinium spinosum;Azadinium dalianense / Azadinium cf. poporum HJ-2011 / Azadinium poporum / uncultured Thecadinium / uncultured dinoflagellate / Azadinium obesum / Azadinium spinosum;;;ambiguous;LCA: several species share this sequence;;;
+Balanus balanus_Balanus crenatus_Balanus sp. HLC-26164_Balanus sp. HLC-26166_Balanus sp. HLC-26162_Balanus sp. HLC-26165;Balanus balanus / Balanus crenatus / Balanus sp. HLC-26164 / Balanus sp. HLC-26166 / Balanus sp. HLC-26162 / Balanus sp. HLC-26165;;;ambiguous;LCA: several species share this sequence;;;
+Balanus crenatus_Amphibalanus improvisus_Balanus balanus_Balanus sp. HLC-26165;Balanus crenatus / Amphibalanus improvisus / Balanus balanus / Balanus sp. HLC-26165;;;ambiguous;LCA: several species share this sequence;;;
+Balanus crenatus_Balanus balanus_Balanus sp. HLC-26162_Balanus sp. HLC-26165_Amphibalanus improvisus;Balanus crenatus / Balanus balanus / Balanus sp. HLC-26162 / Balanus sp. HLC-26165 / Amphibalanus improvisus;;;ambiguous;LCA: several species share this sequence;;;
+Balanus sp. HLC-26164_Balanus balanus_Balanus crenatus_Balanus sp. HLC-26162_Balanus sp. HLC-26165;Balanus sp. HLC-26164 / Balanus balanus / Balanus crenatus / Balanus sp. HLC-26162 / Balanus sp. HLC-26165;;;ambiguous;LCA: several species share this sequence;;;
+Balanus sp. HLC-26165_Balanus crenatus_Balanus balanus_Balanus sp. HLC-26164_Balanus sp. HLC-26166_Amphibalanus improvisus;Balanus sp. HLC-26165 / Balanus crenatus / Balanus balanus / Balanus sp. HLC-26164 / Balanus sp. HLC-26166 / Amphibalanus improvisus;;;ambiguous;LCA: several species share this sequence;;;
+Baltidrilus costatus;Baltidrilus costatus;;;;;;;
+Bangia sp. 2BAN;Bangia sp. 2BAN;;;;;;;
+Bathycoccus prasinos;Bathycoccus prasinos;;;;;;;
 Belone_belone;Belone belone;horngjel;;unverified;suggestion, not checked;;;2026-10-21
+beta proteobacterium CB;beta proteobacterium CB;;;;;;;
+Betaproteobacteria;Betaproteobacteria;;;;;;;
+Bittium reticulatum;Bittium reticulatum;;;;;;;
+Blumeria graminis f. sp. tritici;Blumeria graminis f. sp. tritici;;;;;;;
+Bolinopsis;Bolinopsis;;;;;;;
+Bolinopsis infundibulum;Bolinopsis infundibulum;;;;;;;
+Bos taurus_Bos indicus_Gastrotricha sp.;Bos taurus / Bos indicus / Gastrotricha sp.;;;ambiguous;LCA: several species share this sequence;;;
+Bougainvillia muscus;Bougainvillia muscus;;;;;;;
+Bradyrhizobium sp. SK17;Bradyrhizobium sp. SK17;;;;;;;
+Brissopsis lyrifera;Brissopsis lyrifera;;;;;;;
 Buglossidium_luteum;Buglossidium luteum;;;error;;;;2026-10-21
+Burkholderiaceae bacterium;Burkholderiaceae bacterium;;;;;;;
+Cadophora malorum;Cadophora malorum;;;;;;;
+Calanus euxinus_Calanus helgolandicus;Calanus euxinus / Calanus helgolandicus;;;ambiguous;LCA: several species share this sequence;;;
+Calanus finmarchicus;Calanus finmarchicus;;;;;;;
+Calanus helgolandicus_Calanus euxinus;Calanus helgolandicus / Calanus euxinus;;;ambiguous;LCA: several species share this sequence;;;
 Callionymus_lyra;Callionymus lyra;;;error;;;;2026-10-21
 Callionymus_maculatus;Callionymus maculatus;;;error;;;;2026-10-21
+Candidatus Levibacter;Candidatus Levibacter;;;;;;;
+Candidatus Methylopumilus;Candidatus Methylopumilus;;;;;;;
+Candidatus Methylopumilus planktonicus_Candidatus Methylopumilus universalis;Candidatus Methylopumilus planktonicus / Candidatus Methylopumilus universalis;;;ambiguous;LCA: several species share this sequence;;;
+Candidatus Methylopumilus universalis;Candidatus Methylopumilus universalis;;;;;;;
+Candidatus Njordibacter;Candidatus Njordibacter;;;;;;;
+Candidatus Pelagibacter;Candidatus Pelagibacter;;;;;;;
+Candidatus Pelagibacter bacterium nBUS_44;Candidatus Pelagibacter bacterium nBUS_44;;;;;;;
+Candidatus Pelagibacterales;Candidatus Pelagibacterales;;;;;;;
+Candidatus Pelagibacterales bacterium;Candidatus Pelagibacterales bacterium;;;;;;;
+Candidatus Planktophila;Candidatus Planktophila;;;;;;;
+Candidatus Pseudothioglobus;Candidatus Pseudothioglobus;;;;;;;
+Candidatus Pseudothioglobus singularis_Candidatus Pseudothioglobus singularis PS1;Candidatus Pseudothioglobus singularis / Candidatus Pseudothioglobus singularis PS1;;;ambiguous;LCA: several species share this sequence;;;
+Canis lupus familiaris_Canis lupus;Canis lupus familiaris / Canis lupus;;;ambiguous;LCA: several species share this sequence;;;
+Canis lupus familiaris_Canis lupus baileyi_Canis lupus;Canis lupus familiaris / Canis lupus baileyi / Canis lupus;;;ambiguous;LCA: several species share this sequence;;;
+Capitella sp. TD67;Capitella sp. TD67;;;;;;;
+Catriona aurantia;Catriona aurantia;;;;;;;
+Centropages;Centropages;;;;;;;
+Centropages hamatus;Centropages hamatus;;;;;;;
+Centropages typicus;Centropages typicus;;;;;;;
+Cephalothrix filiformis_Cephalothrix linearis_Cephalothrix sp. 08PROBE-0126_Cephalothrix sp. ZMMU WS16338_Cephalothrix spiralis;Cephalothrix filiformis / Cephalothrix linearis / Cephalothrix sp. 08PROBE-0126 / Cephalothrix sp. ZMMU WS16338 / Cephalothrix spiralis;;;ambiguous;LCA: several species share this sequence;;;
+Cephalothrix spiralis_Cephalothrix linearis_Cephalothrix sp. 08PROBE-0126_Cephalothrix filiformis;Cephalothrix spiralis / Cephalothrix linearis / Cephalothrix sp. 08PROBE-0126 / Cephalothrix filiformis;;;ambiguous;LCA: several species share this sequence;;;
+Chaetoceros;Chaetoceros;;;;;;;
+Chaetoceros tenuissimus;Chaetoceros tenuissimus;;;;;;;
+Cheilostomatida sp.;Cheilostomatida sp.;;;;;;;
+Chloroparvula pacifica;Chloroparvula pacifica;;;;;;;
+Chloropicon roscoffensis;Chloropicon roscoffensis;;;;;;;
 Ciliata;Ciliata;;;error;;;;2026-10-21
 Ciliata_mustela;Ciliata mustela;;;error;;;;2026-10-21
 Ciliata_septentrionalis;Ciliata septentrionalis;;;error;;;;2026-10-21
+Cladosporium sphaerospermum;Cladosporium sphaerospermum;;;;;;;
+Cladosporium velox_Cladosporium cladosporioides;Cladosporium velox / Cladosporium cladosporioides;;;ambiguous;LCA: several species share this sequence;;;
 Clupea_harengus;Clupea harengus;sild;;unverified;suggestion, not checked;;;2026-10-21
 Clupeidae;Clupeidae;;;error;;;;2026-10-21
+Clytia hemisphaerica_Clytia sp. 1 SL-2013_Halecium labrosum;Clytia hemisphaerica / Clytia sp. 1 SL-2013 / Halecium labrosum;;;ambiguous;LCA: several species share this sequence;;;
+Clytia sp. 1 SL-2013_Clytia hemisphaerica;Clytia sp. 1 SL-2013 / Clytia hemisphaerica;;;ambiguous;LCA: several species share this sequence;;;
+Clytia sp. 2 SL-2013_Clytia hemisphaerica_Clytia gracilis;Clytia sp. 2 SL-2013 / Clytia hemisphaerica / Clytia gracilis;;;ambiguous;LCA: several species share this sequence;;;
+Coccus hesperidum_Eulecanium sp. 1-FH-2023_Coccus pseudomagnoliarum;Coccus hesperidum / Eulecanium sp. 1-FH-2023 / Coccus pseudomagnoliarum;;;ambiguous;LCA: several species share this sequence;;;
+Corymorpha nutans;Corymorpha nutans;;;;;;;
+Coryphella verrucosa_Flabellina sp. KL01;Coryphella verrucosa / Flabellina sp. KL01;;;ambiguous;LCA: several species share this sequence;;;
+Craspedacusta sowerbii;Craspedacusta sowerbii;;;;;;;
+Crustacea environmental sample;Crustacea environmental sample;;;;;;;
 Crystallogobius_linearis;Crystallogobius linearis;;;error;;;;2026-10-21
 Ctenolabrus;Ctenolabrus;;;error;;;;2026-10-21
+Ctenolabrus rupestris;Ctenolabrus rupestris;;;;;;;
 Ctenolabrus_rupestris;Ctenolabrus rupestris;;;error;;;;2026-10-21
+Cutibacterium acnes_Cutibacterium acnes KPA171202_Cutibacterium acnes DSM 1897_Cutibacterium acnes subsp. acnes;Cutibacterium acnes / Cutibacterium acnes KPA171202 / Cutibacterium acnes DSM 1897 / Cutibacterium acnes subsp. acnes;;;ambiguous;LCA: several species share this sequence;;;
+Cyanea lamarckii;Cyanea lamarckii;;;;;;;
+Cyanea sp. (in: jellyfishes)_Cyanea capillata_Cyanea sp. RUMMLMG_Cyanea sp. RUMMIVN_Cyanea sp. ISNEEYJ_Cyanea sp. GBORNTS;Cyanea sp. (in: jellyfishes) / Cyanea capillata / Cyanea sp. RUMMLMG / Cyanea sp. RUMMIVN / Cyanea sp. ISNEEYJ / Cyanea sp. GBORNTS;;;ambiguous;LCA: several species share this sequence;;;
+Cyanea sp. GBORNTS_Cyanea capillata_Cyanea sp. (in: jellyfishes)_Cyanea sp. RUMMLMG_Cyanea sp. RUMMIVN_Cyanea sp. ISNEEYJ;Cyanea sp. GBORNTS / Cyanea capillata / Cyanea sp. (in: jellyfishes) / Cyanea sp. RUMMLMG / Cyanea sp. RUMMIVN / Cyanea sp. ISNEEYJ;;;ambiguous;LCA: several species share this sequence;;;
 Cyclopterus_lumpus;Cyclopterus lumpus;rognkjeks;;unverified;suggestion, not checked;;;2026-10-21
+Cymbomonas tetramitiformis;Cymbomonas tetramitiformis;;;;;;;
+Daphnia laevis_Daphnia galeata_Daphnia mendotae;Daphnia laevis / Daphnia galeata / Daphnia mendotae;;;ambiguous;LCA: several species share this sequence;;;
+Diadumene lineata;Diadumene lineata;;;;;;;
+Didymella sp._Didymella pinodes;Didymella sp. / Didymella pinodes;;;ambiguous;LCA: several species share this sequence;;;
+Dinobryon balticum;Dinobryon balticum;;;;;;;
+Dinophilus vorticoides;Dinophilus vorticoides;;;;;;;
+Dinophyceae;Dinophyceae;;;;;;;
+Dinophysis acuminata_Dinophysis cf. ovum_Dinophysis sacculus;Dinophysis acuminata / Dinophysis cf. ovum / Dinophysis sacculus;;;ambiguous;LCA: several species share this sequence;;;
+Dinophysis caudata_Dinophysis tripos_Dinophysis miles_Dinophysis acuminata_Dinophysis cf. ovum_Dinophysis sacculus_Dinophysis acuta;Dinophysis caudata / Dinophysis tripos / Dinophysis miles / Dinophysis acuminata / Dinophysis cf. ovum / Dinophysis sacculus / Dinophysis acuta;;;ambiguous;LCA: several species share this sequence;;;
+Ditrichocorycaeus anglicus;Ditrichocorycaeus anglicus;;;;;;;
+Ditylum brightwellii;Ditylum brightwellii;;;;;;;
+Dynamena pumila;Dynamena pumila;;;;;;;
+Echiniscoides sp. SigiNorth;Echiniscoides sp. SigiNorth;;;;;;;
+Echinocardium cordatum;Echinocardium cordatum;;;;;;;
+Echinoidea;Echinoidea;;;;;;;
+Edwardsia longicornis;Edwardsia longicornis;;;;;;;
+Eiseniella tetraedra_Eiseniella tetraedra complex sp. L1 DP-2018;Eiseniella tetraedra / Eiseniella tetraedra complex sp. L1 DP-2018;;;ambiguous;LCA: several species share this sequence;;;
+Elachista sp. 1fucicola BOLD-2018;Elachista sp. 1fucicola BOLD-2018;;;;;;;
+Electra;Electra;;;;;;;
+Electra pilosa;Electra pilosa;;;;;;;
+Emiliania huxleyi_Gephyrocapsa muellerae_Gephyrocapsa parvula;Emiliania huxleyi / Gephyrocapsa muellerae / Gephyrocapsa parvula;;;ambiguous;LCA: several species share this sequence;;;
+Emiliania huxleyi_Gephyrocapsa muellerae_Gephyrocapsa parvula_Gephyrocapsa ericsonii;Emiliania huxleyi / Gephyrocapsa muellerae / Gephyrocapsa parvula / Gephyrocapsa ericsonii;;;ambiguous;LCA: several species share this sequence;;;
+Emplectonema gracile;Emplectonema gracile;;;;;;;
 Enchelyopus_cimbrius;Enchelyopus cimbrius;;;error;;;;2026-10-21
 Engraulis;Engraulis;;;error;;;;2026-10-21
+Engraulis encrasicolus;Engraulis encrasicolus;;;;;;;
 Engraulis_encrasicolus;Engraulis encrasicolus;ansjos;;unverified;suggestion, not checked;;;2026-10-21
 Entelurus_aequoreus;Entelurus aequoreus;;;error;;;;2026-10-21
+Eteone longa_Eteone sp.;Eteone longa / Eteone sp.;;;ambiguous;LCA: several species share this sequence;;;
+Eubranchus;Eubranchus;;;;;;;
+Eubranchus exiguus;Eubranchus exiguus;;;;;;;
+Eubranchus sp. BIOUG12670-H09_Eubranchus sp. CCDB22758-G12_Eubranchus rupium_Eubranchus sp. BIOUG12670-H10;Eubranchus sp. BIOUG12670-H09 / Eubranchus sp. CCDB22758-G12 / Eubranchus rupium / Eubranchus sp. BIOUG12670-H10;;;ambiguous;LCA: several species share this sequence;;;
+Eudiaptomus gracilis;Eudiaptomus gracilis;;;;;;;
+eukaryotic synthetic construct_Homo sapiens;eukaryotic synthetic construct / Homo sapiens;;;ambiguous;LCA: several species share this sequence;;;
+eukaryotic synthetic construct_Homo sapiens_Pan troglodytes;eukaryotic synthetic construct / Homo sapiens / Pan troglodytes;;;ambiguous;LCA: several species share this sequence;;;
+eukaryotic synthetic construct_Mus musculus musculus_Homo sapiens;eukaryotic synthetic construct / Mus musculus musculus / Homo sapiens;;;ambiguous;LCA: several species share this sequence;;;
+Eulalia viridis_Eulalia sp. (in: segmented worms);Eulalia viridis / Eulalia sp. (in: segmented worms);;;ambiguous;LCA: several species share this sequence;;;
+Euterpina acutifrons_Euchaeta acutifrons;Euterpina acutifrons / Euchaeta acutifrons;;;ambiguous;LCA: several species share this sequence;;;
+Eutima gracilis;Eutima gracilis;;;;;;;
 Eutrigla_gurnardus;Eutrigla gurnardus;;;error;;;;2026-10-21
+Evadne sp._Evadne nordmanni_Evadne sp. 12NJNB0017_Evadne sp. 12NJNB0019_Evadne sp. 12NJNB0018_Evadne spinifera_Evadne sp. 12NJNB0016;Evadne sp. / Evadne nordmanni / Evadne sp. 12NJNB0017 / Evadne sp. 12NJNB0019 / Evadne sp. 12NJNB0018 / Evadne spinifera / Evadne sp. 12NJNB0016;;;ambiguous;LCA: several species share this sequence;;;
+Evadne sp._Mytilus sp._Mytilus edulis_Mytilus trossulus_Mytilus galloprovincialis;Evadne sp. / Mytilus sp. / Mytilus edulis / Mytilus trossulus / Mytilus galloprovincialis;;;ambiguous;LCA: several species share this sequence;;;
+Favorinus branchialis;Favorinus branchialis;;;;;;;
+Fibrocapsa;Fibrocapsa;;;;;;;
+Filobasidium;Filobasidium;;;;;;;
+Flavobacteriales;Flavobacteriales;;;;;;;
+Flavoplaca marina;Flavoplaca marina;;;;;;;
+Florenciella;Florenciella;;;;;;;
+Fucus distichus;Fucus distichus;;;;;;;
+Fucus serratus_Fucus distichus;Fucus serratus / Fucus distichus;;;ambiguous;LCA: several species share this sequence;;;
+Fucus spiralis_Fucus vesiculosus_Fucus virsoides;Fucus spiralis / Fucus vesiculosus / Fucus virsoides;;;ambiguous;LCA: several species share this sequence;;;
+fungal sp. Pr8;fungal sp. Pr8;;;;;;;
 Gadiculus_argenteus;Gadiculus argenteus;;;error;;;;2026-10-21
 Gadidae;Gadidae;;;error;;;;2026-10-21
 Gadus_morhua;Gadus morhua;torsk;;unverified;suggestion, not checked;;;2026-10-21
+Gallus gallus_Gallus gallus gallus;Gallus gallus / Gallus gallus gallus;;;ambiguous;LCA: several species share this sequence;;;
+Gammarus locusta;Gammarus locusta;;;;;;;
+Gammarus salinus;Gammarus salinus;;;;;;;
+Gammarus wilkitzkii_Gammarus setosus;Gammarus wilkitzkii / Gammarus setosus;;;ambiguous;LCA: several species share this sequence;;;
+Gari fervensis;Gari fervensis;;;;;;;
 Gasterosteus;Gasterosteus;;;error;;;;2026-10-21
 Gasterosteus_aculeatus;Gasterosteus aculeatus;trepigget stingsild;;unverified;suggestion, not checked;;;2026-10-21
+Gattyana cirrhosa;Gattyana cirrhosa;;;;;;;
 Glyptocephalus_cynoglossus;Glyptocephalus cynoglossus;;;error;;;;2026-10-21
 Gobius;Gobius;;;error;;;;2026-10-21
 Gobius_niger;Gobius niger;;;error;;;;2026-10-21
 Gobiusculus;Gobiusculus;;;error;;;;2026-10-21
 Gobiusculus_flavescens;Gobiusculus flavescens;;;error;;;;2026-10-21
+Guinardia delicatula;Guinardia delicatula;;;;;;;
 Gymnocephalus_cernua;Gymnocephalus cernua;hork;;unverified;suggestion, not checked;;;2026-10-21
+Gymnodiniaceae;Gymnodiniaceae;;;;;;;
+Halichoerus grypus;Halichoerus grypus;;;;;;;
+Halichondria dokdoensis_Halichondria sp. HK-2019_Halichondria panicea_Hymeniacidon actites;Halichondria dokdoensis / Halichondria sp. HK-2019 / Halichondria panicea / Hymeniacidon actites;;;ambiguous;LCA: several species share this sequence;;;
+Halichondria panicea_Halichondria sp._Halichondria sitiens_Halichondria sp. akesa;Halichondria panicea / Halichondria sp. / Halichondria sitiens / Halichondria sp. akesa;;;ambiguous;LCA: several species share this sequence;;;
+Halidrys siliquosa;Halidrys siliquosa;;;;;;;
+Harmothoe imbricata_Harmothoe aff. imbricata CMC02;Harmothoe imbricata / Harmothoe aff. imbricata CMC02;;;ambiguous;LCA: several species share this sequence;;;
+Harmothoe rarispina CMC03_Harmothoe rarispina;Harmothoe rarispina CMC03 / Harmothoe rarispina;;;ambiguous;LCA: several species share this sequence;;;
+Hediste sinesimplex_Hediste sp. B1 MT-2022;Hediste sinesimplex / Hediste sp. B1 MT-2022;;;ambiguous;LCA: several species share this sequence;;;
+Hematodinium;Hematodinium;;;;;;;
+Henlea;Henlea;;;;;;;
+Heterocapsa;Heterocapsa;;;;;;;
+Heterocapsa rotundata;Heterocapsa rotundata;;;;;;;
+Heteromastus filiformis_Capitellidae sp. SERC INVERT 2606_Capitellidae sp. SERC INVERT 2819_Capitellidae sp. SERC INVERT 2431_Capitellidae sp. SERC INVERT 2820_Capitellidae sp. CMC01_Mediomastus sp. BIOUG06837-B10_Capitellidae sp. SERC INVERT 2605_Capitellidae sp. SERC INVERT 2598;Heteromastus filiformis / Capitellidae sp. SERC INVERT 2606 / Capitellidae sp. SERC INVERT 2819 / Capitellidae sp. SERC INVERT 2431 / Capitellidae sp. SERC INVERT 2820 / Capitellidae sp. CMC01 / Mediomastus sp. BIOUG06837-B10 / Capitellidae sp. SERC INVERT 2605 / Capitellidae sp. SERC INVERT 2598;;;ambiguous;LCA: several species share this sequence;;;
+Hiatella sp. K HML-2015;Hiatella sp. K HML-2015;;;;;;;
+Hildenbrandia rubra;Hildenbrandia rubra;;;;;;;
+Hildenbrandia sp. 42GWS;Hildenbrandia sp. 42GWS;;;;;;;
+Hildenbrandia sp. 9GWS_Hildenbrandia rubra;Hildenbrandia sp. 9GWS / Hildenbrandia rubra;;;ambiguous;LCA: several species share this sequence;;;
+Hippoglossoides platessoides;Hippoglossoides platessoides;;;;;;;
 Hippoglossoides_platessoides;Hippoglossoides platessoides;;;error;;;;2026-10-21
+Homo sapiens;Homo sapiens;;;;;;;
+Homo sapiens_eukaryotic synthetic construct_Pan troglodytes;Homo sapiens / eukaryotic synthetic construct / Pan troglodytes;;;ambiguous;LCA: several species share this sequence;;;
+Hormonema macrosporum_Sydowia polyspora;Hormonema macrosporum / Sydowia polyspora;;;ambiguous;LCA: several species share this sequence;;;
+Hubrechtella dubia;Hubrechtella dubia;;;;;;;
+Hydra;Hydra;;;;;;;
+Hydra oligactis;Hydra oligactis;;;;;;;
+Hydra vulgaris;Hydra vulgaris;;;;;;;
+Hydroides norvegica;Hydroides norvegica;;;;;;;
+Hypogastrura viatica_Hypogastrura purpurescens_Hypogastrura sp. CONAB791-10_Hypogastrura sp. CONAB790-10_Hypogastrura sp. CONAB787-10;Hypogastrura viatica / Hypogastrura purpurescens / Hypogastrura sp. CONAB791-10 / Hypogastrura sp. CONAB790-10 / Hypogastrura sp. CONAB787-10;;;ambiguous;LCA: several species share this sequence;;;
+Hypogymnia;Hypogymnia;;;;;;;
+Hypogymnia vittata;Hypogymnia vittata;;;;;;;
+Insecta;Insecta;;;;;;;
+Insecta sp.;Insecta sp.;;;;;;;
+Isochrysis galbana;Isochrysis galbana;;;;;;;
+Jaera ischiosetosa_Jaera albifrons_Jaera cf. forsmani_Jaera praehirsuta_Jaera sp.;Jaera ischiosetosa / Jaera albifrons / Jaera cf. forsmani / Jaera praehirsuta / Jaera sp.;;;ambiguous;LCA: several species share this sequence;;;
+Kareniaceae;Kareniaceae;;;;;;;
+Karlodinium veneficum;Karlodinium veneficum;;;;;;;
+Karlodinium veneficum_Takayama acrotrocha_uncultured Kareniaceae;Karlodinium veneficum / Takayama acrotrocha / uncultured Kareniaceae;;;ambiguous;LCA: several species share this sequence;;;
+Karlodinium veneficum_Takayama acrotrocha_uncultured Kareniaceae_Karenia mikimotoi_Karenia selliformis_Karenia papilionacea_Karenia brevis;Karlodinium veneficum / Takayama acrotrocha / uncultured Kareniaceae / Karenia mikimotoi / Karenia selliformis / Karenia papilionacea / Karenia brevis;;;ambiguous;LCA: several species share this sequence;;;
+Knufia petricola;Knufia petricola;;;;;;;
+Kophobelemnon sp. 4 RH-2019_Kophobelemnon sp. ANT59_Kophobelemnon molanderi_Kophobelemnon stelliferum_Kophobelemnon sp. 3 RH-2019_Kophobelemnon sp. 1 RH-2019_Kophobelemnon sp. 2 FJG-2020_Kophobelemnon sp. 1 FJG-2020;Kophobelemnon sp. 4 RH-2019 / Kophobelemnon sp. ANT59 / Kophobelemnon molanderi / Kophobelemnon stelliferum / Kophobelemnon sp. 3 RH-2019 / Kophobelemnon sp. 1 RH-2019 / Kophobelemnon sp. 2 FJG-2020 / Kophobelemnon sp. 1 FJG-2020;;;ambiguous;LCA: several species share this sequence;;;
+Kryptoperidinium triquetrum;Kryptoperidinium triquetrum;;;;;;;
+Kurtiella bidentata;Kurtiella bidentata;;;;;;;
 Labrus_bergylta;Labrus bergylta;berggylt;;unverified;suggestion, not checked;;;2026-10-21
 Labrus_mixtus;Labrus mixtus;;;error;;;;2026-10-21
+Lacuna vincta;Lacuna vincta;;;;;;;
+Laevicardium crassum;Laevicardium crassum;;;;;;;
+Lagenidium caudatum_Salilagenidium myophilum_Pythium sp. CAL-2011c;Lagenidium caudatum / Salilagenidium myophilum / Pythium sp. CAL-2011c;;;ambiguous;LCA: several species share this sequence;;;
+Lagenidium caudatum_Salilagenidium myophilum_Pythium sp. CAL-2011c_Pythium pectinolyticum_Pythium capillosum;Lagenidium caudatum / Salilagenidium myophilum / Pythium sp. CAL-2011c / Pythium pectinolyticum / Pythium capillosum;;;ambiguous;LCA: several species share this sequence;;;
+Lagenidium caudatum_Salilagenidium myophilum_Pythium sp. CAL-2011c_Pythium pectinolyticum_Pythium capillosum_Pythium flevoense;Lagenidium caudatum / Salilagenidium myophilum / Pythium sp. CAL-2011c / Pythium pectinolyticum / Pythium capillosum / Pythium flevoense;;;ambiguous;LCA: several species share this sequence;;;
+Lagis koreni;Lagis koreni;;;;;;;
+Laminaria digitata_Laminaria hyperborea;Laminaria digitata / Laminaria hyperborea;;;ambiguous;LCA: several species share this sequence;;;
 Lampetra_planeri;Lampetra planeri;;;error;;;;2026-10-21
+Larus argentatus_Larus fuscus_Larus occidentalis_Larus brachyrhynchus_Larus fuscus intermedius_Larus fuscus graellsii_Larus cachinnans_Larus dominicanus_birdstrike environmental sample;Larus argentatus / Larus fuscus / Larus occidentalis / Larus brachyrhynchus / Larus fuscus intermedius / Larus fuscus graellsii / Larus cachinnans / Larus dominicanus / birdstrike environmental sample;;;ambiguous;LCA: several species share this sequence;;;
+Larus marinus_Larus hyperboreus_Larus michahellis_Larus argentatus_Larus armenicus;Larus marinus / Larus hyperboreus / Larus michahellis / Larus argentatus / Larus armenicus;;;ambiguous;LCA: several species share this sequence;;;
+Leathesia marina_Leathesia difformis;Leathesia marina / Leathesia difformis;;;ambiguous;LCA: several species share this sequence;;;
+Leptodontidium sp. 2 PMI_412;Leptodontidium sp. 2 PMI_412;;;;;;;
+Leptosiphonia fibrillosa;Leptosiphonia fibrillosa;;;;;;;
 Lesueurigobius_friesii;Lesueurigobius friesii;;;error;;;;2026-10-21
+Leucocryptos marina;Leucocryptos marina;;;;;;;
+Limanda limanda;Limanda limanda;;;;;;;
 Limanda_limanda;Limanda limanda;;;error;;;;2026-10-21
+Limnodrilus hoffmeisteri complex sp. VII_Limnodrilus hoffmeisteri;Limnodrilus hoffmeisteri complex sp. VII / Limnodrilus hoffmeisteri;;;ambiguous;LCA: several species share this sequence;;;
 Liparis_montagui;Liparis montagui;;;error;;;;2026-10-21
+Littorina;Littorina;;;;;;;
+Littorina littorea;Littorina littorea;;;;;;;
+Lizzia blondina;Lizzia blondina;;;;;;;
+Lumbricus rubellus complex sp. CEA_Lumbricus rubellus complex sp. A SM-2016_Lumbricus rubellus;Lumbricus rubellus complex sp. CEA / Lumbricus rubellus complex sp. A SM-2016 / Lumbricus rubellus;;;ambiguous;LCA: several species share this sequence;;;
+Lutraria;Lutraria;;;;;;;
+Macoma balthica;Macoma balthica;;;;;;;
+Malassezia globosa_Cerebratulus environmental sample_Culex bahamensis;Malassezia globosa / Cerebratulus environmental sample / Culex bahamensis;;;ambiguous;LCA: several species share this sequence;;;
 Mallotus_villosus;Mallotus villosus;lodde;;unverified;suggestion, not checked;;;2026-10-21
+Margalefidinium;Margalefidinium;;;;;;;
+Margalefidinium polykrikoides_uncultured dinoflagellate;Margalefidinium polykrikoides / uncultured dinoflagellate;;;ambiguous;LCA: several species share this sequence;;;
+Margaritispora;Margaritispora;;;;;;;
+Marthasterias glacialis;Marthasterias glacialis;;;;;;;
+Meganyctiphanes norvegica_Euphausiacea sp. caab196_Euphausiacea sp. caab201_Euphausiacea sp. caab177_Euphausiacea sp. caab198_Philocheras sp. JMdS-2012;Meganyctiphanes norvegica / Euphausiacea sp. caab196 / Euphausiacea sp. caab201 / Euphausiacea sp. caab177 / Euphausiacea sp. caab198 / Philocheras sp. JMdS-2012;;;ambiguous;LCA: several species share this sequence;;;
+Meira sp. (in: basidiomycete fungi);Meira sp. (in: basidiomycete fungi);;;;;;;
+Melanodothis sp. VS III C KN 2_Cladosporium sp. SL-16_Cladosporium sp. F190_Cladosporium sp.;Melanodothis sp. VS III C KN 2 / Cladosporium sp. SL-16 / Cladosporium sp. F190 / Cladosporium sp.;;;ambiguous;LCA: several species share this sequence;;;
 Melanogrammus_aeglefinus;Melanogrammus aeglefinus;hyse;;unverified;suggestion, not checked;;;2026-10-21
+Melosira;Melosira;;;;;;;
+Membranipora membranacea;Membranipora membranacea;;;;;;;
+Merlangius merlangus;Merlangius merlangus;;;;;;;
 Merlangius_merlangus;Merlangius merlangus;hviting;;unverified;suggestion, not checked;;;2026-10-21
+Methylocystis echinoides;Methylocystis echinoides;;;;;;;
+Methylophilaceae;Methylophilaceae;;;;;;;
+Methylophilaceae bacterium LSUCC0268;Methylophilaceae bacterium LSUCC0268;;;;;;;
+Metridia lucens;Metridia lucens;;;;;;;
+Metridium senile_Metridium sp. HLC-24050_Metridium sp. HLC-30015;Metridium senile / Metridium sp. HLC-24050 / Metridium sp. HLC-30015;;;ambiguous;LCA: several species share this sequence;;;
+Microcalanus pusillus;Microcalanus pusillus;;;;;;;
+Micromonas;Micromonas;;;;;;;
+Micromonas bravo;Micromonas bravo;;;;;;;
+Micromonas commoda_Micromonas pusilla;Micromonas commoda / Micromonas pusilla;;;ambiguous;LCA: several species share this sequence;;;
+Micromonas pusilla CCMP1545_Micromonas pusilla;Micromonas pusilla CCMP1545 / Micromonas pusilla;;;ambiguous;LCA: several species share this sequence;;;
+Micromonas sp. RCC1109_Micromonas pusilla;Micromonas sp. RCC1109 / Micromonas pusilla;;;ambiguous;LCA: several species share this sequence;;;
+Micropsectra contracta_Micropsectra apposita_Insecta sp.;Micropsectra contracta / Micropsectra apposita / Insecta sp.;;;ambiguous;LCA: several species share this sequence;;;
+Microstomum compositum;Microstomum compositum;;;;;;;
+Micrura;Micrura;;;;;;;
+Micrura varicolor;Micrura varicolor;;;;;;;
+Minidiscus spinulatus;Minidiscus spinulatus;;;;;;;
+Mnemiopsis leidyi;Mnemiopsis leidyi;;;;;;;
+Monocorophium insidiosum;Monocorophium insidiosum;;;;;;;
+Monopylephorus rubroniveus;Monopylephorus rubroniveus;;;;;;;
+Monstrilla helgolandica;Monstrilla helgolandica;;;;;;;
+Mrakia gelida;Mrakia gelida;;;;;;;
+Mucor hiemalis_Mucor nidicola;Mucor hiemalis / Mucor nidicola;;;ambiguous;LCA: several species share this sequence;;;
+Mya arenaria;Mya arenaria;;;;;;;
+Mycocalicium subtile;Mycocalicium subtile;;;;;;;
 Myoxocephalus_scorpius;Myoxocephalus scorpius;ulke;;unverified;suggestion, not checked;;;2026-10-21
+Mytilus;Mytilus;;;;;;;
+Mytilus edulis;Mytilus edulis;;;;;;;
+Mytilus edulis complex sp. DC-2011_Mytilus edulis_Mytilus trossulus_Mytilus sp. 200216_13B;Mytilus edulis complex sp. DC-2011 / Mytilus edulis / Mytilus trossulus / Mytilus sp. 200216_13B;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus edulis_Mytilus edulis complex sp. DC-2011;Mytilus edulis / Mytilus edulis complex sp. DC-2011;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus edulis_Mytilus edulis complex sp. DC-2011_Mytilus trossulus_Mytilus sp. 200216_13B;Mytilus edulis / Mytilus edulis complex sp. DC-2011 / Mytilus trossulus / Mytilus sp. 200216_13B;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus edulis_Mytilus galloprovincialis;Mytilus edulis / Mytilus galloprovincialis;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus edulis_Mytilus sp. 200216_13B;Mytilus edulis / Mytilus sp. 200216_13B;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus edulis_Mytilus sp. ME10;Mytilus edulis / Mytilus sp. ME10;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus edulis_Mytilus sp. ME10_Mytilus galloprovincialis_Mytilus sp.;Mytilus edulis / Mytilus sp. ME10 / Mytilus galloprovincialis / Mytilus sp.;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus edulis_Mytilus trossulus;Mytilus edulis / Mytilus trossulus;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus edulis_Mytilus trossulus_Mytilus edulis complex sp. DC-2011;Mytilus edulis / Mytilus trossulus / Mytilus edulis complex sp. DC-2011;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus sp. 200216_13B_Mytilus edulis_Mytilus edulis complex sp. DC-2011_Mytilus trossulus;Mytilus sp. 200216_13B / Mytilus edulis / Mytilus edulis complex sp. DC-2011 / Mytilus trossulus;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus trossulus_Mytilus edulis complex sp. DC-2011;Mytilus trossulus / Mytilus edulis complex sp. DC-2011;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus trossulus_Mytilus edulis complex sp. DC-2011_Mytilus edulis;Mytilus trossulus / Mytilus edulis complex sp. DC-2011 / Mytilus edulis;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus trossulus_Mytilus edulis_Mytilus edulis complex sp. DC-2011;Mytilus trossulus / Mytilus edulis / Mytilus edulis complex sp. DC-2011;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus trossulus_Mytilus edulis_Mytilus edulis complex sp. DC-2011_Mytilus sp. 200216_13B;Mytilus trossulus / Mytilus edulis / Mytilus edulis complex sp. DC-2011 / Mytilus sp. 200216_13B;;;ambiguous;LCA: several species share this sequence;;;
+Mytilus trossulus_Mytilus sp. 200216_13B_Mytilus edulis_Mytilus edulis complex sp. DC-2011;Mytilus trossulus / Mytilus sp. 200216_13B / Mytilus edulis / Mytilus edulis complex sp. DC-2011;;;ambiguous;LCA: several species share this sequence;;;
+Nais elinguis;Nais elinguis;;;;;;;
+Nanomia cara;Nanomia cara;;;;;;;
+Nassarius nitidus_Tritia reticulata;Nassarius nitidus / Tritia reticulata;;;ambiguous;LCA: several species share this sequence;;;
+Nemoura avicularis;Nemoura avicularis;;;;;;;
+Nemurella pictetii;Nemurella pictetii;;;;;;;
+Neocatenulostroma;Neocatenulostroma;;;;;;;
+Neocatenulostroma microsporum;Neocatenulostroma microsporum;;;;;;;
+Nephrops;Nephrops;;;;;;;
+Nephrops norvegicus;Nephrops norvegicus;;;;;;;
+Nereimyra;Nereimyra;;;;;;;
+Nereimyra punctata;Nereimyra punctata;;;;;;;
+Nicolea zostericola;Nicolea zostericola;;;;;;;
+Nitrosomonadales;Nitrosomonadales;;;;;;;
+Nusuttodinium poecilochroum_Nusuttodinium latum;Nusuttodinium poecilochroum / Nusuttodinium latum;;;ambiguous;LCA: several species share this sequence;;;
+Obelia dichotoma_Obelia geniculata_Obelia sp. 2 SL-2013;Obelia dichotoma / Obelia geniculata / Obelia sp. 2 SL-2013;;;ambiguous;LCA: several species share this sequence;;;
+Obelia longissima_Obelia sp. 3 SL-2013_Obelia dichotoma;Obelia longissima / Obelia sp. 3 SL-2013 / Obelia dichotoma;;;ambiguous;LCA: several species share this sequence;;;
+Obelia sp. 1 SL-2013;Obelia sp. 1 SL-2013;;;;;;;
+Oithona similis;Oithona similis;;;;;;;
 Oncorhynchus_gorbuscha;Oncorhynchus gorbuscha;pukkellaks;;unverified;suggestion, not checked;;;2026-10-21
+Onoba semicostata;Onoba semicostata;;;;;;;
 Osmerus_eperlanus;Osmerus eperlanus;krøkle;;unverified;suggestion, not checked;;;2026-10-21
+Ostreococcus tauri;Ostreococcus tauri;;;;;;;
+Pandalus;Pandalus;;;;;;;
+Pandalus borealis;Pandalus borealis;;;;;;;
+Paracalanus;Paracalanus;;;;;;;
+Paracalanus parvus;Paracalanus parvus;;;;;;;
+Paramoeba pemaquidensis;Paramoeba pemaquidensis;;;;;;;
+Paramphinome;Paramphinome;;;;;;;
+Paramphinome jeffreysii;Paramphinome jeffreysii;;;;;;;
+Parmelia squarrosa;Parmelia squarrosa;;;;;;;
+Pasiphaea sivado;Pasiphaea sivado;;;;;;;
+Pectinaria auricoma_Amphictene auricoma;Pectinaria auricoma / Amphictene auricoma;;;ambiguous;LCA: several species share this sequence;;;
+Penicillium sp. SPG-F15_Penicillium sp. 162_3FA_Penicillium palitans_Penicillium fuscoglaucum_Penicillium freii_Penicillium caseifulvum_Penicillium camemberti_Penicillium biforme_Penicillium thymicola_Penicillium sp. MB_Penicillium sp. DTU1_Penicillium cavernicola_Penicillium verrucosum_Penicillium polonicum_Penicillium nordicum_fungal sp. LL11_Penicillium sp. SPG-F1_Penicillium sp. 12 BW-2019_Penicillium solitum;Penicillium sp. SPG-F15 / Penicillium sp. 162_3FA / Penicillium palitans / Penicillium fuscoglaucum / Penicillium freii / Penicillium caseifulvum / Penicillium camemberti / Penicillium biforme / Penicillium thymicola / Penicillium sp. MB / Penicillium sp. DTU1 / Penicillium cavernicola / Penicillium verrucosum / Penicillium polonicum / Penicillium nordicum / fungal sp. LL11 / Penicillium sp. SPG-F1 / Penicillium sp. 12 BW-2019 / Penicillium solitum;;;ambiguous;LCA: several species share this sequence;;;
+Penilia avirostris;Penilia avirostris;;;;;;;
+Penilia avirostris_uncultured Jiaozhou Bay zooplankton;Penilia avirostris / uncultured Jiaozhou Bay zooplankton;;;ambiguous;LCA: several species share this sequence;;;
 Perca_fluviatilis;Perca fluviatilis;abbor;;unverified;suggestion, not checked;;;2026-10-21
+Peringia;Peringia;;;;;;;
+Phaeocystis cf. pouchetii;Phaeocystis cf. pouchetii;;;;;;;
+Phaeocystis globosa;Phaeocystis globosa;;;;;;;
+Phaeophyscia;Phaeophyscia;;;;;;;
+Philine denticulata;Philine denticulata;;;;;;;
 Pholis_gunnellus;Pholis gunnellus;tangsnelle;;unverified;suggestion, not checked;;;2026-10-21
+Pholoe baltica;Pholoe baltica;;;;;;;
+Phoronis muelleri;Phoronis muelleri;;;;;;;
 Phoxinus;Phoxinus;;;error;;;;2026-10-21
+Phoxinus phoxinus_Phoxinus sp. Ex81D6_Phoxinus sp. Ex67E10_Phoxinus sp. Ex73F2_Phoxinus sp. Ex72E2_Phoxinus sp. Ex72E1_Phoxinus sp. Ex63A4_Phoxinus sp. Ex73E11_Phoxinus sp. Ex79B12;Phoxinus phoxinus / Phoxinus sp. Ex81D6 / Phoxinus sp. Ex67E10 / Phoxinus sp. Ex73F2 / Phoxinus sp. Ex72E2 / Phoxinus sp. Ex72E1 / Phoxinus sp. Ex63A4 / Phoxinus sp. Ex73E11 / Phoxinus sp. Ex79B12;;;ambiguous;LCA: several species share this sequence;;;
 Phrynorhombus_norvegicus;Phrynorhombus norvegicus;;;error;;;;2026-10-21
+Phycodrys sp. 1NB;Phycodrys sp. 1NB;;;;;;;
+Phyllophora pseudoceranoides;Phyllophora pseudoceranoides;;;;;;;
+Phymatolithon cf. laevigatum VP-2016_uncultured Corallinales;Phymatolithon cf. laevigatum VP-2016 / uncultured Corallinales;;;ambiguous;LCA: several species share this sequence;;;
+Picochlorum sp. soloecismus;Picochlorum sp. soloecismus;;;;;;;
+Platichthys flesus;Platichthys flesus;;;;;;;
 Platichthys_flesus;Platichthys flesus;skrubbe;;unverified;suggestion, not checked;;;2026-10-21
+Platismatia glauca;Platismatia glauca;;;;;;;
+Pleopis polyphemoides;Pleopis polyphemoides;;;;;;;
 Pleuronectes_platessa;Pleuronectes platessa;rødspette;;unverified;suggestion, not checked;;;2026-10-21
 Pleuronectidae;Pleuronectidae;;;error;;;;2026-10-21
+Podon leuckartii;Podon leuckartii;;;;;;;
+Podosira;Podosira;;;;;;;
 Pollachius;Pollachius;;;error;;;;2026-10-21
 Pollachius_pollachius;Pollachius pollachius;lyr;;unverified;suggestion, not checked;;;2026-10-21
 Pollachius_virens;Pollachius virens;sei;;unverified;suggestion, not checked;;;2026-10-21
+Polyarthra dolichoptera;Polyarthra dolichoptera;;;;;;;
+Polydora;Polydora;;;;;;;
+Polydora cornuta;Polydora cornuta;;;;;;;
+Polydora onagawaensis;Polydora onagawaensis;;;;;;;
+Polynucleobacter;Polynucleobacter;;;;;;;
+Polynucleobacter sp. Adler-ghost;Polynucleobacter sp. Adler-ghost;;;;;;;
 Pomatoschistus;Pomatoschistus;;;error;;;;2026-10-21
 Pomatoschistus_microps;Pomatoschistus microps;;;error;;;;2026-10-21
 Pomatoschistus_minutus;Pomatoschistus minutus;sandkutling;;unverified;suggestion, not checked;;;2026-10-21
 Pomatoschistus_pictus;Pomatoschistus pictus;;;error;;;;2026-10-21
+Pontophilus;Pontophilus;;;;;;;
+Pontophilus norvegicus;Pontophilus norvegicus;;;;;;;
+Prionospio fallax;Prionospio fallax;;;;;;;
+Prorocentrum;Prorocentrum;;;;;;;
+Prorocentrum pervagatum_Prorocentrum sp. S8-82_Prorocentrum sp. S8-27_Prorocentrum sp. S8-88_Prorocentrum sp. S8-95_Prorocentrum minimum_Prorocentrum micans_Prorocentrum sp. ES11-88_uncultured dinoflagellate;Prorocentrum pervagatum / Prorocentrum sp. S8-82 / Prorocentrum sp. S8-27 / Prorocentrum sp. S8-88 / Prorocentrum sp. S8-95 / Prorocentrum minimum / Prorocentrum micans / Prorocentrum sp. ES11-88 / uncultured dinoflagellate;;;ambiguous;LCA: several species share this sequence;;;
+Protoperidinium cf. depressum;Protoperidinium cf. depressum;;;;;;;
+Protoperidinium cf. depressum_uncultured dinoflagellate;Protoperidinium cf. depressum / uncultured dinoflagellate;;;ambiguous;LCA: several species share this sequence;;;
+Protoperidinium cf. depressum_uncultured dinoflagellate_Thoracosphaera heimii;Protoperidinium cf. depressum / uncultured dinoflagellate / Thoracosphaera heimii;;;ambiguous;LCA: several species share this sequence;;;
+Pseudamussium peslutrae_Pseudamussium clavatum;Pseudamussium peslutrae / Pseudamussium clavatum;;;ambiguous;LCA: several species share this sequence;;;
+Pseudo-nitzschia;Pseudo-nitzschia;;;;;;;
+Pseudocalanus acuspes;Pseudocalanus acuspes;;;;;;;
+Pseudocalanus elongatus;Pseudocalanus elongatus;;;;;;;
+Pseudochattonella farcimen;Pseudochattonella farcimen;;;;;;;
+Pseudoscourfieldia marina_Pycnococcus provasolii;Pseudoscourfieldia marina / Pycnococcus provasolii;;;ambiguous;LCA: several species share this sequence;;;
+Psychrobacter;Psychrobacter;;;;;;;
+Pylaiella;Pylaiella;;;;;;;
+Pylaiella littoralis_Pylaiella sp. 1littoralis;Pylaiella littoralis / Pylaiella sp. 1littoralis;;;ambiguous;LCA: several species share this sequence;;;
+Pylaiella washingtoniensis;Pylaiella washingtoniensis;;;;;;;
+Pythiales;Pythiales;;;;;;;
+Ralfsia robertii_Pseudoralfsia verrucosa;Ralfsia robertii / Pseudoralfsia verrucosa;;;ambiguous;LCA: several species share this sequence;;;
+Rana temporaria;Rana temporaria;;;;;;;
 Raniceps_raninus;Raniceps raninus;;;error;;;;2026-10-21
+Rattus norvegicus;Rattus norvegicus;;;;;;;
+Rheocricotopus;Rheocricotopus;;;;;;;
+Rhodobacteraceae bacterium Araon29;Rhodobacteraceae bacterium Araon29;;;;;;;
+Rhodothamniella floridula;Rhodothamniella floridula;;;;;;;
+Rhodotorula graminis_Rhodotorula diobovata_Rhodotorula babjevae;Rhodotorula graminis / Rhodotorula diobovata / Rhodotorula babjevae;;;ambiguous;LCA: several species share this sequence;;;
+Rhodotorula sp. CCFEE 5036_Brevundimonas sp. Br13_Rhodotorula mucilaginosa_Rhodotorula sp. J31;Rhodotorula sp. CCFEE 5036 / Brevundimonas sp. Br13 / Rhodotorula mucilaginosa / Rhodotorula sp. J31;;;ambiguous;LCA: several species share this sequence;;;
+Rhodotorula sp. J31_Rhodotorula sp. CCFEE 5036_Brevundimonas sp. Br13_Rhodotorula mucilaginosa;Rhodotorula sp. J31 / Rhodotorula sp. CCFEE 5036 / Brevundimonas sp. Br13 / Rhodotorula mucilaginosa;;;ambiguous;LCA: several species share this sequence;;;
+Rhombognathides pascens;Rhombognathides pascens;;;;;;;
 Rutilus;Rutilus;;;error;;;;2026-10-21
 Rutilus_rutilus;Rutilus rutilus;mort;;unverified;suggestion, not checked;;;2026-10-21
 Salmo;Salmo;;;error;;;;2026-10-21
+Salmo trutta_Salmo trutta fario;Salmo trutta / Salmo trutta fario;;;ambiguous;LCA: several species share this sequence;;;
 Salmo_salar;Salmo salar;laks;;unverified;suggestion, not checked;;;2026-10-21
 Salmo_trutta;Salmo trutta;ørret;;unverified;suggestion, not checked;;;2026-10-21
 Sardina_pilchardus;Sardina pilchardus;sardin;;unverified;suggestion, not checked;;;2026-10-21
+Sarsia lovenii;Sarsia lovenii;;;;;;;
+Scalibregma inflatum;Scalibregma inflatum;;;;;;;
+Scolelepis foliosa;Scolelepis foliosa;;;;;;;
+Scoloplos armiger;Scoloplos armiger;;;;;;;
 Scomber_scombrus;Scomber scombrus;makrell;;unverified;suggestion, not checked;;;2026-10-21
 Scophthalmus_maximus;Scophthalmus maximus;piggvar;;unverified;suggestion, not checked;;;2026-10-21
 Scophthalmus_rhombus;Scophthalmus rhombus;slettvar;;unverified;suggestion, not checked;;;2026-10-21
+Scrippsiella sp. DINOB785-08_Thoracosphaera heimii_Alexandrium tamarense_Alexandrium sp. CCMP2079_Alexandrium sp. CCMP2080_Alexandrium sp. CCMP2724_Alexandrium pseudogonyaulax_Alexandrium minutum_Alexandrium sp. RFS-2009a_Alexandrium fundyense_Alexandrium concavum;Scrippsiella sp. DINOB785-08 / Thoracosphaera heimii / Alexandrium tamarense / Alexandrium sp. CCMP2079 / Alexandrium sp. CCMP2080 / Alexandrium sp. CCMP2724 / Alexandrium pseudogonyaulax / Alexandrium minutum / Alexandrium sp. RFS-2009a / Alexandrium fundyense / Alexandrium concavum;;;ambiguous;LCA: several species share this sequence;;;
 Scyliorhinus_canicula;Scyliorhinus canicula;småflekket rødhai;;unverified;suggestion, not checked;;;2026-10-21
+Segatella;Segatella;;;;;;;
+Semibalanus balanoides;Semibalanus balanoides;;;;;;;
+Sepiola atlantica_Sepietta oweniana_Sepietta neglecta;Sepiola atlantica / Sepietta oweniana / Sepietta neglecta;;;ambiguous;LCA: several species share this sequence;;;
+Skeletonema marinoi_Skeletonema costatum_Skeletonema dohrnii;Skeletonema marinoi / Skeletonema costatum / Skeletonema dohrnii;;;ambiguous;LCA: several species share this sequence;;;
 Solea_solea;Solea solea;tunge;;unverified;suggestion, not checked;;;2026-10-21
 Spinachia_spinachia;Spinachia spinachia;tangsprell;;unverified;suggestion, not checked;;;2026-10-21
+Spio;Spio;;;;;;;
+Spiophanes bombyx_Spiophanes cf. bombyx VVP-2020;Spiophanes bombyx / Spiophanes cf. bombyx VVP-2020;;;ambiguous;LCA: several species share this sequence;;;
 Sprattus_sprattus;Sprattus sprattus;brisling;;unverified;suggestion, not checked;;;2026-10-21
+Squamamoeba japonica;Squamamoeba japonica;;;;;;;
+Stephanopyxis turris;Stephanopyxis turris;;;;;;;
+Sthenelais limicola;Sthenelais limicola;;;;;;;
+Strongylocentrotus droebachiensis_Strongylocentrotus sp. EAC01_Strongylocentrotus pallidus;Strongylocentrotus droebachiensis / Strongylocentrotus sp. EAC01 / Strongylocentrotus pallidus;;;ambiguous;LCA: several species share this sequence;;;
+Suberitidae;Suberitidae;;;;;;;
+Sundstroemia setigera;Sundstroemia setigera;;;;;;;
 Symphodus_melops;Symphodus melops;;;error;;;;2026-10-21
+Synchaeta baltica_Evadne sp.;Synchaeta baltica / Evadne sp.;;;ambiguous;LCA: several species share this sequence;;;
+Synchaeta cf. tremula/oblonga UO-2012;Synchaeta cf. tremula/oblonga UO-2012;;;;;;;
+Synchaeta gyrina;Synchaeta gyrina;;;;;;;
+Synchaeta oblonga_Synchaeta sp. WM-2017c_Synchaeta sp. AMD-2002_Synchaeta cf. tremula/oblonga UO-2012;Synchaeta oblonga / Synchaeta sp. WM-2017c / Synchaeta sp. AMD-2002 / Synchaeta cf. tremula/oblonga UO-2012;;;ambiguous;LCA: several species share this sequence;;;
+Synchaeta vorax;Synchaeta vorax;;;;;;;
 Syngnathus_acus;Syngnathus acus;;;error;;;;2026-10-21
 Syngnathus_rostellatus;Syngnathus rostellatus;;;error;;;;2026-10-21
 Syngnathus_typhle;Syngnathus typhle;;;error;;;;2026-10-21
+Synura petersenii;Synura petersenii;;;;;;;
+Tachidius discipes;Tachidius discipes;;;;;;;
+Takayama acrotrocha_uncultured Kareniaceae_Karlodinium veneficum;Takayama acrotrocha / uncultured Kareniaceae / Karlodinium veneficum;;;ambiguous;LCA: several species share this sequence;;;
 Taurulus;Taurulus;;;error;;;;2026-10-21
 Taurulus_bubalis;Taurulus bubalis;;;error;;;;2026-10-21
+Teleaulax;Teleaulax;;;;;;;
+Teleaulax amphioxeia;Teleaulax amphioxeia;;;;;;;
+Temora;Temora;;;;;;;
+Temora longicornis;Temora longicornis;;;;;;;
+Thalassionema;Thalassionema;;;;;;;
+Thalassiosira nordenskioeldii;Thalassiosira nordenskioeldii;;;;;;;
+Thoracosphaera heimii_Scrippsiella sp. CS-295/A_Scrippsiella sp. DINOB785-08_Azadinium dalianense_Azadinium cf. poporum HJ-2011_Azadinium poporum_Peridinium sp. ES4-25_Peridinium sp. ES18-113_Peridinium sp. ES18-115_Peridinium sp. ES18-120_Peridinium sp. ES18-117_Peridinium sp. ES18-116_uncultured Thecadinium_Scrippsiella precaria;Thoracosphaera heimii / Scrippsiella sp. CS-295/A / Scrippsiella sp. DINOB785-08 / Azadinium dalianense / Azadinium cf. poporum HJ-2011 / Azadinium poporum / Peridinium sp. ES4-25 / Peridinium sp. ES18-113 / Peridinium sp. ES18-115 / Peridinium sp. ES18-120 / Peridinium sp. ES18-117 / Peridinium sp. ES18-116 / uncultured Thecadinium / Scrippsiella precaria;;;ambiguous;LCA: several species share this sequence;;;
 Thunnus_alalunga;Thunnus alalunga;albakor;;unverified;suggestion, not checked;;;2026-10-21
 Trachinus_draco;Trachinus draco;;;error;;;;2026-10-21
+Trebouxia;Trebouxia;;;;;;;
+Trebouxia aggregata;Trebouxia aggregata;;;;;;;
+Trebouxia aggregata_Trebouxia sp. SL0000003;Trebouxia aggregata / Trebouxia sp. SL0000003;;;ambiguous;LCA: several species share this sequence;;;
 Trisopterus_esmarkii;Trisopterus esmarkii;øyepål;;unverified;suggestion, not checked;;;2026-10-21
 Trisopterus_minutus;Trisopterus minutus;;;error;;;;2026-10-21
+Tulasnella;Tulasnella;;;;;;;
+Tulasnella sp. JGI-2019a;Tulasnella sp. JGI-2019a;;;;;;;
+Turdus pilaris;Turdus pilaris;;;;;;;
+Turritella communis_Turritellinella tricarinata;Turritella communis / Turritellinella tricarinata;;;ambiguous;LCA: several species share this sequence;;;
+uncultured diatom;uncultured diatom;;;;;;;
+uncultured dinoflagellate;uncultured dinoflagellate;;;;;;;
+uncultured dinoflagellate_Gymnodinium sp. NVA/RUS/2008;uncultured dinoflagellate / Gymnodinium sp. NVA/RUS/2008;;;ambiguous;LCA: several species share this sequence;;;
+uncultured dinoflagellate_Margalefidinium polykrikoides;uncultured dinoflagellate / Margalefidinium polykrikoides;;;ambiguous;LCA: several species share this sequence;;;
+uncultured dinoflagellate_Protoceratium reticulatum_Lingulaulax polyedra;uncultured dinoflagellate / Protoceratium reticulatum / Lingulaulax polyedra;;;ambiguous;LCA: several species share this sequence;;;
+uncultured dinoflagellate_Protodinium simplex;uncultured dinoflagellate / Protodinium simplex;;;ambiguous;LCA: several species share this sequence;;;
+uncultured dinoflagellate_uncultured Kareniaceae_Alexandrium tamarense_Alexandrium sp. CCMP2079_Alexandrium sp. CCMP2080_Alexandrium sp. CCMP2724_Alexandrium pseudogonyaulax_Alexandrium minutum_Alexandrium sp. RFS-2009a;uncultured dinoflagellate / uncultured Kareniaceae / Alexandrium tamarense / Alexandrium sp. CCMP2079 / Alexandrium sp. CCMP2080 / Alexandrium sp. CCMP2724 / Alexandrium pseudogonyaulax / Alexandrium minutum / Alexandrium sp. RFS-2009a;;;ambiguous;LCA: several species share this sequence;;;
+uncultured Kareniaceae;uncultured Kareniaceae;;;;;;;
+uncultured Kareniaceae_uncultured dinoflagellate;uncultured Kareniaceae / uncultured dinoflagellate;;;ambiguous;LCA: several species share this sequence;;;
+uncultured Kareniaceae_uncultured dinoflagellate_Karlodinium sp. RS-24;uncultured Kareniaceae / uncultured dinoflagellate / Karlodinium sp. RS-24;;;ambiguous;LCA: several species share this sequence;;;
+uncultured Pseudomonadota bacterium;uncultured Pseudomonadota bacterium;;;;;;;
+Verruca stroemia;Verruca stroemia;;;;;;;
+Vexillifera kereti;Vexillifera kereti;;;;;;;
+Wolbachia endosymbiont of Frankliniella intonsa_Wolbachia endosymbiont (group B) of Camptogramma bilineatum_Erebia montana_Wolbachia endosymbiont (group B) of Athalia cordata_Wolbachia endosymbiont of Diaphorina citri_Wolbachia endosymbiont (group A) of Limnophora tigrina_Wolbachia endosymbiont (group B) of Longitarsus flavicornis;Wolbachia endosymbiont of Frankliniella intonsa / Wolbachia endosymbiont (group B) of Camptogramma bilineatum / Erebia montana / Wolbachia endosymbiont (group B) of Athalia cordata / Wolbachia endosymbiont of Diaphorina citri / Wolbachia endosymbiont (group A) of Limnophora tigrina / Wolbachia endosymbiont (group B) of Longitarsus flavicornis;;;ambiguous;LCA: several species share this sequence;;;
+Woloszynskia;Woloszynskia;;;;;;;
+Woloszynskia sp. ES1-2_Biecheleria cincta_Woloszynskia sp. CS-341_Woloszynskia sp. S4-35_uncultured Woloszynskia_uncultured dinoflagellate;Woloszynskia sp. ES1-2 / Biecheleria cincta / Woloszynskia sp. CS-341 / Woloszynskia sp. S4-35 / uncultured Woloszynskia / uncultured dinoflagellate;;;ambiguous;LCA: several species share this sequence;;;
 Zeugopterus_punctatus;Zeugopterus punctatus;;;error;;;;2026-10-21
+Zymoseptoria tritici;Zymoseptoria tritici;;;;;;;

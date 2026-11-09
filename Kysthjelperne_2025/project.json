@@ -1,11 +1,35 @@
 {
   "project": "kysthjelperne_2025",
-  "description": "PLACEHOLDER - sampling log for 2025. Put the raw survey export in raw/ and adjust the dates.",
-
+  "description": "Kysthjelperne 2025: survey export (sampling log) + eDNA sequence data (LCA table).",
   "sampling_log": {
     "raw": "raw/raw_data.csv",
     "output": "output/safe_sampling_data.csv",
     "date_from": "2025-01-01",
     "date_to": "2025-12-31"
+  },
+  "edna": {
+    "_comment": "The LCA table is matched to the Prove ID in raw_data.csv. Row names H-2013 / R-2013 are two sequencing runs of sample 2013 (kept apart, never added up); H-N2660 = field blank; H-MOCK / H-PCR-neg = lab controls.",
+    "metadata": "raw/raw_data.csv",
+    "metadata_format": "sampling_log",
+    "species": "raw/lca_taxon_table_n.csv",
+    "species_format": "lca",
+    "workbook": "raw/Kysthjelperne_vannkjemi.xlsx",
+    "workbook_sheet": "Metadata",
+    "station_sheet": "Location",
+    "qc_limits": {
+      "toc_mgl_max": null
+    },
+    "run_priority": [
+      "H",
+      "R",
+      "M"
+    ],
+    "id_resolution": {},
+    "year": 2025,
+    "coord_decimals": 3,
+    "title": "eDNA metabarcoding - Kysthjelperne 2025",
+    "target_group": "all organisms",
+    "author": "",
+    "description": "Citizen-science eDNA sampling along the Oslofjord. The species list comes from an LCA classification of metabarcoding reads and covers all organism groups, not only fish. A name with 'or N other species' means the sequence could not separate those species."
   }
 }

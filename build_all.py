@@ -64,7 +64,7 @@ def describe(path, cfg):
     if sl:
         parts.append("sampling log " + ("(raw present)" if sampling_input(cfg).exists() else "(NO raw file yet)"))
     if ed:
-        st, _ = inputs_state(cfg, "edna", ("metadata", "env", "species"))
+        st, _ = inputs_state(cfg, "edna", ("metadata", "env", "species", "workbook"))
         parts.append("eDNA " + {"ok": "(raw present)", "none": "(NO raw files yet)", "partial": "(SOME RAW FILES MISSING)"}[st])
     return f"{path.name:28} code={cfg['project']:26} " + (" + ".join(parts) or "nothing configured")
 
@@ -152,7 +152,7 @@ def main():
             else:
                 print(f" sampling log: no raw file yet ({sampling_input(cfg).relative_to(d) if d in sampling_input(cfg).parents else sampling_input(cfg)}) - skipped")
         if cfg.get("edna"):
-            st, missing = inputs_state(cfg, "edna", ("metadata", "env", "species"))
+            st, missing = inputs_state(cfg, "edna", ("metadata", "env", "species", "workbook"))
             if st == "none":
                 print(" eDNA: no raw files yet - skipped")
             elif st == "partial":

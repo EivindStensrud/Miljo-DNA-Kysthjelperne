@@ -51,9 +51,9 @@
  |     |-- raw/                        raw files (names, e-mail ...)  NEVER PUBLISH
  |           |-- data_cleaned.csv, environmental_data.csv, species_table_lca_n.csv
  |
- |-- Kysthjelperne_2025/               PROJECT: sampling log 2025   (placeholder - adjust)
+ |-- Kysthjelperne_2025/               PROJECT: sampling log 2025 + sequence data (LCA table)
  |     |-- project.json
- |     |-- raw/raw_data.csv
+ |     |-- raw/raw_data.csv, raw/lca_taxon_table_n.csv
  |     |-- output/safe_sampling_data.csv   made by the scripts (safe, intermediate)
  |
  |-- Kysthjelperne_2026/               PROJECT: sampling log 2026   (placeholder - adjust)
@@ -133,7 +133,12 @@
      "author": "Lone Kvalheim",         PUBLIC - only with the person's consent; "" hides it
      "description": "...",
      "meta_columns": {"id": "SampleID", "name": "Collector"},   only if the headers differ
-     "env_columns": {"tn": "Total N"}                           (field -> header in your file)
+     "env_columns": {"tn": "Total N"},                          (field -> header in your file)
+
+     "species_format": "seq_files",     "lca" for an LCA table (rows H-2013, R-2013 ...), see section 12
+     "metadata_format": "table",        "sampling_log" = the survey export is the metadata (2025)
+     "run_priority": ["H", "R", "M"],   which run is used for a sample's statistics when it has several
+     "id_resolution": {}                {"2266": "2024-12-17"}: choose the row when an ID is used twice
    }
  }
 
@@ -228,7 +233,7 @@
    * docs/edna_*.csv and docs/taxon_names.csv are a PREVIEW: the sampler hashes were made with throw-away
      keys and 36 Norwegian names are marked "unverified". Run  python build_all.py  and then
      python fetch_taxon_names.py  with your raw files to replace them with the real thing.
-   * Kysthjelperne_2025 and Kysthjelperne_2026 are PLACEHOLDERS for sampling logs. If your survey
+   * Kysthjelperne_2026 is a PLACEHOLDER for a sampling log (Kysthjelperne_2025 is real: sampling log + LCA table). If your survey
      export also contains 2024, add a Kysthjelperne_2024 project or widen the dates.
      Two projects must not cover the same dates (the merge warns about identical rows).
    * Python 3.8 or newer, nothing to install (standard library only).
@@ -298,3 +303,53 @@
      If the site must run on UiO servers, copy the whole docs/ folder to a UiO web area (ask UiO IT); nothing
      else has to change. Because the data contain pseudonymised sampler codes, check with UiO's data
      protection officer where they may be stored.
+
+
+----------------------------------------------------------------------------------------------
+ 12. SEQUENCE DATA AS AN LCA TABLE  (Kysthjelperne_2025)
+----------------------------------------------------------------------------------------------
+
+   Put raw_data.csv (the survey export) and lca_taxon_table_n.csv in Kysthjelperne_2025/raw/, then:
+        python build_all.py Kysthjelperne_2025
+        python fetch_taxon_names.py            (Norwegian names; ambiguous names are skipped)
+
+   ROW NAMES IN THE LCA TABLE  ->  what the website shows
+        H-2013, R-2013      sample 2013, sequencing run H and run R. Run H is the "main run" (see run_priority);
+                            R is offered in the details panel of the sample. They are not added together.
+        H-N2660             field blank with Prøve ID N2660 -> negative control (has date and position)
+        H-MOCK / Mock/mock  positive control (MOCK-H, MOCK-H-2 ... when a run has several)
+        H-PCR-neg           negative control from the lab (PCR-neg-H, PCR-neg-H-2 ...)
+   Controls are not counted as samples; the negative-control filter and statistics use them.
+
+   MATCHING TO THE SURVEY EXPORT
+        * Prøve ID is compared as a number (2013) or N + number ("N 2666", "N-2664" -> N2666 / N2664).
+        * Empty ID cell: a comment such as "Prøvenr 2013" is used, and the report lists those IDs.
+        * An ID that is used on two rows is only published with date/position when the rows agree, or when
+          you pick one in project.json:  "id_resolution": {"2266": "2024-12-17"}   (date start or station name).
+        * IDs that are not in the export are published without date and position (they cannot be mapped).
+        * Coordinates: decimals, decimal commas, 59°53'21"N, "59,909° N, 10,642° Ø", UTM 33 (N6642685 Ø258538),
+          map links. Anything outside the Oslofjord region is rejected, never published.
+        * Water chemistry and missing positions come from the lab workbook (Kysthjelperne_vannkjemi.xlsx, below).
+
+   SPECIES NAMES
+        "Abra alba"                          one species
+        "Acartia hudsonica_Acartia tonsa"    the LCA could not separate the two: shown as the first name plus
+                                             "or 1 other species", all names on hover and in the CSV download
+   Samples with fewer than 500 reads are flagged (low_reads); in a location with several samples the thin ones are
+   left out of the averages and the page says so.
+
+   THE LAB WORKBOOK  (raw/Kysthjelperne_vannkjemi.xlsx; project.json: "workbook", "workbook_sheet", "station_sheet")
+        * Read by the script itself, nothing to install or convert. Sheet "Metadata" = one row per Sample_Name,
+          sheet "Location" = the nominal position of every station (used when a sample has no coordinates).
+        * ONLY these columns are read: Sample_Name, Collection_date_time, Coordinates, Sample_Location, Sample_Area,
+          TN (mg/L), NPOC (mg/L), ElementalIP (ug/L). Name_sender, Email, Processed_by and Comments are never read.
+        * Chemistry:   TN -> tn_mgl,   NPOC -> toc_mgl (NPOC is the organic carbon measurement),
+                       ElementalIP -> totp_ugl (total phosphorus).   "NA" / empty = not measured.
+        * Missing date / position / area in the survey export are filled from the workbook. The export wins when both
+          have a value; clear disagreements (other day, >1 km) are listed in the report.
+        * Column pos_source in docs/edna_samples.csv says where a position came from:
+            log = survey export,  workbook = the workbook's own coordinates,  station = the station's nominal position
+        * An ID used on two rows of the export is resolved with the station / day from the workbook.
+        * "qc_limits": {"toc_mgl_max": null} switches the upper limit for organic carbon off (the 2022 limit of
+          20 mg/L would hide half of the 2025 NPOC values). Other keys: totp_ugl_max, tn_mgl_min.
+        * Chemistry is only published for samples that have sequence data.
