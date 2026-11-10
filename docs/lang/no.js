@@ -389,6 +389,7 @@ I18N.add({
     "Within area": "Innen område",
     "By chance": "Tilfeldig",
     // ---- groups of locations (groups.js) ----
+    "Sponsors": "Sponsorer",
     "Groups": "Grupper", "Group {x}": "Gruppe {x}", "Group name": "Gruppenavn", "Active group {x}": "Aktiv gruppe {x}", "Share link": "Delingslenke",
     "+ New group": "+ Ny gruppe", "Draw area on map": "Tegn område på kartet", "Copy share link": "Kopier delingslenke",
     "Delete": "Slett", "Undo": "Angre", "Finish": "Fullfør", "Cancel": "Avbryt", "Download": "Last ned", "Locations": "Steder",
